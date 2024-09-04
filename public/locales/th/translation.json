@@ -1,0 +1,27 @@
+{
+    "greeting": "สวัสดี",
+    "description": {
+        "line1": "ทดสอบภาษาไทย ส่วนนี่ {{English}}",
+        "line2": "ยินดีต้อนรับสู่ Makro Lao"
+    },
+    "Appbar": {
+        "zipcode": "รหัสไปรษณีย์",
+        "category": "หมวดหมู่สินค้า",
+        "makroProPoint": "จัดเต็มความคุ้ม แม็คโครลาว",
+        "makromail": "แม็คโครเมล์",
+        "all": "ทั้งหมด"
+    },
+    "Filter": {
+        "filter": "กรอง",
+        "clearFilter": "ล้างตัวคัดกรอง",
+        "priceRange": "ช่วงราคา",
+        "all": "ดูเพิ่มเติม",
+        "stock": "สต๊อก",
+        "instock": "มีสินค้า",
+        "category_name": "หมวดหมู่ย่อย",
+        "brand": "แบรนด์",
+        "promotion": "โปรโมชั่น",
+        "onSale": "ลดราคา",
+        "show": "แสดงผล"
+    }
+}

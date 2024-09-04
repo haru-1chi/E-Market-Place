@@ -1,0 +1,27 @@
+{
+    "greeting": "ສະບາຍດີ",
+    "description": {
+        "line1": "ທົດສອບພາສາລາວ​ ສ່ວນນີ້ {{English}}",
+        "line2": "ຍິນດີຕ້ອນຮັບສູ່ Makro Lao"
+    },
+    "Appbar": {
+        "zipcode": "ລະ​ຫັດ​ໄປ​ສະ​ນີ",
+        "category": "ປະເພດ",
+        "makroProPoint": "ມູນຄ່າເຕັມ ແມ໊ຕໂຕຮໂປຮພອຢທ໌",
+        "makromail": "ແມ໊ຕໂຕຮເມລ໌",
+        "all": "ທັງໝົດ"
+    },
+    "Filter": {
+        "filter": "ກັ່ນຕອງ",
+        "clearFilter": "ລ້າງຕົວກອງ",
+        "priceRange": "ຊ່ວງລາຄາ",
+        "all": "ເບິ່ງເພີ່ມເຕີມ",
+        "stock": "ຫຸ້ນ",
+        "instock": "ໃນ​ສາງ",
+        "category_name": "ໝວດຍ່ອຍ",
+        "brand": "ຍີ່ຫໍ້",
+        "promotion": "ໂປຣໂມຊັນ",
+        "onSale": "ສ່ວນຫຼຸດ",
+        "show": "ສະແດງຜົນ"
+    }
+}
