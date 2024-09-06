@@ -70,7 +70,7 @@ function StatusShippingPage({ orderId }) {
 
     return (
         <>
-            <div className="w-full pt-3 flex flex-column gap-2 justify-content-center">
+            <div className="w-full p-2 flex flex-column gap-2 justify-content-center">
                 <Toast ref={toast}></Toast>
                 <TimelineStatus
                     order={order}
@@ -80,53 +80,55 @@ function StatusShippingPage({ orderId }) {
 
                 {order?.paymentChannel === "bankCounter" ? <SlipPayment /> : ""}
 
-                <div className="bg-section-product flex flex-column border-1 surface-border border-round py-2 px-2 bg-white border-round-mb justify-content-center">
-                    <div className="p-2 lg:flex justify-content-between">
-                        <div>
-                            <p className="m-0 p-0 text-xl font-semibold">
-                                ผู้ขาย: Makro สาขาหนองคาย
-                            </p>
-                            <p className="m-0 p-0">{order?._items?.length} รายการ</p>
-                        </div>
-                        <Button
-                            label="เพิ่มสินค้าทั้งหมดลงตะกร้า"
-                            outlined
-                            rounded
-                            className="w-full lg:w-fit"
-                        />
+                <div className="bg-section-product flex flex-column border-1 surface-border border-round p-2 bg-white border-round-mb justify-content-center">
+                    <div className="p-2 flex align-items-center">
+                        <p className="m-0 mr-2 p-0 text-lg font-semibold">ชื่อร้านค้า</p>
+                        <i className="pi pi-angle-right" style={{ fontSize: '1rem', color: "gray" }}></i>
                     </div>
-                    <div className="surface-200">
-                        <p className="p-0 my-2 mx-3 font-semibold">
-                            {currentStatus?.value}
-                        </p>
-                    </div>
-                    <div className="flex flex-column mx-5">
+                    <div className="flex flex-column mx-1 my-2 gap-2 border-bottom-1 surface-border pb-2">
                         {order?._items?.map((product, index) => (
                             <div
                                 key={index}
-                                className="cart-items flex justify-content-between align-items-center py-2 border-bottom-1 surface-border"
+                                className="cart-items flex justify-content-between n align-items-center pb-1"
                             >
-                                <div className="w-full flex align-items-center">
+                                <div className="w-full flex">
                                     <img
                                         src={product.product_image}
                                         alt={product.product_name}
-                                        width={60}
-                                        height={60}
+                                        width={90}
+                                        height={90}
+                                        className="border-round-lg border-1 surface-border"
                                     />
-                                    <div className="flex flex-column ml-4">
-                                        <span className="mb-1 font-semibold">
-                                            {product.product_name}
-                                        </span>
-                                        <span>{product.quantity} หน่วย</span>
+                                    <div className='w-full flex flex-column justify-content-between ml-3 white-space-nowrap overflow-hidden text-overflow-ellipsis'>
+                                        <div className="flex flex-column">
+                                            <span className="font-semibold text-sm">{product.product_name}</span>
+                                            <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.quantity}</span>
+                                        </div>
+                                        <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.quantity).toLocaleString('en-US')}</span>
                                     </div>
-                                </div>
-                                <div className="w-4 text-right">
-                                    <span className="text-xl font-medium">
-                                        {product.ppu * product.quantity} ฿
-                                    </span>
                                 </div>
                             </div>
                         ))}
+                    </div>
+                    <div className="border-bottom-1 surface-border">
+                        <div className="flex align-items-center justify-content-between p-1">
+                            <p className="m-0 p-0">ยอดรวม</p>
+                            <p className="m-0 p-0 pr-2 font-semibold">
+                                {order?.items_price?.toFixed(2)} ฿
+                            </p>
+                        </div>
+                        <div className="flex align-items-center justify-content-between p-1">
+                            <p className="m-0 p-0">ค่า COD 3%</p>
+                            <p className="m-0 p-0 pr-2 font-semibold">
+                                {order?.cod_price?.toFixed(2)} ฿
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex align-items-center justify-content-end pt-3 pb-2">
+                        <p className="m-0 p-0 mr-2">รวมคำสั่งซื้อ:</p>
+                        <p className="m-0 p-0 pr-2 font-semibold text-900">
+                            {order?.net_price?.toFixed(2)} ฿
+                        </p>
                     </div>
                 </div>
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center">

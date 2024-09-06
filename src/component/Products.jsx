@@ -90,25 +90,25 @@ function Products({ data, startIndex }) {
     const productTemplate = (product) => {
         return (
             product ? (
-                <div className="carousel-product-items border-1 surface-border m-2 py-3 px-3 bg-white border-round-md flex flex-column justify-content-between">
+                <div className="carousel-product-items border-1 surface-border m-2 bg-white flex flex-column">
                     <div className="flex align-items-center justify-content-center">
                         <Link to={`/List-Product/product/${product.product_id}`} state={{ product }}>
                             <img
                                 src={product.product_image}
                                 alt={product.product_name}
-                                className="w-12" />
+                                className="w-12 border-1 surface-border" />
                         </Link>
                     </div>
-                    <div>
-                        <h4 className="m-0 pb-1 border-bottom-1 surface-border">{product.product_name}</h4>
-                        <div className="bg-product flex align-items-center justify-content-between p-2 mt-2">
+                    <div className='h-full px-2 flex flex-column justify-content-between'>
+                        <h4 className="m-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
+                        <div className="flex align-items-center justify-content-between mb-1">
                             <div className='font-bold'>{Number(product.product_price).toLocaleString('en-US')} ฿</div>
-                            <Button
+                            {/* <Button
                                 className='btn-plus-product'
                                 icon="pi pi-plus"
                                 rounded
                                 onClick={() => addCart(product)}
-                            />
+                            /> */}
                         </div>
                     </div>
                 </div>

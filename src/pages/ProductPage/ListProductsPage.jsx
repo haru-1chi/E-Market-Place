@@ -35,6 +35,8 @@ function ListProductsPage() {
   };
   const [filters, setFilters] = useState(defaultFilters);
   const [sortOption, setSortOption] = useState('default'); //sort
+  const [activeTab, setActiveTab] = useState("");
+  const [priceSortOrder, setPriceSortOrder] = useState(null);
 
   const showSuccessToast = () => {
     toast.current.show({
@@ -171,11 +173,58 @@ function ListProductsPage() {
     }
   };
 
+  useEffect(() => {
+    if (activeTab !== "price") {
+      setPriceSortOrder(null);
+    }
+  }, [activeTab]);
+
+  const sortData = () => {
+    let sortedData = [...data];
+    if (activeTab === "new") {
+      sortedData.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
+    } else if (activeTab === "topSales") {
+      sortedData.sort((a, b) => b.sales_count - a.sales_count);
+    } else if (activeTab === "price") {
+      sortedData.sort((a, b) =>
+        priceSortOrder === "asc"
+          ? a.product_price - b.product_price
+          : b.product_price - a.product_price
+      );
+    } else if (activeTab === "popular") {
+      sortedData.sort((a, b) => b.popularity_score - a.popularity_score);
+    }
+    return sortedData;
+  };
+
+
   return (
     <>
       <Toast ref={toast} position="top-center" />
+      <ul className='section-sortbar bg-white flex justify-content-between list-none m-0 px-5 py-0 gap-5 border-bottom-1 surface-border'>
+        <li className={`py-2 list-none cursor-pointer ${activeTab === 'popular' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+          onClick={() => setActiveTab('popular')}>
+          ยอดนิยม
+        </li>
+        <li className={`py-2 list-none cursor-pointer ${activeTab === 'new' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+          onClick={() => setActiveTab('new')}>
+          ใหม่
+        </li>
+        <li className={`py-2 list-none cursor-pointer ${activeTab === 'topSales' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+          onClick={() => setActiveTab('topSales')}>
+          สินค้าขายดี
+        </li>
+        <li className={`py-2 list-none cursor-pointer ${activeTab === 'price' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+          onClick={() => {
+            setActiveTab('price');
+            setPriceSortOrder((prevOrder) => prevOrder === 'asc' ? 'desc' : 'asc');
+          }}>
+          ราคา{" "}
+          <i className={`pi ${priceSortOrder === 'asc' ? 'pi-arrow-down' : priceSortOrder === 'desc' ? 'pi-arrow-up' : 'pi-sort-alt'}`} />
+        </li>
+      </ul>
       <div className="p-3">
-        <div className="flex justify-content-between">
+        {/* <div className="flex justify-content-between">
           <div className="w-full flex justify-content-between align-items-center">
             <h1 className="font-semibold">รายการสินค้า</h1>
             <div className="hidden lg:block">
@@ -201,7 +250,7 @@ function ListProductsPage() {
             />
           </div>
 
-        </div>
+        </div> */}
         <div className="panel w-full flex">
           <div className="hidden lg:block mr-3">
             {data.length > 0 && (
@@ -223,29 +272,29 @@ function ListProductsPage() {
             <>
               {data.length ? (
                 <div className="w-full">
-                  {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา "{searchTerm}"</h2>}
-                  {location.state?.categoryName && <h2 className="mt-0 font-semibold">ผลการค้นหาตามหมวดหมู่ "{location.state?.categoryName}"</h2>}
+                  {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา "{searchTerm}"</h2>}
+                  {location.state?.categoryName && <h2 className="mt-0 font-semibold">ผลการค้นหาตามหมวดหมู่ "{location.state?.categoryName}"</h2>} */}
                   <div className="product-list">
                     {paginatedData.map((product, index) => (
-                      <div key={index} className="relative flex h-22rem md:h-28rem">
-                        <div className="w-full border-1 surface-border border-round p-3 bg-white border-round-mb flex flex-column justify-content-between">
+                      <div key={index} className="relative flex h-18rem md:h-28rem">
+                        <div className="w-full border-1 surface-border bg-white flex flex-column">
                           <Link to={`/List-Product/product/${product.product_id}`} state={{ product }}>
                             <img
                               src={product.product_image}
                               alt={product.product_name}
-                              className="w-12"
+                              className="w-12 border-1 surface-border"
                             />
                           </Link>
-                          <div>
-                            <h4 className="m-0 pb-1 border-bottom-1 surface-border">{product.product_name}</h4>
-                            <div className="flex align-items-center justify-content-between p-2 mt-2 bg-product">
+                          <div className="h-full px-2 flex flex-column justify-content-between">
+                            <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
+                            <div className="flex align-items-center justify-content-between mb-1">
                               <div className="font-bold">{Number(product.product_price).toLocaleString('en-US')} ฿</div>
-                              <Button
+                              {/* <Button
                                 className="btn-plus-product"
                                 icon="pi pi-plus"
                                 rounded
                                 onClick={() => addCart(product)}
-                              />
+                              /> */}
                             </div>
                           </div>
                         </div>

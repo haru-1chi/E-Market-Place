@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "../pages/HomePage/HomePage";
 import Pagepoint from "../pages/PointPage/Pagepoint";
 import Appbar from "../component/Appbar";
+import ShopPage from "../pages/ShopPage/ShopPage";
+import ShopCategriesSelected from "../pages/ShopPage/ShopCategriesSelected";
 import ListProductsPage from "../pages/ProductPage/ListProductsPage";
 import ProductPage from "../pages/ProductPage/ProductPage";
 import CheckoutPage from "../pages/CheckoutPage/CheckoutPage";
@@ -28,6 +30,8 @@ function Router() {
           <Route path="/" element={<Appbar />}>
             <Route index element={<HomePage />} />
             <Route path="Pagepoint" element={<Pagepoint />} />
+            <Route path="ShopPage" element={<ShopPage />} />
+            <Route path="/ShopCategriesSelected" element={<ShopCategriesSelected />} />
             <Route path="List-Product" element={<ListProductsPage />} />
             <Route path="List-Product/Product/:productId" element={<ProductPage />} />
             <Route path="CheckoutPage" element={<CheckoutPage />} />
@@ -45,7 +49,6 @@ function Router() {
           <Route path="/" element={<Navbar />}>
             <Route path="LoginPage" element={<LoginPage />} />
             <Route path="RegisterPage" element={<RegisterPage />} />
-            
           </Route>
         }
       </Routes>

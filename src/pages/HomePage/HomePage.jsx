@@ -112,7 +112,7 @@ function HomePage() {
           </div>
         </div> */}
         <div className="block lg:hidden">
-          <div className="section-all-brand px-2 text-center gap-2">
+          <div className="section-all-brand px-2 py-3 text-center gap-2 bg-yellow-100">
             {categories.map((item) => (
               <div onClick={() => handleCategorySelect(item.name)}>
                 <Category data={item} />
@@ -121,7 +121,7 @@ function HomePage() {
           </div>
 
         </div>
-        <div className="mx-0 lg:mx-2 mt-3">
+        <div className="mx-0 lg:mx-2">
           <div className="bg-section-product lg:border-round-2xl flex justify-content-center">
             <img
               className="w-full lg:w-8"

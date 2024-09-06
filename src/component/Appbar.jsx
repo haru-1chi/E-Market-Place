@@ -148,6 +148,7 @@ function Appbar() {
   const handleCategorySelect = (categoryName) => {
     navigate("/List-Product", { state: { categoryName } });
   };
+
   const customIcons = (
     <React.Fragment>
       <button className="p-sidebar-icon p-link mr-2">
@@ -158,15 +159,15 @@ function Appbar() {
 
   const customHeader = (
     <div className="flex align-items-center gap-2">
-      <a href="/">
-        <img src={LogoMakro} alt="Logo" className="w-7 p-0 m-0" />
-      </a>
+      <Link to="/" className="no-underline">
+        <h2 className="m-0 text-900">E-Market-Place</h2>
+      </Link>
     </div>
   );
 
   const customHeader2 = (
     <div className="flex align-items-center gap-2 ">
-      <span className="font-bold">ตะกร้า</span>
+      <span className="font-bold">รถเข็น</span>
     </div>
   );
 
@@ -261,10 +262,10 @@ function Appbar() {
                 <>
                   <div>
                     <Button
-                      className="py-2 px-3 surface-border"
+                      className="py-2 px-3 border-900"
                       icon="pi pi-user"
                       rounded
-                      outlined
+                      text
                       label={
                         <div className="flex align-items-center gap-2 white-space-nowrap text-overflow-ellipsis">
                           {user.name}
@@ -304,7 +305,7 @@ function Appbar() {
           <div className="navmenu w-full border-solid pb-1 text-l">
             <div>
               <Button
-                className="text-l"
+                className="text-l text-p"
                 label={category}
                 icon="pi pi-chevron-down"
                 iconPos="right"
@@ -348,7 +349,7 @@ function Appbar() {
         {/* <Toast ref={toast} position="top-center" /> */}
         <div className="pt-2 pr-3 pl-3">
           <div className="card flex justify-content-between mb-2 border-solid align-items-center">
-            <div className="block flex">
+            <div className="block flex align-items-center">
               <Sidebar
                 header={customHeader}
                 visible={visible1}
@@ -358,25 +359,37 @@ function Appbar() {
                   <div>
                     {user ? (
                       <>
-                        <div className="flex pt-0 pb-2 align-items-center">
-                          <div class="flex flex-wrap justify-content-center">
-                            <div class="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">
-                              {user.name.charAt(0).toUpperCase()}
-                            </div>
+                        <div className="flex p-2 align-items-start bg-primary">
+                          <div class="border-circle w-4rem h-4rem m-2 bg-cyan-500 font-bold flex align-items-center justify-content-center">
+                            {user.name.charAt(0).toUpperCase()}
                           </div>
-                          <h4 className="ml-3">{user.name}</h4>
+                          <h3 className="ml-3 font-semibold text-900">{user.name}</h3>
                         </div>
-                        <div>
-                          <Button
-                            className="w-full flex justify-content-between"
-                            onClick={() => setVisible4(true)}
-                            text
-                          >
-                            <span>ทั้งหมด</span>
-                            <i className="pi pi-angle-right"></i>
-                          </Button>
+
+                        <div className="px-3">
+                          <div className="flex justify-content-between align-items-center">
+                            <h4 className="m-0 p-0 font-semibold">การซื้อของฉัน</h4>
+                            <Link to="/AccountPage"><p>ดูประวัติการซื้อ</p></Link>
+                          </div>
+                          <ul className="flex justify-content-between pl-0 px-5 list-none">
+                            <li className="flex flex-column text-center">
+                              <i className="pi pi-wallet" style={{ fontSize: '1.5rem' }}></i>
+                              <p className="m-0 p-0 mt-2 text-sm">ที่ต้องชำระ</p>
+                            </li>
+                            <li className="flex flex-column text-center">
+                              <i className="pi pi-box" style={{ fontSize: '1.5rem' }}></i>
+                              <p className="m-0 p-0 mt-2 text-sm">ที่ต้องจัดส่ง</p>
+                            </li>
+                            <li className="flex flex-column text-center">
+                              <i className="pi pi-truck" style={{ fontSize: '1.5rem' }}></i>
+                              <p className="m-0 p-0 mt-2 text-sm">ที่ต้องได้รับ</p>
+                            </li>
+                          </ul>
                         </div>
+
+
                         <hr />
+
                         <div className="flex flex-column">
                           <Menu model={itemsMenu} className="p-menu" />
                           <ContactUs
@@ -485,102 +498,123 @@ function Appbar() {
                 >
                   {Array.isArray(cart) && cart.length > 0 ? (
                     <>
-                      {cart.map((product, index) => (
-                        <div
-                          key={product.product_id || index}
-                          className="cart-items justify-content-between mb-2 border-bottom-1 surface-border"
-                        >
-                          <div className="flex align-items-center">
-                            <img
-                              src={product.product_image}
-                              alt={product.product_name}
-                              width={70}
-                              height={70}
-                            />
-                            <div className="ml-3 flex flex-column">
-                              <span className="mb-3 font-bold">
-                                {product.product_name}
-                              </span>
-                              <span>
-                                {Number(product.product_price).toLocaleString(
-                                  "en-US"
-                                )}{" "}
-                                ฿
-                              </span>
+
+
+                      <div className="p-2">
+                        {/* map ตามร้านว่าซื้อสินค้าจากร้านไหนบ้าง ซื้อไรบ้าง */}
+                        <div className=" border-1 border-round-xl surface-border p-2">
+                          <div className="flex justify-content-between">
+                            <div className='flex align-items-center mb-2'>
+                              <i className="pi pi-shop"></i>
+                              <p className="m-0 ml-2 p-0">ชื่อร้านค้า</p>
                             </div>
+                            <p className="p-0 m-0">แก้ไข</p>
                           </div>
-                          <div className="flex align-items-center justify-content-between mb-2">
-                            <Button
-                              icon="pi pi-trash"
-                              onClick={() => {
-                                showToast();
-                                removeFromCart(product.product_id);
-                              }}
-                              className="text-primary"
-                              rounded
-                              text
-                            />
-                            <div className="flex justify-content-between align-items-center border-primary border-1 border-round-3xl">
-                              <Button
-                                size="small"
-                                icon="pi pi-minus"
-                                className="btn-plus-product text-primary"
-                                onClick={() =>
-                                  updateQuantity(
-                                    product.product_id,
-                                    product.quantity - 1
-                                  )
-                                }
-                                rounded
-                                text
-                              />
-                              <p className="text-primary m-0 mx-3">
-                                {product.quantity}
-                              </p>
-                              <Button
-                                size="small"
-                                icon="pi pi-plus"
-                                className="btn-plus-product text-primary"
-                                onClick={() =>
-                                  updateQuantity(
-                                    product.product_id,
-                                    product.quantity + 1
-                                  )
-                                }
-                                rounded
-                                text
-                              />
-                            </div>
+                          <div className="flex flex-column gap-4">
+                            {cart.map((product, index) => (
+                              <div
+                                key={product.product_id || index}
+                                className="cart-items flex justify-content-between"
+                              >
+                                <div className="w-full flex">
+                                  <img
+                                    src={product.product_image}
+                                    alt={product.product_name}
+                                    width={100}
+                                    height={100}
+                                    className="border-1 border-round-lg surface-border"
+                                  />
+                                  <div className="w-full h-full ml-3 flex flex-column justify-content-between white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                                    <span className="mb-3 font-normal">
+                                      {product.product_name}
+                                    </span>
+                                    
+                                    <div className="flex justify-content-between align-items-center">
+                                      <span className="font-bold">
+                                        ฿{Number(product.product_price).toLocaleString("en-US")}
+                                      </span>
+                                      <div className="flex justify-content-between align-items-center border-300 border-1 border-round-md">
+                                        <Button
+                                          size="small"
+                                          icon={<i
+                                            className="pi pi-minus"
+                                            style={{ fontSize: "0.6rem" }}
+                                          ></i>}
+                                          className="p-0 border-noround w-2rem"
+                                          onClick={() =>
+                                            updateQuantity(
+                                              product.product_id,
+                                              product.quantity - 1
+                                            )
+                                          }
+                                          text
+                                        />
+                                        <p className="px-3 m-0 p-0 border-x-1 border-300 text-sm">
+                                          {product.quantity}
+                                        </p>
+                                        <Button
+                                          size="small"
+                                          icon={<i
+                                            className="pi pi-plus"
+                                            style={{ fontSize: "0.6rem" }}
+                                          ></i>}
+                                          className="p-0 border-noround w-2rem"
+                                          onClick={() =>
+                                            updateQuantity(
+                                              product.product_id,
+                                              product.quantity + 1
+                                            )
+                                          }
+                                          text
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                {/* <div className="flex align-items-center justify-content-between mb-2">
+                                <Button
+                                  icon="pi pi-trash"
+                                  onClick={() => {
+                                    showToast();
+                                    removeFromCart(product.product_id);
+                                  }}
+                                  className="text-primary"
+                                  rounded
+                                  text
+                                />
+                              </div> */}
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
-                      <div>
-                        <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
-                          <p className="m-0">ยอดสั่งซื้อ</p>
-                          <p className="m-0">
-                            {totalBeforeDiscount.toFixed(2)} ฿
-                          </p>
-                        </div>
-                        <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
-                          <p className="m-0">ค่า COD 3%</p>
-                          <p className="m-0">{CODCost.toFixed(2)} ฿</p>
-                        </div>
-                        <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
-                          <p className="m-0">ยอดชำระ</p>
-                          <p className="m-0">{totalPayable.toFixed(2)} ฿</p>
+                        <div>
+                          <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
+                            <p className="m-0">ยอดสั่งซื้อ</p>
+                            <p className="m-0">
+                              {totalBeforeDiscount.toFixed(2)} ฿
+                            </p>
+                          </div>
+                          <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
+                            <p className="m-0">ค่า COD 3%</p>
+                            <p className="m-0">{CODCost.toFixed(2)} ฿</p>
+                          </div>
+                          <div className="flex align-items-center justify-content-between py-2">
+                            <p className="m-0">ยอดชำระ</p>
+                            <p className="m-0">{totalPayable.toFixed(2)} ฿</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="filter-card-group bg-white flex justify-content-between align-items-center border-top-1 surface-border py-2 z-1 sticky">
-                        <p className="m-0 text-primary font-bold">
-                          {totalPayable.toFixed(2)} ฿
+
+                      <div className="filter-card-group bg-white flex justify-content-end align-items-center border-top-1 surface-border z-1 sticky">
+                        <p className="m-0 mr-2 text-900 font-semibold">
+                          รวม ฿{totalPayable.toFixed(2)}
                         </p>
                         <Link to="/CheckoutPage">
                           <Button
                             label="เช็คเอาท์"
                             size="small"
-                            className="w-full"
+                            className="w-full border-noround"
                             onClick={() => setVisible2(false)}
-                            rounded
                           />
                         </Link>
                       </div>
@@ -607,8 +641,8 @@ function Appbar() {
                 text
               />
               <div className="flex justify-content-start">
-                <Link to="/">
-                  <img src={LogoMakro} alt="Logo" height={40} />
+                <Link to="/" className="no-underline">
+                  <h2 className="m-0 text-900">E-Market-Place</h2>
                 </Link>
               </div>
             </div>
@@ -656,7 +690,7 @@ function Appbar() {
                 />
               </IconField>
               <Button
-                className="p-0 m-0"
+                className="p-0 m-0 border-900"
                 icon="pi pi-search"
                 onClick={handleSearchClick}
                 rounded

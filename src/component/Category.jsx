@@ -6,9 +6,9 @@ function category({ data }) {
       <img
         src={data.imgURL}
         alt=""
-        className="border-circle "
-        width={35}
-        height={35}
+        className="border-round-xl bg-white p-1 border-1 surface-border"
+        width={40}
+        height={40}
       />
       <div className="category-title">{data.name}</div>
     </div>

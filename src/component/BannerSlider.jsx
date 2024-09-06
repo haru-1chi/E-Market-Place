@@ -83,7 +83,7 @@ function BannerSlider() {
         />
       </div>
 
-      <div className="relative block lg:hidden card mb-2">
+      <div className="relative block lg:hidden card">
         <div className="h-fit absolute top-0 right-0 mt-2 mr-2 bg-white-alpha-60 text-xs px-1 border-round-xl z-1">
           <p className="m-0 p-0 text-900">{currentIndex + 1}/{data.length}</p>
         </div>
