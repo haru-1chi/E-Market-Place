@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
+import { Checkbox } from 'primereact/checkbox';
 import { Toast } from "primereact/toast";
 import { IconField } from "primereact/iconfield";
 import { InputIcon } from "primereact/inputicon";
@@ -17,6 +18,7 @@ import axios from "axios";
 import ContactUs from "./ContactUs";
 import CategoriesIcon from "./CategoriesIcon";
 import LogoMakro from "../assets/macro-laos1.png";
+import img_placeholder from '../assets/img_placeholder.png';
 //
 function Appbar() {
   const op = useRef(null);
@@ -87,31 +89,63 @@ function Appbar() {
     }
   };
 
-  const calculateTotalBeforeDiscount = () => {
-    if (!Array.isArray(cart)) return 0;
-    return cart.reduce(
-      (total, product) => total + product.product_price * product.quantity,
-      0
-    );
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  const handleSelectItem = (partnerId, productId) => {
+    setSelectedItems(prevSelectedItems => {
+      const exists = prevSelectedItems.find(item => item.partnerId === partnerId && item.productId === productId);
+
+      if (exists) {
+        return prevSelectedItems.filter(item => !(item.partnerId === partnerId && item.productId === productId));
+      } else {
+        return [...prevSelectedItems, { partnerId, productId }];
+      }
+    });
   };
 
-  const calculateCODCost = (total) => {
-    const codCost = total * 0.03;
-    return Math.max(codCost, 30);
-  };
+  const selectedProducts = Object.keys(cart).flatMap(partnerId =>
+    cart[partnerId].products.filter(product =>
+      selectedItems.some(selected => selected.partnerId === partnerId && selected.productId === product.productId)
+    )
+  );
 
-  const totalBeforeDiscount = calculateTotalBeforeDiscount();
-  const CODCost = calculateCODCost(totalBeforeDiscount);
+  const totalBeforeDiscount = selectedProducts.reduce((total, product) => total + product.product_price * product.quantity, 0);
+  const CODCost = Math.max(totalBeforeDiscount * 0.03, 30);
   const totalPayable = totalBeforeDiscount + CODCost;
 
-  const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
+  const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
 
+  const groupByPartner = (cart) => {
+    if (typeof cart !== 'object') {
+      return {};
+    }
+
+    return Object.keys(cart).reduce((acc, partnerId) => {
+      const partner = cart[partnerId];
+      acc[partnerId] = {
+        partnerName: partner.partnerName,
+        products: partner.products
+      };
+      return acc;
+    }, {});
+  };
+
+  const totalItems = Object.values(cart).reduce((total, partner) => {
+    return total + partner.products.reduce((sum, product) => {
+      return sum + product.quantity;
+    }, 0);
+  }, 0);
+
+  const groupedCart = groupByPartner(cart);
+
   useEffect(() => {
     const getUserProfile = async () => {
       try {
+        console.log(totalItems)
         const token = localStorage.getItem("token");
         const user_id = localStorage.getItem("user_id");
         const res = await axios.get(`${apiUrl}/users/${user_id}`, {
@@ -233,7 +267,6 @@ function Appbar() {
               </IconField>
             </div>
             <div className="flex gap-4 align-items-center">
-              {/* <Button icon="pi pi-heart" rounded text /> */}
               <Button
                 icon={
                   <span
@@ -244,7 +277,7 @@ function Appbar() {
                       style={{ fontSize: "1.4rem" }}
                     ></i>
                     <Badge
-                      value={cart.length}
+                      value={totalItems}
                       severity="danger"
                       style={{
                         position: "absolute",
@@ -492,107 +525,96 @@ function Appbar() {
                 onHide={() => setVisible2(false)}
               >
                 <div
-                  className={
-                    cart.length > 0 ? "cart-items w-full" : "cart flex gap-1"
-                  }
+                  className={cart && Object.keys(cart).length > 0 ? "cart-items w-full" : "cart flex gap-1"}
                 >
-                  {Array.isArray(cart) && cart.length > 0 ? (
+                  {cart && Object.keys(cart).length > 0 ? (
                     <>
-
-
                       <div className="p-2">
-                        {/* map ตามร้านว่าซื้อสินค้าจากร้านไหนบ้าง ซื้อไรบ้าง */}
-                        <div className=" border-1 border-round-xl surface-border p-2">
-                          <div className="flex justify-content-between">
-                            <div className='flex align-items-center mb-2'>
-                              <i className="pi pi-shop"></i>
-                              <p className="m-0 ml-2 p-0">ชื่อร้านค้า</p>
+                        {Object.keys(groupedCart).map(partnerId => (
+                          <div key={partnerId} className="border-1 border-round-xl surface-border p-2 mb-3">
+                            <div className="flex justify-content-between">
+                              <div className='flex align-items-center mb-2'>
+                                <i className="pi pi-shop"></i>
+                                <p className="m-0 ml-2 p-0">ผู้ขาย {groupedCart[partnerId].partnerName}</p>
+                              </div>
+                              <p className="p-0 m-0">แก้ไข</p>
                             </div>
-                            <p className="p-0 m-0">แก้ไข</p>
-                          </div>
-                          <div className="flex flex-column gap-4">
-                            {cart.map((product, index) => (
-                              <div
-                                key={product.product_id || index}
-                                className="cart-items flex justify-content-between"
-                              >
-                                <div className="w-full flex">
-                                  <img
-                                    src={product.product_image}
-                                    alt={product.product_name}
-                                    width={100}
-                                    height={100}
-                                    className="border-1 border-round-lg surface-border"
-                                  />
-                                  <div className="w-full h-full ml-3 flex flex-column justify-content-between white-space-nowrap overflow-hidden text-overflow-ellipsis">
-                                    <span className="mb-3 font-normal">
-                                      {product.product_name}
-                                    </span>
-                                    
-                                    <div className="flex justify-content-between align-items-center">
-                                      <span className="font-bold">
-                                        ฿{Number(product.product_price).toLocaleString("en-US")}
+                            <div className="flex flex-column gap-4">
+                              {groupedCart[partnerId].products.map((product, index) => (
+                                <div
+                                  key={product.productId || index}
+                                  className="cart-items flex justify-content-between"
+                                >
+                                  <div className="w-full flex">
+                                    <div className="flex align-items-center">
+                                      <div className="h-full flex flex-column justify-content-between align-items-center">
+                                        <Checkbox
+                                          checked={selectedItems.some(item => item.partnerId === partnerId && item.productId === product.productId)}
+                                          onChange={() => handleSelectItem(partnerId, product.productId)}
+                                          className="mt-2"
+                                        />
+                                        <div className="flex align-items-center justify-content-between mb-2">
+                                          <Button
+                                            icon="pi pi-trash"
+                                            onClick={() => {
+                                              showToast();
+                                              removeFromCart(partnerId, product.productId);
+                                            }}
+                                            className="text-primary"
+                                            rounded
+                                            text
+                                          />
+                                        </div>
+
+                                      </div>
+                                      <img
+                                        src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
+                                        alt={product.product_name}
+                                        width={100}
+                                        height={100}
+                                        className="border-1 border-round-lg surface-border"
+                                      />
+                                    </div>
+                                    <div className="w-full h-full ml-3 flex flex-column justify-content-between white-space-nowrap overflow-hidden text-overflow-ellipsis">
+                                      <span className="mb-3 font-normal">
+                                        {product.product_name}
                                       </span>
-                                      <div className="flex justify-content-between align-items-center border-300 border-1 border-round-md">
-                                        <Button
-                                          size="small"
-                                          icon={<i
-                                            className="pi pi-minus"
-                                            style={{ fontSize: "0.6rem" }}
-                                          ></i>}
-                                          className="p-0 border-noround w-2rem"
-                                          onClick={() =>
-                                            updateQuantity(
-                                              product.product_id,
-                                              product.quantity - 1
-                                            )
-                                          }
-                                          text
-                                        />
-                                        <p className="px-3 m-0 p-0 border-x-1 border-300 text-sm">
-                                          {product.quantity}
-                                        </p>
-                                        <Button
-                                          size="small"
-                                          icon={<i
-                                            className="pi pi-plus"
-                                            style={{ fontSize: "0.6rem" }}
-                                          ></i>}
-                                          className="p-0 border-noround w-2rem"
-                                          onClick={() =>
-                                            updateQuantity(
-                                              product.product_id,
-                                              product.quantity + 1
-                                            )
-                                          }
-                                          text
-                                        />
+                                      <div className="flex justify-content-between align-items-center">
+                                        <span className="font-bold">
+                                          ฿{Number(product.product_price).toLocaleString("en-US")}
+                                        </span>
+                                        <div className="flex justify-content-between align-items-center border-300 border-1 border-round-md">
+                                          <Button
+                                            size="small"
+                                            icon={<i className="pi pi-minus" style={{ fontSize: "0.6rem" }}></i>}
+                                            className="p-0 border-noround w-2rem"
+                                            onClick={() => updateQuantity(partnerId, product.productId, product.quantity - 1)}
+                                            text
+                                          />
+                                          <p className="px-3 m-0 p-0 border-x-1 border-300 text-sm">
+                                            {product.quantity}
+                                          </p>
+                                          <Button
+                                            size="small"
+                                            icon={<i className="pi pi-plus" style={{ fontSize: "0.6rem" }}></i>}
+                                            className="p-0 border-noround w-2rem"
+                                            onClick={() => updateQuantity(partnerId, product.productId, product.quantity + 1)}
+                                            text
+                                          />
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
+
                                 </div>
-                                {/* <div className="flex align-items-center justify-content-between mb-2">
-                                <Button
-                                  icon="pi pi-trash"
-                                  onClick={() => {
-                                    showToast();
-                                    removeFromCart(product.product_id);
-                                  }}
-                                  className="text-primary"
-                                  rounded
-                                  text
-                                />
-                              </div> */}
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        ))}
                         <div>
                           <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
                             <p className="m-0">ยอดสั่งซื้อ</p>
-                            <p className="m-0">
-                              {totalBeforeDiscount.toFixed(2)} ฿
-                            </p>
+                            <p className="m-0">{totalBeforeDiscount.toFixed(2)} ฿</p>
                           </div>
                           <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
                             <p className="m-0">ค่า COD 3%</p>

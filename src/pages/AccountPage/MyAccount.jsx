@@ -6,7 +6,7 @@ import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
 function MyAccount() {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
     const [user, setUser] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
     const [editMode, setEditMode] = useState(false);

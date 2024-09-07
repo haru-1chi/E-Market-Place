@@ -9,7 +9,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function RegisterPage() {
-  const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   const navigate = useNavigate();
 
   const [errorMessage, setErrorMessage] = useState(null);

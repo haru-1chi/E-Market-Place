@@ -4,7 +4,7 @@ import axios from "axios";
 import CategoriesIcon from "../../component/CategoriesIcon";
 
 function ShopCategries() {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
     const [categories, setCategories] = useState([]);
     const navigate = useNavigate();
 

@@ -12,10 +12,10 @@ import { useTranslation } from "react-i18next";
 function Filter({ onFilterChange, products, visible, setVisible, initialFilters, categoriesLocation }) {
     const navigate = useNavigate();
     const { t } = useTranslation()
-    const { filter, clearFilter, priceRange, all, stock, instock, category_name, brand, promotion, onSale, show } = t("Filter")
+    const { filter, clearFilter, priceRange, all, stock, instock, product_category, brand, promotion, onSale, show } = t("Filter")
 
     const [categories, setCategories] = useState([]);
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -77,7 +77,7 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
 
     const generateFiltersFromData = (products) => {
         const uniqueCategories = [
-            ...new Set(products.map(product => product.category_name))
+            ...new Set(products.map(product => product.product_category))
         ];
         const uniqueBrands = [...new Set(products.map(item => item.product_brand))];
 
@@ -139,7 +139,7 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
 
     const sectionLabels = {
         priceRanges: `${priceRange}`,
-        selectedCategories: `${category_name}`,
+        selectedCategories: `${product_category}`,
         selectedBrands: `${brand}`,
     };
 

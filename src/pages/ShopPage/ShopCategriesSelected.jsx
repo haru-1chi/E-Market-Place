@@ -5,7 +5,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from "axios";
 
 function ShopCategriesSelected() {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+    const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const location = useLocation();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -15,7 +15,7 @@ function ShopCategriesSelected() {
     const filterProducts = (products, categoryName) => {
         return products.filter((product) => {
             if (categoryName) {
-                return product.category_name.includes(categoryName)
+                return product.product_category.includes(categoryName)
             }
             return products;
         });
@@ -24,16 +24,16 @@ function ShopCategriesSelected() {
     const fetchData = () => {
         setLoading(true);
         axios({
-            method: "post",
-            url: `${apiUrl}/products`
+            method: "get",
+            url: `${apiProductUrl}/product`
         })
             .then((response) => {
                 const filtered = filterProducts(response.data, location.state?.categoryName);
-                setData(filtered);
+                setData(response.data.data);
             })
             .catch((error) => {
                 console.log(error);
-                console.log(apiUrl);
+                console.log(apiProductUrl);
             }).finally(() => {
                 setLoading(false);
             });
@@ -99,10 +99,10 @@ function ShopCategriesSelected() {
                         {data.length ? (
                             <div className="w-full">
                                 <div className="product-list">
-                                    {sortData().map((product, index) => (
+                                    {data.map((product, index) => (
                                         <div key={index} className="relative flex h-18rem md:h-28rem">
                                             <div className="w-full border-1 surface-border bg-white flex flex-column">
-                                                <Link to={`/List-Product/product/${product.product_id}`} state={{ product }}>
+                                                <Link to={`/List-Product/product/${product._id}`} state={{ product }}>
                                                     <img
                                                         src={product.product_image}
                                                         alt={product.product_name}

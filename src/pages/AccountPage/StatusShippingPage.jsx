@@ -10,9 +10,11 @@ import {
 } from "../../utils/DateTimeFormat";
 import TimelineStatus from "../../component/TimelineStatus";
 import SlipPayment from "../../component/SlipPayment";
+import img_placeholder from '../../assets/img_placeholder.png';
 
 function StatusShippingPage({ orderId }) {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
+    const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [order, setOrder] = useState(null);
     const [user, setUser] = useState(null);
 
@@ -93,7 +95,7 @@ function StatusShippingPage({ orderId }) {
                             >
                                 <div className="w-full flex">
                                     <img
-                                        src={product.product_image}
+                                        src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                         alt={product.product_name}
                                         width={90}
                                         height={90}

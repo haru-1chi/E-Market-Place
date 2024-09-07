@@ -7,14 +7,15 @@ import MyAccount from './MyAccount';
 import axios from "axios";
 import { formatDate } from '../../utils/DateTimeFormat';
 import ContactUs from '../../component/ContactUs';
+import img_placeholder from '../../assets/img_placeholder.png';
 
 function AccountPage() {
     const location = useLocation();
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
     const [activeTab, setActiveTab] = useState('account');
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [isContactUsVisible, setContactUsVisible] = useState(false);
-
+    const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [userOrders, setUserOrders] = useState(null);
     const { statusEvents } = useCart();
     const [activeOrderStatus, setActiveOrderStatus] = useState('all');
@@ -178,7 +179,7 @@ function AccountPage() {
                                 <div key={index} className="cart-items flex justify-content-between align-items-center pb-1 border-bottom-1 surface-border">
                                     <div className="w-full flex align-items-center">
                                         <img
-                                            src={product.product_image}
+                                            src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                             alt={product.product_name}
                                             width={50}
                                             height={50}
@@ -221,15 +222,15 @@ function AccountPage() {
                                 <div key={index} className="cart-items flex justify-content-between align-items-center pb-1">
                                     <div className="w-full flex">
                                         <img
-                                            src={product.product_image}
+                                            src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                             alt={product.product_name}
                                             width={90}
                                             height={90}
                                             className='border-1 border-round-lg surface-border'
                                         />
-                                        <div className='w-full flex flex-column justify-content-between ml-3 white-space-nowrap overflow-hidden text-overflow-ellipsis'>
+                                        <div className='w-full flex flex-column justify-content-between ml-3'>
                                             <div className="flex flex-column">
-                                                <span className="font-semibold text-sm">{product.product_name}</span>
+                                                <span className="max-w-17rem font-semibold text-sm  white-space-nowrap overflow-hidden text-overflow-ellipsis">{product.product_name}</span>
                                                 <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.quantity}</span>
                                             </div>
                                             <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.quantity).toLocaleString('en-US')}</span>

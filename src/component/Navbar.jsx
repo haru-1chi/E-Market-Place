@@ -8,7 +8,7 @@ import CategoriesIcon from "./CategoriesIcon";
 import axios from "axios";
 
 function Navbar() {
-  const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);

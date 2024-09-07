@@ -6631,14 +6631,14 @@
     color: #b59400;
   }
   .p-galleria .p-galleria-thumbnail-container {
-    background: rgba(0, 0, 0, 0.9);
-    padding: 1rem 0.25rem;
+    background: #ffffff;
+    padding: 0;
   }
   .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-prev,
   .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-next {
     margin: 0.5rem;
     background-color: transparent;
-    color: #f9fafb;
+    color: #000000;
     width: 2rem;
     height: 2rem;
     transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;

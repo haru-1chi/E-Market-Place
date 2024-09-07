@@ -4,6 +4,8 @@ import { Button } from 'primereact/button';
 import { Carousel } from 'primereact/carousel';
 import { useCart } from '../router/CartContext';
 import { Toast } from 'primereact/toast';
+import img_placeholder from '../assets/img_placeholder.png';
+
 function Products({ data, startIndex }) {
 
     // const data = [
@@ -39,6 +41,7 @@ function Products({ data, startIndex }) {
     //         price : '999.00'
     //     }
     // ];
+    const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const { addToCart } = useCart();
     const toast = useRef(null);
     const showSuccessToast = () => {
@@ -92,9 +95,9 @@ function Products({ data, startIndex }) {
             product ? (
                 <div className="carousel-product-items border-1 surface-border m-2 bg-white flex flex-column">
                     <div className="flex align-items-center justify-content-center">
-                        <Link to={`/List-Product/product/${product.product_id}`} state={{ product }}>
+                        <Link to={`/List-Product/product/${product._id}`} state={{ product }}>
                             <img
-                                src={product.product_image}
+                                src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                 alt={product.product_name}
                                 className="w-12 border-1 surface-border" />
                         </Link>

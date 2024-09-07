@@ -9,7 +9,7 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 const EXPIRE_TIME = 60;
 
 function QRPage() {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
     const { cart, cartDetails, user, clearCart, clearCartDetails } = useCart();
     const navigate = useNavigate();
 

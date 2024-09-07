@@ -30,7 +30,7 @@ function Router() {
           <Route path="/" element={<Appbar />}>
             <Route index element={<HomePage />} />
             <Route path="Pagepoint" element={<Pagepoint />} />
-            <Route path="ShopPage" element={<ShopPage />} />
+            <Route path="ShopPage/:partnerId" element={<ShopPage />} />
             <Route path="/ShopCategriesSelected" element={<ShopCategriesSelected />} />
             <Route path="List-Product" element={<ListProductsPage />} />
             <Route path="List-Product/Product/:productId" element={<ProductPage />} />

@@ -3,9 +3,10 @@ import { Button } from "primereact/button";
 import { Link } from "react-router-dom";
 import { ProgressSpinner } from "primereact/progressspinner";
 import axios from "axios";
+import img_placeholder from '../../assets/img_placeholder.png';
 
-function ShopListProduct() {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+function ShopListProduct({ partnerId }) {
+    const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("");
@@ -14,15 +15,15 @@ function ShopListProduct() {
     const fetchData = () => {
         setLoading(true);
         axios({
-            method: "post",
-            url: `${apiUrl}/products`,
+            method: "get",
+            url: `${apiProductUrl}/product/bypartner/${partnerId}`,
         })
             .then((response) => {
-                setData(response.data);
+                setData(response.data.data);
             })
             .catch((error) => {
                 console.log(error);
-                console.log(apiUrl);
+                console.log(apiProductUrl);
             })
             .finally(() => {
                 setLoading(false);
@@ -30,8 +31,10 @@ function ShopListProduct() {
     };
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (partnerId) {
+            fetchData();
+        }
+    }, [partnerId]);
 
     useEffect(() => {
         if (activeTab !== "price") {
@@ -127,11 +130,11 @@ function ShopListProduct() {
                                         >
                                             <div className="w-full border-1 surface-border bg-white flex flex-column">
                                                 <Link
-                                                    to={`/List-Product/product/${product.product_id}`}
+                                                    to={`/List-Product/product/${product._id}`}
                                                     state={{ product }}
                                                 >
                                                     <img
-                                                        src={product.product_image}
+                                                        src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                                         alt={product.product_name}
                                                         className="w-12 border-1 surface-border"
                                                     />

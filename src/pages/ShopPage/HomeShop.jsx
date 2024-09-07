@@ -5,23 +5,23 @@ import axios from "axios";
 
 function HomeShop() {
   const [data, setData] = useState([]);
-  const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+  const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
   const shuffleArray = (array) => {
     return array.sort(() => 0.5 - Math.random());
   };
 
   const fetchData = () => {
     axios({
-      method: "post",
-      url: `${apiUrl}/products`
+      method: "get",
+      url: `${apiProductUrl}/product`
     })
       .then((response) => {
-        const shuffledData = shuffleArray(response.data);
+        const shuffledData = shuffleArray(response.data.data);
         setData(shuffledData);
       })
       .catch((error) => {
         console.log(error);
-        console.log(apiUrl);
+        console.log(apiProductUrl);
       });
   };
 

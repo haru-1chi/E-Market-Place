@@ -75,18 +75,19 @@ function HomePage() {
   ];
 
   const [data, setData] = useState([]);
-  const apiUrl = import.meta.env.VITE_REACT_APP_API_URL;
+  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
+  const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
   const shuffleArray = (array) => {
     return array.sort(() => 0.5 - Math.random());
   };
 
   const fetchData = () => {
     axios({
-      method: "post",
-      url: `${apiUrl}/products`
+      method: "get",
+      url: `${apiProductUrl}/product`
     })
       .then((response) => {
-        const shuffledData = shuffleArray(response.data);
+        const shuffledData = shuffleArray(response.data.data);
         setData(shuffledData);
       })
       .catch((error) => {
@@ -113,6 +114,21 @@ function HomePage() {
         </div> */}
         <div className="block lg:hidden">
           <div className="section-all-brand px-2 py-3 text-center gap-2 bg-yellow-100">
+            <Link
+              to="List-Product"
+              className="no-underline text-900"
+            >
+              <div>
+                <img
+                  src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
+                  alt="สินค้าทุกหมวดหมู่"
+                  className="border-round-xl bg-white p-1 border-1 surface-border"
+                  width={40}
+                  height={40}
+                />
+                <div className="category-title">สินค้าทุกหมวดหมู่</div>
+              </div>
+            </Link>
             {categories.map((item) => (
               <div onClick={() => handleCategorySelect(item.name)}>
                 <Category data={item} />

@@ -1,28 +1,37 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Footer from "../../component/Footer";
 import { Button } from "primereact/button";
 import HomeShop from './HomeShop';
 import ShopListProduct from './ShopListProduct';
 import ShopCategries from './ShopCategries';
+
 function ShopPage() {
+  const location = useLocation();
+  const { product } = location.state || {};
+  const partnerId = product?.product_partner_id?._id;
+
   const [activeTab, setActiveTab] = useState('HomeShop');
   const tabs = [
     { id: 'HomeShop', label: 'ร้านค้า' },
     { id: 'ShopListProduct', label: 'รายการสินค้า' },
     { id: 'ShopCategries', label: 'หมวดหมู่' },
   ];
+
   const renderActiveComponent = () => {
     switch (activeTab) {
       case 'HomeShop':
         return <HomeShop />;
       case 'ShopListProduct':
-        return <ShopListProduct />;
+        return <ShopListProduct partnerId={partnerId} />;
       case 'ShopCategries':
         return <ShopCategries />;
       default:
         return <HomeShop />;
     }
   };
+
+
 
   return (
     <>
@@ -32,7 +41,7 @@ function ShopPage() {
         </div>
         <div className="ml-3 w-full flex justify-content-between align-items-center">
           <div>
-            <p className="m-0">ชื่อร้านค้า</p>
+            <p className="m-0">ผู้ขาย: {product?.product_partner_id?.partner_name || "ไม่ระบุชื่อ"}</p>
             <p className="m-0">จังหวัด</p>
             <p className="m-0">จำนวนผู้ติดตาม</p>
           </div>
