@@ -9,8 +9,8 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 const EXPIRE_TIME = 60;
 
 function QRPage() {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
-    const { cart, cartDetails, user, clearCart, clearCartDetails } = useCart();
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
+    const { cart, cartDetails, selectedItemsCart, clearCart, clearCartDetails } = useCart();
     const navigate = useNavigate();
 
     const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -103,32 +103,77 @@ function QRPage() {
     const handleCreateOrder = async () => {
         setLoading(true);
         try {
-            const newOrder = {
-                _items: cart,
-                line_items: cart,
-                ...cartDetails,
-                status: cartDetails.paymentChannel === "bankCounter" ? 1 : 2,
-            };
-
             const token = localStorage.getItem("token");
             if (!token) {
                 setError("User not authenticated. Please log in.");
                 return;
             }
-            console.log(newOrder)
-            const response = await axios.post(`${apiUrl}/orders`,
-                newOrder,
-                {
+
+            for (let partnerId in selectedItemsCart) {
+                const partner = selectedItemsCart[partnerId]; // This is each partner's data
+                const productsToPurchase = partner.products.map(product => ({
+                    product_id: product.product_id,
+                    product_qty: product.product_qty
+                }));
+
+                // Construct order data for each partner
+                const newOrder = {
+                    partner_id: partner.partner_id,
+                    product: productsToPurchase,
+                    customer_id: cartDetails.customer_id, // Use actual customer details from cartDetails
+                    totalproduct: productsToPurchase.reduce((total, item) => {
+                        const product = partner.products.find(p => p.product_id === item.product_id);
+                        return total + product.product_price * item.product_qty;
+                    }, 0),
+                    totaldiscount: 0, // Assuming no discount for now
+                    alltotal: productsToPurchase.reduce((total, item) => {
+                        const product = partner.products.find(p => p.product_id === item.product_id);
+                        return total + product.product_price * item.product_qty;
+                    }, 0),
+                    payment: cartDetails.payment, // Assuming you get this from cartDetails
+                    status: cartDetails.paymentChannel === "bankCounter" ? 1 : 2, // Set status based on payment
+                };
+
+                console.log(newOrder);
+
+                // Send POST request for each partner
+                const response = await axios.post(`${apiUrl}/orderproduct`, newOrder, {
                     headers: { "token": token }
-                })
-            if (response.data && response.data.status) {
-                console.log("Order successful", response.data);
-                clearCart();
-                clearCartDetails();
-                navigate("/PaymentSuccessfully");
-            } else {
-                setError(response.data.message || "Order failed");
+                });
+
+                if (response.data && response.data.status) {
+                    console.log("Order successful for partner:", partner.partner_name, response.data);
+                } else {
+                    setError(response.data.message || "Order failed");
+                    break; // If one fails, you may want to stop further submissions
+                }
             }
+
+            // const newOrder = {
+            //     _items: cart,
+            //     line_items: cart,
+            //     ...cartDetails,
+            //     status: cartDetails.paymentChannel === "bankCounter" ? 1 : 2,
+            // };
+
+            // console.log(newOrder)
+            // const response = await axios.post(`${apiUrl}/orders`,
+            //     newOrder,
+            //     {
+            //         headers: { "token": token }
+            //     })
+            // if (response.data && response.data.status) {
+            //     console.log("Order successful", response.data);
+            //     clearCart();
+            //     clearCartDetails();
+            //     navigate("/PaymentSuccessfully");
+            // } else {
+            //     setError(response.data.message || "Order failed");
+            // }
+
+            clearCart();
+            clearCartDetails();
+            navigate("/PaymentSuccessfully");
         } catch (error) {
             console.error("Order error:", error.response?.data || error.message);
             setError(error.response?.data?.message || "An error occurred. Please try again.");
@@ -179,7 +224,7 @@ function QRPage() {
                     <p className="m-0 text-center">ธนาคาร: ไทยพานิชย์</p>
                     <p className="m-0 text-center">ชื่อบัญชี: บริษัท</p>
                     <p className="m-0 text-center">เลขบัญชี: 000-000000-0 (หรือรหัสอ้างอิง)</p>
-                    
+
                 </div>
                 <div className="w-full block flex-grow-1 flex flex-column text-center">
                     <p className="m-0">Amount (LAK)</p>

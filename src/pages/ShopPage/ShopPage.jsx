@@ -9,7 +9,7 @@ import ShopCategries from './ShopCategries';
 function ShopPage() {
   const location = useLocation();
   const { product } = location.state || {};
-  const partnerId = product?.product_partner_id?._id;
+  const partner_id = product?.product_partner_id?._id;
 
   const [activeTab, setActiveTab] = useState('HomeShop');
   const tabs = [
@@ -23,7 +23,7 @@ function ShopPage() {
       case 'HomeShop':
         return <HomeShop />;
       case 'ShopListProduct':
-        return <ShopListProduct partnerId={partnerId} />;
+        return <ShopListProduct partner_id={partner_id} />;
       case 'ShopCategries':
         return <ShopCategries />;
       default:

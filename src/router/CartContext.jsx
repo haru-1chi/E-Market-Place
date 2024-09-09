@@ -24,6 +24,7 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState({});
   const [cartDetails, setCartDetails] = useState({});
   const [orders, setOrders] = useState([]);
+  const [selectedItemsCart, setSelectedItemsCart] = useState({});
 
   useEffect(() => {
     const storedUser = getLocalStorageItem('user', null);
@@ -32,14 +33,22 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     if (user && user._id) {
-      const storedCart = getLocalStorageItem(`cart_${user._id}`, '{}');
+      const storedCart = getLocalStorageItem(`cart_${user._id}`, {});
       setCart(storedCart);
-      const storedCartDetails = getLocalStorageItem(`cartDetails_${user._id}`, '{}');
+      const storedCartDetails = getLocalStorageItem(`cartDetails_${user._id}`, {});
       setCartDetails(storedCartDetails);
       const storedOrders = getLocalStorageItem(`orders_${user._id}`, '[]');
       setOrders(Array.isArray(storedOrders) ? storedOrders : []);
+      const storedSelectedItemsCart = getLocalStorageItem(`selectedCart_${user._id}`, {});
+      setSelectedItemsCart(storedSelectedItemsCart);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && user._id) {
+      setLocalStorageItem(`selectedCart_${user._id}`, selectedItemsCart);
+    }
+  }, [selectedItemsCart, user]);
 
   useEffect(() => {
     if (user && user._id) {
@@ -60,60 +69,61 @@ export const CartProvider = ({ children }) => {
   }, [orders, user]);
 
   const addToCart = (product) => {
-    const { product_partner_id, product_name, product_price, product_image, product_subimage1, product_subimage2, product_subimage3,  _id } = product;
+    const { product_partner_id, product_name, product_price, product_image, product_subimage1, product_subimage2, product_subimage3, _id } = product;
 
     setCart(prevCart => {
-      const partnerId = product_partner_id._id;
+      const partner_id = product_partner_id._id;
 
-      const existingPartner = prevCart[partnerId] || {
-        partnerName: product_partner_id.partner_name,
+      const existingPartner = prevCart[partner_id] || {
+        partner_id: product_partner_id._id,
+        partner_name: product_partner_id.partner_name,
         products: []
       };
 
-      const existingProduct = existingPartner.products.find(item => item.productId === _id);
+      const existingProduct = existingPartner.products.find(item => item.product_id === _id);
 
       const updatedProducts = existingProduct
         ? existingPartner.products.map(item =>
-          item.productId === _id
-            ? { ...item, quantity: item.quantity + 1, price: product_price }
+          item.product_id === _id
+            ? { ...item, product_qty: item.product_qty + 1, price: product_price }
             : item
         )
-        : [...existingPartner.products, { productId: _id, product_name, quantity: 1, product_price, product_image, product_subimage1, product_subimage2, product_subimage3 }];
+        : [...existingPartner.products, { product_id: _id, product_name, product_qty: 1, product_price, product_image, product_subimage1, product_subimage2, product_subimage3 }];
 
       return {
         ...prevCart,
-        [partnerId]: { ...existingPartner, products: updatedProducts }
+        [partner_id]: { ...existingPartner, products: updatedProducts }
       };
     });
   };
 
-  const removeFromCart = (partnerId, productId) => {
+  const removeFromCart = (partner_id, product_id) => {
     setCart(prevCart => {
-      const updatedPartnerProducts = prevCart[partnerId].products.filter(product => product.productId !== productId);
+      const updatedPartnerProducts = prevCart[partner_id].products.filter(product => product.product_id !== product_id);
 
       if (updatedPartnerProducts.length === 0) {
-        const { [partnerId]: removedPartner, ...restCart } = prevCart;
+        const { [partner_id]: removedPartner, ...restCart } = prevCart;
         return restCart;
       }
 
       return {
         ...prevCart,
-        [partnerId]: {
-          ...prevCart[partnerId],
+        [partner_id]: {
+          ...prevCart[partner_id],
           products: updatedPartnerProducts
         }
       };
     });
   };
 
-  const updateQuantity = (partnerId, productId, quantity) => {
+  const updateQuantity = (partner_id, product_id, product_qty) => {
     setCart((prevCart) => ({
       ...prevCart,
-      [partnerId]: {
-        ...prevCart[partnerId],
-        products: prevCart[partnerId].products.map((product) =>
-          product.productId === productId
-            ? { ...product, quantity: Math.max(1, quantity) }
+      [partner_id]: {
+        ...prevCart[partner_id],
+        products: prevCart[partner_id].products.map((product) =>
+          product.product_id === product_id
+            ? { ...product, product_qty: Math.max(1, product_qty) }
             : product
         )
       }
@@ -129,7 +139,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const placeOrder = (orderDetails) => {
-    const totalBeforeDiscount = convertTHBtoLAK(cart.reduce((total, product) => total + product.product_price * product.quantity, 0));
+    const totalBeforeDiscount = convertTHBtoLAK(cart.reduce((total, product) => total + product.product_price * product.product_qty, 0));
     const CODCost = totalBeforeDiscount * COD_COST_RATE;
     const totalPayable = totalBeforeDiscount + CODCost;
 
@@ -153,6 +163,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => setCart({});
   const clearCartDetails = () => setCartDetails({});
   const clearOrder = () => setOrders([]);
+  const clearSelectedItemsCart = () => setSelectedItemsCart({});
 
   const resetCart = () => {
     setCart({});
@@ -161,7 +172,7 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ statusEvents, user, cart, cartDetails, orders, addToCart, removeFromCart, updateQuantity, placeCartDetail, placeOrder, clearCart, clearCartDetails, clearOrder, resetCart }}>
+    <CartContext.Provider value={{ statusEvents, user, cart, selectedItemsCart, cartDetails, orders, addToCart, removeFromCart, updateQuantity, setSelectedItemsCart, placeCartDetail, placeOrder, clearCart, clearCartDetails, clearOrder, clearSelectedItemsCart, resetCart }}>
       {children}
     </CartContext.Provider>
   );

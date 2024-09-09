@@ -5,7 +5,7 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import axios from "axios";
 import img_placeholder from '../../assets/img_placeholder.png';
 
-function ShopListProduct({ partnerId }) {
+function ShopListProduct({ partner_id }) {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -16,7 +16,7 @@ function ShopListProduct({ partnerId }) {
         setLoading(true);
         axios({
             method: "get",
-            url: `${apiProductUrl}/product/bypartner/${partnerId}`,
+            url: `${apiProductUrl}/product/bypartner/${partner_id}`,
         })
             .then((response) => {
                 setData(response.data.data);
@@ -31,10 +31,10 @@ function ShopListProduct({ partnerId }) {
     };
 
     useEffect(() => {
-        if (partnerId) {
+        if (partner_id) {
             fetchData();
         }
-    }, [partnerId]);
+    }, [partner_id]);
 
     useEffect(() => {
         if (activeTab !== "price") {

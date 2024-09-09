@@ -104,9 +104,9 @@ function StatusShippingPage({ orderId }) {
                                     <div className='w-full flex flex-column justify-content-between ml-3 white-space-nowrap overflow-hidden text-overflow-ellipsis'>
                                         <div className="flex flex-column">
                                             <span className="font-semibold text-sm">{product.product_name}</span>
-                                            <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.quantity}</span>
+                                            <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.product_qty}</span>
                                         </div>
-                                        <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.quantity).toLocaleString('en-US')}</span>
+                                        <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.product_qty).toLocaleString('en-US')}</span>
                                     </div>
                                 </div>
                             </div>

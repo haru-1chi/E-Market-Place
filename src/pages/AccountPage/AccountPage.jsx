@@ -186,11 +186,11 @@ function AccountPage() {
                                         />
                                         <div className="flex flex-column ml-3">
                                             <span className="mb-1 font-semibold">{product.product_name}</span>
-                                            <span>{product.quantity} หน่วย</span>
+                                            <span>{product.product_qty} หน่วย</span>
                                         </div>
                                     </div>
                                     <div className='w-4 text-right'>
-                                        <span className='text-xl'>{Number(product.ppu * product.quantity).toLocaleString('en-US')} ฿</span>
+                                        <span className='text-xl'>{Number(product.ppu * product.product_qty).toLocaleString('en-US')} ฿</span>
                                     </div>
                                 </div>
                             ))}
@@ -231,9 +231,9 @@ function AccountPage() {
                                         <div className='w-full flex flex-column justify-content-between ml-3'>
                                             <div className="flex flex-column">
                                                 <span className="max-w-17rem font-semibold text-sm  white-space-nowrap overflow-hidden text-overflow-ellipsis">{product.product_name}</span>
-                                                <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.quantity}</span>
+                                                <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.product_qty}</span>
                                             </div>
-                                            <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.quantity).toLocaleString('en-US')}</span>
+                                            <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.product_qty).toLocaleString('en-US')}</span>
                                         </div>
                                     </div>
                                 </div>

@@ -30,15 +30,15 @@ function Router() {
           <Route path="/" element={<Appbar />}>
             <Route index element={<HomePage />} />
             <Route path="Pagepoint" element={<Pagepoint />} />
-            <Route path="ShopPage/:partnerId" element={<ShopPage />} />
+            <Route path="ShopPage/:partner_id" element={<ShopPage />} />
             <Route path="/ShopCategriesSelected" element={<ShopCategriesSelected />} />
             <Route path="List-Product" element={<ListProductsPage />} />
-            <Route path="List-Product/Product/:productId" element={<ProductPage />} />
+            <Route path="List-Product/Product/:product_id" element={<ProductPage />} />
             <Route path="CheckoutPage" element={<CheckoutPage />} />
             <Route path="PaymentPage" element={<PaymentPage />} />
             <Route path="PaymentSuccessfully" element={<PaymentSuccessfully />} />
             <Route path="QRPage" element={<QRPage />} />
-            <Route path="AccountPage" element={<AccountPage />} />
+            <Route path="AccountPage" element={<AccountPage />} />2
             <Route path="StatusShippingPage/:orderId" element={<StatusShippingPage />} />
             <Route path="*" element={<NoPage />} />
             <Route path="/OrderSummaryPage" element={<OrderSummaryPage />} />

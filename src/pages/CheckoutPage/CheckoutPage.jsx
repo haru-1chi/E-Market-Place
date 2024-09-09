@@ -15,7 +15,7 @@ function CheckoutPage() {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
-    const { cart, placeCartDetail } = useCart();
+    const { selectedItemsCart, placeCartDetail } = useCart();
     const [shipping, setShipping] = useState('selfPickup');
     const [selectedDelivery, setSelectedDelivery] = useState('');
     const [deliveries, setDeliveries] = useState([]);
@@ -28,33 +28,28 @@ function CheckoutPage() {
     const num_total = 0
 
     useEffect(() => {
-        const totalBeforeDiscount = Object.values(cart).reduce((total, partner) => {
-            return total + partner.products.reduce((sum, product) => {
-                return sum + (product.product_price * product.quantity);
+        if (Object.keys(selectedItemsCart).length > 0) {
+            const totalBeforeDiscount = Object.values(selectedItemsCart).reduce((total, partner) => {
+                return total + partner.products.reduce((sum, product) => {
+                    return sum + (product.product_price * product.product_qty);
+                }, 0);
             }, 0);
-        }, 0);
 
-        const CODCost = totalBeforeDiscount * 0.03;
+            const CODCost = totalBeforeDiscount === 0 ? 0 : Math.max(totalBeforeDiscount * 0.03, 30);
+            const totalPayable = totalBeforeDiscount + CODCost;
 
-        const totalPayable = totalBeforeDiscount + CODCost;
-
-
-        setTotalBeforeDiscount(totalBeforeDiscount);
-        setCODCost(CODCost);
-        setTotalPayable(totalPayable);
-    }, []);
+            setTotalBeforeDiscount(totalBeforeDiscount);
+            setCODCost(CODCost);
+            setTotalPayable(totalPayable);
+        }
+    }, [selectedItemsCart]);
 
     useEffect(() => {
         const getUserProfile = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const user_id = localStorage.getItem("user_id");
-                const res = await axios.get(`${apiUrl}/users/${user_id}`, {
-                    headers: {
-                        "token": token,
-                    },
-                });
-                setUser(res.data.data);
+                const res = localStorage.getItem("user");
+                setUser(JSON.parse(res));
+            
             } catch (err) {
                 console.error("Error fetching user data", err.response?.data || err.message);
             }
@@ -75,16 +70,16 @@ function CheckoutPage() {
         fetchDeliveries();
     }, []);
 
-    const groupByPartner = Object.keys(cart).reduce((result, key) => {
-        const partner = cart[key];
-        const partnerName = partner.partnerName;
+    const groupByPartner = Object.keys(selectedItemsCart).reduce((result, key) => {
+        const partner = selectedItemsCart[key];
+        const partner_name = partner.partner_name;
 
-        if (!result[partnerName]) {
-            result[partnerName] = [];
+        if (!result[partner_name]) {
+            result[partner_name] = [];
         }
 
         partner.products.forEach(product => {
-            result[partnerName].push(product);
+            result[partner_name].push(product);
         });
 
         return result;
@@ -102,20 +97,30 @@ function CheckoutPage() {
                     shipping,
                     delivery_id: selectedDelivery._id,
                     deliveryBranch,
-                    amountPayment: LaostotalPayable,
+                    amountPayment: totalPayable,
                 };
                 placeCartDetail(orderDetails);
                 navigate("/PaymentPage");
             }
         } else {
             const orderDetails = {
-                currency: "THB",
-                dropoff_id: "66bdd3023208ada843eb3a1c",
-                shipping,
-                delivery_id: "66bdd415203788461da41f81",
-                deliveryBranch,
-                amountPayment: LaostotalPayable,
+                partner_id: selectedItemsCart.partner_id,
+                costomer_id: user._id,
+                // customer_name: "",
+                // customer_address: "",
+                // customer_tambon: "",
+                // customer_province: "",
+                // customer_zipcode: "",
+                // customer_telephone: "",
 
+
+
+                // currency: "THB",
+                // dropoff_id: "66bdd3023208ada843eb3a1c",
+                // shipping,
+                // delivery_id: "66bdd415203788461da41f81",
+                // deliveryBranch,
+                // amountPayment: totalPayable,
             };
             placeCartDetail(orderDetails);
             navigate("/PaymentPage");
@@ -135,23 +140,23 @@ function CheckoutPage() {
                         {user ? (
                             <>
                                 <p className='m-0'>ชื่อ: {user.name}</p>
-                                <p className='m-0'>เบอร์โทร: {formatLaosPhone(user.phone)}</p>
+                                {/* <p className='m-0'>เบอร์โทร: {formatLaosPhone(user.phone)}</p> */}
                             </>
                         ) : ("")
                         }
                     </div>
 
-                    {Object.keys(groupByPartner).map((partnerName, index) => {
-                        const items = groupByPartner[partnerName];
-                        const totalItems = items.reduce((acc, product) => acc + product.quantity, 0);
-                        const totalPrice = items.reduce((acc, product) => acc + product.product_price * product.quantity, 0);
+                    {Object.keys(groupByPartner).map((partner_name, index) => {
+                        const items = groupByPartner[partner_name];
+                        const totalItems = items.reduce((acc, product) => acc + product.product_qty, 0);
+                        const totalPrice = items.reduce((acc, product) => acc + product.product_price * product.product_qty, 0);
 
                         return (
                             <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                 <div className='w-full'>
                                     <div className='flex align-items-center mb-2'>
                                         <i className="pi pi-shop mr-1"></i>
-                                        <h4 className='m-0 font-semibold'>ผู้ขาย {partnerName}</h4>
+                                        <h4 className='m-0 font-semibold'>ผู้ขาย {partner_name}</h4>
                                     </div>
                                     {items.map((product, idx) => (
                                         <div key={idx} className="cart-items flex align-items-center py-2">
@@ -167,7 +172,7 @@ function CheckoutPage() {
                                                     <span className="mb-1 font-normal">{product.product_name}</span>
                                                     <div className="flex justify-content-between">
                                                         <span>฿{Number(product.product_price).toLocaleString('en-US')}</span>
-                                                        <span>x{product.quantity}</span>
+                                                        <span>x{product.product_qty}</span>
                                                     </div>
                                                 </div>
                                             </div>

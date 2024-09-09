@@ -39,7 +39,7 @@ function ProductPage() {
   }, []);
 
   
-  const fetchPartnerItemsCount = (partnerId) => {
+  const fetchPartnerItemsCount = (partner_id) => {
     axios({
       method: "get",
       url: `${apiProductUrl}/product`,
@@ -48,7 +48,7 @@ function ProductPage() {
         const products = response.data.data;
 
         const partnerProductsCount = products.filter(
-          (item) => item.product_partner_id._id === partnerId
+          (item) => item.product_partner_id._id === partner_id
         ).length;
         setPartnerItemsCount(partnerProductsCount);
       })

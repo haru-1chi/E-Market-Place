@@ -67,7 +67,7 @@ function Appbar() {
   const [visible3, setVisible3] = useState(false);
   const [visible4, setVisible4] = useState(false);
 
-  const { cart, removeFromCart, updateQuantity, resetCart } = useCart();
+  const { cart, removeFromCart, updateQuantity, resetCart, selectedItemsCart, setSelectedItemsCart } = useCart();
   const toast = useRef(null);
   const showToast = () => {
     toast.current.show({
@@ -88,30 +88,46 @@ function Appbar() {
       window.location.href = `/List-Product?search=${searchTerm}`;
     }
   };
+  const [selectedItems, setSelectedItems] = useState({});
 
-  const [selectedItems, setSelectedItems] = useState([]);
-
-  const handleSelectItem = (partnerId, productId) => {
+  const handleSelectItem = (partner_id, product, partner_name) => {
     setSelectedItems(prevSelectedItems => {
-      const exists = prevSelectedItems.find(item => item.partnerId === partnerId && item.productId === productId);
+      const selectedPartner = prevSelectedItems[partner_id] || { partner_id, partner_name, products: [] };
+      const existingProduct = selectedPartner.products.find(item => item.product_id === product.product_id);
 
-      if (exists) {
-        return prevSelectedItems.filter(item => !(item.partnerId === partnerId && item.productId === productId));
+      let updatedProducts;
+      if (existingProduct) {
+        updatedProducts = selectedPartner.products.filter(item => item.product_id !== product.product_id);
       } else {
-        return [...prevSelectedItems, { partnerId, productId }];
+        updatedProducts = [...selectedPartner.products, product];
       }
+
+      if (updatedProducts.length === 0) {
+        const { [partner_id]: removedPartner, ...restSelectedItems } = prevSelectedItems;
+        return restSelectedItems;
+      }
+
+      return {
+        ...prevSelectedItems,
+        [partner_id]: { ...selectedPartner, products: updatedProducts }
+      };
     });
   };
 
-  const selectedProducts = Object.keys(cart).flatMap(partnerId =>
-    cart[partnerId].products.filter(product =>
-      selectedItems.some(selected => selected.partnerId === partnerId && selected.productId === product.productId)
-    )
+  const selectedProducts = Object.keys(cart).flatMap(partner_id =>
+    cart[partner_id]?.products?.filter(product =>
+      selectedItems[partner_id]?.products?.some(item => item.product_id === product.product_id)
+    ) || [] // If products is undefined or null, return an empty array
   );
 
-  const totalBeforeDiscount = selectedProducts.reduce((total, product) => total + product.product_price * product.quantity, 0);
-  const CODCost = Math.max(totalBeforeDiscount * 0.03, 30);
+  const totalBeforeDiscount = selectedProducts.reduce((total, product) => total + product.product_price * product.product_qty, 0);
+  const CODCost = totalBeforeDiscount === 0 ? 0 : Math.max(totalBeforeDiscount * 0.03, 30);
   const totalPayable = totalBeforeDiscount + CODCost;
+
+  const confirmToCheckout = () => {
+    setSelectedItemsCart(selectedItems);
+    navigate("/CheckoutPage");
+  };
 
   const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
@@ -124,10 +140,10 @@ function Appbar() {
       return {};
     }
 
-    return Object.keys(cart).reduce((acc, partnerId) => {
-      const partner = cart[partnerId];
-      acc[partnerId] = {
-        partnerName: partner.partnerName,
+    return Object.keys(cart).reduce((acc, partner_id) => {
+      const partner = cart[partner_id];
+      acc[partner_id] = {
+        partner_name: partner.partner_name,
         products: partner.products
       };
       return acc;
@@ -135,17 +151,16 @@ function Appbar() {
   };
 
   const totalItems = Object.values(cart).reduce((total, partner) => {
-    return total + partner.products.reduce((sum, product) => {
-      return sum + product.quantity;
-    }, 0);
+    return total + (partner.products ? partner.products.length : 0);
   }, 0);
 
   const groupedCart = groupByPartner(cart);
 
   useEffect(() => {
+
     const getUserProfile = async () => {
       try {
-        console.log(totalItems)
+
         const token = localStorage.getItem("token");
         const user_id = localStorage.getItem("user_id");
         const res = await axios.get(`${apiUrl}/users/${user_id}`, {
@@ -530,27 +545,27 @@ function Appbar() {
                   {cart && Object.keys(cart).length > 0 ? (
                     <>
                       <div className="p-2">
-                        {Object.keys(groupedCart).map(partnerId => (
-                          <div key={partnerId} className="border-1 border-round-xl surface-border p-2 mb-3">
+                        {Object.keys(groupedCart).map(partner_id => (
+                          <div key={partner_id} className="border-1 border-round-xl surface-border p-2 mb-3">
                             <div className="flex justify-content-between">
                               <div className='flex align-items-center mb-2'>
                                 <i className="pi pi-shop"></i>
-                                <p className="m-0 ml-2 p-0">ผู้ขาย {groupedCart[partnerId].partnerName}</p>
+                                <p className="m-0 ml-2 p-0">ผู้ขาย {groupedCart[partner_id].partner_name}</p>
                               </div>
                               <p className="p-0 m-0">แก้ไข</p>
                             </div>
                             <div className="flex flex-column gap-4">
-                              {groupedCart[partnerId].products.map((product, index) => (
+                              {groupedCart[partner_id].products.map((product, index) => (
                                 <div
-                                  key={product.productId || index}
+                                  key={product.product_id || index}
                                   className="cart-items flex justify-content-between"
                                 >
                                   <div className="w-full flex">
                                     <div className="flex align-items-center">
                                       <div className="h-full flex flex-column justify-content-between align-items-center">
                                         <Checkbox
-                                          checked={selectedItems.some(item => item.partnerId === partnerId && item.productId === product.productId)}
-                                          onChange={() => handleSelectItem(partnerId, product.productId)}
+                                          checked={selectedItems[partner_id] && selectedItems[partner_id].products.some(item => item.product_id === product.product_id)}
+                                          onChange={() => handleSelectItem(partner_id, product, groupedCart[partner_id].partner_name)}
                                           className="mt-2"
                                         />
                                         <div className="flex align-items-center justify-content-between mb-2">
@@ -558,7 +573,7 @@ function Appbar() {
                                             icon="pi pi-trash"
                                             onClick={() => {
                                               showToast();
-                                              removeFromCart(partnerId, product.productId);
+                                              removeFromCart(partner_id, product.product_id);
                                             }}
                                             className="text-primary"
                                             rounded
@@ -588,17 +603,17 @@ function Appbar() {
                                             size="small"
                                             icon={<i className="pi pi-minus" style={{ fontSize: "0.6rem" }}></i>}
                                             className="p-0 border-noround w-2rem"
-                                            onClick={() => updateQuantity(partnerId, product.productId, product.quantity - 1)}
+                                            onClick={() => updateQuantity(partner_id, product.product_id, product.product_qty - 1)}
                                             text
                                           />
                                           <p className="px-3 m-0 p-0 border-x-1 border-300 text-sm">
-                                            {product.quantity}
+                                            {product.product_qty}
                                           </p>
                                           <Button
                                             size="small"
                                             icon={<i className="pi pi-plus" style={{ fontSize: "0.6rem" }}></i>}
                                             className="p-0 border-noround w-2rem"
-                                            onClick={() => updateQuantity(partnerId, product.productId, product.quantity + 1)}
+                                            onClick={() => updateQuantity(partner_id, product.product_id, product.product_qty + 1)}
                                             text
                                           />
                                         </div>
@@ -636,7 +651,11 @@ function Appbar() {
                             label="เช็คเอาท์"
                             size="small"
                             className="w-full border-noround"
-                            onClick={() => setVisible2(false)}
+                            onClick={() => {
+                              setVisible2(false);
+                              confirmToCheckout();
+                            }}
+                            disabled={Object.keys(selectedItems).length === 0}
                           />
                         </Link>
                       </div>
@@ -682,7 +701,7 @@ function Appbar() {
                         style={{ fontSize: "1.3rem" }}
                       ></i>
                       <Badge
-                        value={cart.length}
+                        value={totalItems}
                         severity="danger"
                         style={{
                           position: "absolute",

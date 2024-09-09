@@ -8,10 +8,10 @@ function PaymentPage() {
     const navigate = useNavigate();
     const totalPayable = cartDetails.amountPayment;
 
-    const handleConfirmPayment = (paymentChannel) => {
+    const handleConfirmPayment = (payment) => {
         const orderDetails = {
             ...cartDetails,
-            paymentChannel
+            payment
         };
         placeCartDetail(orderDetails);
         navigate("/QRPage");
@@ -35,7 +35,7 @@ function PaymentPage() {
                         </div>
                     </Link>
                     <Link to="/QRPage" className="no-underline text-900" >
-                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('bankCounter')}>
+                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('บัญชีธนาคาร')}>
                             <div className="flex align-items-center">
                                 <i className="pi pi-building-columns text-2xl mr-3"></i>
                                 <div>
