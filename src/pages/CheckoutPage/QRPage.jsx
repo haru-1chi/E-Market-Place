@@ -10,7 +10,7 @@ const EXPIRE_TIME = 60;
 
 function QRPage() {
     const apiUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
-    const { cart, cartDetails, selectedItemsCart, clearCart, clearCartDetails } = useCart();
+    const { cart, cartDetails, selectedItemsCart, clearCart, clearCartDetails,clearSelectedItemsCart } = useCart();
     const navigate = useNavigate();
 
     const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -109,8 +109,8 @@ function QRPage() {
                 return;
             }
 
-            for (let partnerId in selectedItemsCart) {
-                const partner = selectedItemsCart[partnerId]; // This is each partner's data
+            for (let partner_id in selectedItemsCart) {
+                const partner = selectedItemsCart[partner_id]; // This is each partner's data
                 const productsToPurchase = partner.products.map(product => ({
                     product_id: product.product_id,
                     product_qty: product.product_qty
@@ -131,15 +131,12 @@ function QRPage() {
                         return total + product.product_price * item.product_qty;
                     }, 0),
                     payment: cartDetails.payment, // Assuming you get this from cartDetails
-                    status: cartDetails.paymentChannel === "bankCounter" ? 1 : 2, // Set status based on payment
                 };
 
                 console.log(newOrder);
 
                 // Send POST request for each partner
-                const response = await axios.post(`${apiUrl}/orderproduct`, newOrder, {
-                    headers: { "token": token }
-                });
+                const response = await axios.post(`${apiUrl}/orderproduct`, newOrder);
 
                 if (response.data && response.data.status) {
                     console.log("Order successful for partner:", partner.partner_name, response.data);
@@ -171,8 +168,9 @@ function QRPage() {
             //     setError(response.data.message || "Order failed");
             // }
 
-            clearCart();
+            clearCart(cart, selectedItemsCart);
             clearCartDetails();
+            clearSelectedItemsCart();
             navigate("/PaymentSuccessfully");
         } catch (error) {
             console.error("Order error:", error.response?.data || error.message);

@@ -160,7 +160,33 @@ export const CartProvider = ({ children }) => {
     };
   };
 
-  const clearCart = () => setCart({});
+  const clearCart = (cart, selectedItemsCart) => {
+    const updatedCart = { ...cart }; // Create a shallow copy of the cart
+
+    // Iterate over each partner in SelectedItemsCart
+    for (const selectedPartnerId in selectedItemsCart) {
+      const selectedPartner = selectedItemsCart[selectedPartnerId];
+
+      // If the partner exists in the cart
+      if (updatedCart[selectedPartnerId]) {
+        const updatedProducts = updatedCart[selectedPartnerId].products.filter(cartProduct => {
+          // Check if the product exists in the selectedItemsCart for that partner
+          return !selectedPartner.products.some(selectedProduct => selectedProduct.product_id === cartProduct.product_id);
+        });
+
+        // If no products are left for that partner, remove the partner from the cart
+        if (updatedProducts.length === 0) {
+          delete updatedCart[selectedPartnerId];
+        } else {
+          // Otherwise, update the products list for that partner
+          updatedCart[selectedPartnerId].products = updatedProducts;
+        }
+      }
+    }
+
+    setCart(updatedCart); // Set the updated cart
+  };
+
   const clearCartDetails = () => setCartDetails({});
   const clearOrder = () => setOrders([]);
   const clearSelectedItemsCart = () => setSelectedItemsCart({});

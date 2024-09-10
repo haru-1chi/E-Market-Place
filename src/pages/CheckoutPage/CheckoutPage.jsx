@@ -105,7 +105,9 @@ function CheckoutPage() {
         } else {
             const orderDetails = {
                 partner_id: selectedItemsCart.partner_id,
-                costomer_id: user._id,
+                customer_id: user._id,
+                
+                
                 // customer_name: "",
                 // customer_address: "",
                 // customer_tambon: "",
@@ -122,6 +124,7 @@ function CheckoutPage() {
                 // deliveryBranch,
                 // amountPayment: totalPayable,
             };
+            
             placeCartDetail(orderDetails);
             navigate("/PaymentPage");
         }
