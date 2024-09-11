@@ -33,14 +33,14 @@ function Appbar() {
         navigate("/AccountPage", { state: { activeTab: "account" } });
       },
     },
-    {
-      label: "ประวัติการสั่งซื้อ",
-      command: () => {
-        setVisible1(false);
-        op.current.hide();
-        navigate("/AccountPage", { state: { activeTab: "orderHistory" } });
-      },
-    },
+    // {
+    //   label: "ประวัติการสั่งซื้อ",
+    //   command: () => {
+    //     setVisible1(false);
+    //     op.current.hide();
+    //     navigate("/AccountPage", { state: { activeTab: "orderHistory" } });
+    //   },
+    // },
     {
       label: "ติดต่อเรา",
       command: () => {
@@ -403,7 +403,10 @@ function Appbar() {
                         <div className="px-3">
                           <div className="flex justify-content-between align-items-center">
                             <h4 className="m-0 p-0 font-semibold">การซื้อของฉัน</h4>
-                            <Link to="/AccountPage"><p>ดูประวัติการซื้อ</p></Link>
+                            <p className="text-900 no-underline" onClick={() => {
+                              setVisible1(false);
+                              navigate("/AccountPage", { state: { activeTab: "orderHistory" } });
+                            }}><p>ดูประวัติการซื้อ</p></p>
                           </div>
                           <ul className="flex justify-content-center gap-8 pl-0 list-none">
                             <li className="flex flex-column text-center"
