@@ -39,10 +39,16 @@ function Navbar() {
   );
 
   useEffect(() => {
-    async function fetchCategories() {
-      const fetchedCategories = await GenerateCategories();
+    const fetchCategories = () => {
+
+      const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
+        key: index,
+        name: categoryName,
+        icon: CategoriesIcon[categoryName]
+      }));
+
       setCategories(fetchedCategories);
-    }
+    };
 
     fetchCategories();
   }, []);
@@ -52,72 +58,73 @@ function Navbar() {
   };
   return (
     <>
-     <div>
-              <Sidebar
-                header={customHeader4}
-                visible={visible4}
-                onHide={() => setVisible4(false)}
-                icons={customIcons}
-              >
-                <div>
-                  <div className="box-menu mt-5">
-                    <a href="#" onClick={() => setVisible4(false)}>
-                      <i className="pi pi-angle-left mr-2"></i>
-                      <span>
-                        <b>ย้อนกลับ</b>
-                      </span>
-                    </a>
-                  </div>
-                  <div className="box-menu mt-2 py-3 hover:surface-hover">
-                    <Link
-                      to="List-Product"
-                      className="flex justify-content-between"
-                      onClick={() => setVisible4(false)}
-                    >
-                      <div className="flex align-items-center">
-                        <img
-                          src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
-                          alt="สินค้าทุกหมวดหมู่"
-                          width={30}
-                          height={30}
-                        />
-                        <span className="ml-3">สินค้าทุกหมวดหมู่</span>
-                      </div>
-                      <i className="pi pi-angle-right mr-2"></i>
-                    </Link>
-                  </div>
-                  {categories.map((Item) => (
-                    <div
-                      className="box-menu py-3 hover:surface-hover"
-                      onClick={() => handleCategorySelect(Item.name)}
-                    >
-                      <Link
-                        className="flex justify-content-between align-items-center"
-                        onClick={() => setVisible4(false)}
-                      >
-                        <div className="flex align-items-center">
-                          <img
-                            src={Item.imgURL}
-                            alt="Item.name"
-                            width={30}
-                            height={30}
-                          />
-                          <span className="ml-3">{Item.name}</span>
-                        </div>
-                        <i className="pi pi-angle-right mr-2"></i>
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </Sidebar>
-              <Button
-                className="p-2 hidden"
-                label="หมวดหมู่สินค้า"
-                icon="pi pi-chevron-down"
-                iconPos="right"
-                onClick={() => setVisible4(true)}
-              />
+      <div>
+        <Sidebar
+          header={customHeader4}
+          visible={visible4}
+          onHide={() => setVisible4(false)}
+          icons={customIcons}
+        >
+          <div>
+            <div className="box-menu mt-5">
+              <a href="#" onClick={() => setVisible4(false)}>
+                <i className="pi pi-angle-left mr-2"></i>
+                <span>
+                  <b>ย้อนกลับ</b>
+                </span>
+              </a>
             </div>
+            <div className="box-menu mt-2 py-3 hover:surface-hover">
+              <Link
+                to="List-Product"
+                className="flex justify-content-between"
+                onClick={() => setVisible4(false)}
+              >
+                <div className="flex align-items-center">
+                  <img
+                    src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
+                    alt="สินค้าทุกหมวดหมู่"
+                    width={30}
+                    height={30}
+                  />
+                  <span className="ml-3">สินค้าทุกหมวดหมู่</span>
+                </div>
+                <i className="pi pi-angle-right mr-2"></i>
+              </Link>
+            </div>
+            {categories.map((Item, index) => (
+              <div
+                key={Item._id || index}
+                className="box-menu py-3 hover:surface-hover"
+                onClick={() => handleCategorySelect(Item.name)}
+              >
+                <Link
+                  className="flex justify-content-between align-items-center"
+                  onClick={() => setVisible4(false)}
+                >
+                  <div className="flex align-items-center">
+                    <img
+                      src={Item.icon}
+                      alt={Item.name}
+                      width={30}
+                      height={30}
+                    />
+                    <span className="ml-3">{Item.name}</span>
+                  </div>
+                  <i className="pi pi-angle-right mr-2"></i>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </Sidebar>
+        <Button
+          className="p-2 hidden"
+          label="หมวดหมู่สินค้า"
+          icon="pi pi-chevron-down"
+          iconPos="right"
+          onClick={() => setVisible4(true)}
+        />
+      </div>
 
       <div className="section-appbar card flex justify-content-start p-4 w-full bg-white ">
         <Sidebar
@@ -127,8 +134,8 @@ function Navbar() {
         >
           <div>
             <div className="flex justify-content-between pt-2 pb-4">
-                <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'}/>   
-                <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'}/>
+              <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
+              <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
             </div>
             <div>
               <Button

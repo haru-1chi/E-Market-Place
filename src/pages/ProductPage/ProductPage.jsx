@@ -38,7 +38,7 @@ function ProductPage() {
     fetchData();
   }, []);
 
-  
+
   const fetchPartnerItemsCount = (partner_id) => {
     axios({
       method: "get",
@@ -56,7 +56,7 @@ function ProductPage() {
         console.log(error);
       });
   };
-  
+
   useEffect(() => {
     if (product) {
       fetchPartnerItemsCount(product.product_partner_id._id);
@@ -109,6 +109,10 @@ function ProductPage() {
     return <div>Product not found</div>;
   }
 
+  const [currentImageURL, setCurrentImageURL] = useState(data[0].imgURL);
+  const handleThumbnailClick = (imgURL) => {
+    setCurrentImageURL(imgURL);
+  };
   return (
     <>
       <Toast ref={toast} position="top-center" />
@@ -116,14 +120,30 @@ function ProductPage() {
         <div className="flex flex-column">
           <div className="lg:flex gap-4">
             <div className="md:w-full lg:w-30rem shadow-2 border-round-lg bg-white p-4 mb-3 lg:mb-0 flex justify-content-center">
-              <Galleria
+              {/* <Galleria
                 value={data}
                 responsiveOptions={responsiveOptions}
                 numVisible={3}
                 item={itemTemplate}
                 thumbnail={thumbnailTemplate}
                 style={{ maxWidth: '640px' }}
-              />
+              /> */}
+              <div className="galleria-container">
+                <div className="galleria-main">
+                  <img src={currentImageURL} alt="Main" className="main-image" />
+                </div>
+                <div className="galleria-thumbnails">
+                  {data.map((item, index) => (
+                    <img
+                      key={index}
+                      src={item.imgURL}
+                      alt={`Thumbnail ${index + 1}`}
+                      className={`thumbnail ${currentImageURL === item.imgURL ? 'active' : ''}`}
+                      onClick={() => handleThumbnailClick(item.imgURL)}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="md:w-full lg:w-30rem p-3 bg-white border-round-lg shadow-2 mb-3 lg:mb-0">
               <div className="">

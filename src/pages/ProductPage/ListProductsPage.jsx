@@ -10,6 +10,7 @@ import { Button } from "primereact/button";
 import { Toast } from 'primereact/toast';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import img_placeholder from '../../assets/img_placeholder.png';
+import CategoriesIcon from "../../component/CategoriesIcon";
 
 function ListProductsPage() {
   const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
@@ -35,7 +36,7 @@ function ListProductsPage() {
     selectedCategories: []
   };
   const [filters, setFilters] = useState(defaultFilters);
-  const [sortOption, setSortOption] = useState('default'); //sort
+  const [sortOption, setSortOption] = useState('default');
   const [activeTab, setActiveTab] = useState("");
   const [priceSortOrder, setPriceSortOrder] = useState(null);
 
@@ -62,7 +63,7 @@ function ListProductsPage() {
     });
   };
 
-  const sortProducts = (products, sortOption) => {   //sort
+  const sortProducts = (products, sortOption) => {
     if (sortOption === 'lowToHigh') {
       return [...products].sort((a, b) => a.product_price - b.product_price);
     } else if (sortOption === 'highToLow') {
@@ -74,14 +75,17 @@ function ListProductsPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.post(`${apiUrl}/categories`);
-        setCategories(response.data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
+    const fetchCategories = () => {
+
+      const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
+        key: index,
+        name: categoryName,
+        icon: CategoriesIcon[categoryName]
+      }));
+
+      setCategories(fetchedCategories);
     };
+
     fetchCategories();
   }, []);
 
@@ -287,9 +291,9 @@ function ListProductsPage() {
                                 className="w-12 border-1 surface-border"
                               /></div>
                           </Link>
-                          <div className="h-full px-2 flex flex-column justify-content-between">
+                          <div className="h-full p-2 flex flex-column justify-content-between">
                             <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
-                            <div className="flex align-items-center justify-content-between mb-1">
+                            <div className="flex align-items-center justify-content-between">
                               <div className="font-bold">฿{Number(product.product_price).toLocaleString('en-US')}</div>
                               {/* <Button
                                 className="btn-plus-product"
@@ -318,14 +322,14 @@ function ListProductsPage() {
                         className="w-12rem mb-3"
                         label="ค้นหาตามหมวดหมู่"
                         rounded
-                        onClick="" /></Link>
+                      /></Link>
                       <Link to="/">
                         <Button
                           className="w-12rem"
                           label="ลองค้นหาด้วยคำอื่นๆ"
                           rounded
                           outlined
-                          onClick="" />
+                        />
                       </Link>
                     </div>
                   </div>

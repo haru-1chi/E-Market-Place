@@ -146,14 +146,14 @@ function ShopCategriesSelected() {
                                             className="w-12rem mb-3"
                                             label="ค้นหาตามหมวดหมู่"
                                             rounded
-                                            onClick="" /></Link>
+                                            /></Link>
                                         <Link to="/">
                                             <Button
                                                 className="w-12rem"
                                                 label="ลองค้นหาด้วยคำอื่นๆ"
                                                 rounded
                                                 outlined
-                                                onClick="" />
+                                           />
                                         </Link>
                                     </div>
                                 </div>

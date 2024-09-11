@@ -8,7 +8,6 @@ import Brand from "../../component/Brand";
 import AllBrand from "../../component/AllBrand";
 import Products from "../../component/Products";
 import CategoriesIcon from "../../component/CategoriesIcon";
-import GenerateCategories from "../../component/GenerateCategories";
 import axios from "axios";
 
 function HomePage() {

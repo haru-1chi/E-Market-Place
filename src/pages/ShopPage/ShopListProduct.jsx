@@ -183,7 +183,7 @@ function ShopListProduct({ partner_id }) {
                                                 className="w-12rem mb-3"
                                                 label="ค้นหาตามหมวดหมู่"
                                                 rounded
-                                                onClick=""
+                                     
                                             />
                                         </Link>
                                         <Link to="/">
@@ -192,7 +192,7 @@ function ShopListProduct({ partner_id }) {
                                                 label="ลองค้นหาด้วยคำอื่นๆ"
                                                 rounded
                                                 outlined
-                                                onClick=""
+                            
                                             />
                                         </Link>
                                     </div>

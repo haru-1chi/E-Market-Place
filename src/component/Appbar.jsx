@@ -102,7 +102,7 @@ function Appbar() {
   const selectedProducts = Object.keys(cart).flatMap(partner_id =>
     cart[partner_id]?.products?.filter(product =>
       selectedItems[partner_id]?.products?.some(item => item.product_id === product.product_id)
-    ) || [] // If products is undefined or null, return an empty array
+    ) || []
   );
 
   const totalPayable = selectedProducts.reduce((total, product) => total + product.product_price * product.product_qty, 0);
@@ -156,17 +156,19 @@ function Appbar() {
   }, []);
 
   useEffect(() => {
-    async function fetchCategories() {
-      const fetchedCategories = await GenerateCategories();
+    const fetchCategories = () => {
+
+      const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
+        key: index,
+        name: categoryName,
+        icon: CategoriesIcon[categoryName]
+      }));
+
       setCategories(fetchedCategories);
-    }
+    };
 
     fetchCategories();
   }, []);
-
-  const handleCategorySelect = (categoryName) => {
-    navigate("/List-Product", { state: { categoryName } });
-  };
 
   const customIcons = (
     <React.Fragment>
@@ -434,7 +436,7 @@ function Appbar() {
                           />
                         </div>
                         <hr />
-                        <div className="flex justify-content-between">
+                        <div className="flex justify-content-between px-3">
                           <p className="p-0 m-0">ภาษา</p>
                           <LanguageSelector />
                         </div>
@@ -733,8 +735,8 @@ function Appbar() {
                 onHide={() => setVisible4(false)}
                 icons={customIcons}
               >
-                <div>
-                  <div className="box-menu mt-5">
+                <div className="px-3">
+                  <div className="box-menu">
                     <a href="#" onClick={() => setVisible4(false)}>
                       <i className="pi pi-angle-left mr-2"></i>
                       <span>
@@ -772,7 +774,7 @@ function Appbar() {
                       >
                         <div className="flex align-items-center">
                           <img
-                            src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
+                            src={Item.icon}
                             alt={Item.name}
                             width={30}
                             height={30}

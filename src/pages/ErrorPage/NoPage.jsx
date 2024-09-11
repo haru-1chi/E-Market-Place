@@ -14,14 +14,14 @@ function NoPage() {
         className="w-8rem my-2"
         label="ไปหน้าหลัก"
         rounded
-        onClick="" /></Link>
+      /></Link>
       <Link to="/">
         <Button
           className="w-8rem mt-2"
           label="กลับ"
           rounded
           outlined
-          onClick="" />
+      />
       </Link>
     </div>
   )
