@@ -33,14 +33,6 @@ function Appbar() {
         navigate("/AccountPage", { state: { activeTab: "account" } });
       },
     },
-    // {
-    //   label: "ประวัติการสั่งซื้อ",
-    //   command: () => {
-    //     setVisible1(false);
-    //     op.current.hide();
-    //     navigate("/AccountPage", { state: { activeTab: "orderHistory" } });
-    //   },
-    // },
     {
       label: "ติดต่อเรา",
       command: () => {
@@ -221,7 +213,7 @@ function Appbar() {
     localStorage.removeItem("user_id");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    window.location.href = '/';
+    window.location.href = 'https://service.tossaguns.com/';
   };
 
   return (
@@ -304,8 +296,8 @@ function Appbar() {
                   <OverlayPanel ref={op} closeOnEscape>
                     <div className="w-16rem">
                       <div className="flex p-0 pb-2 border-bottom-1 surface-border align-items-center">
-                        <div class="flex flex-wrap justify-content-center">
-                          <div class="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">
+                        <div className="flex flex-wrap justify-content-center">
+                          <div className="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">
                             U
                             {/* {user.name.charAt(0).toUpperCase()} */}
                           </div>
@@ -326,9 +318,12 @@ function Appbar() {
                   </OverlayPanel>
                 </>
               ) : (
-                <Link to="/LoginPage">
-                  <Button icon="pi pi-user" rounded text />
-                </Link>
+                <Button
+                  icon="pi pi-user"
+                  rounded
+                  text
+                  onClick={() => window.location.href = 'https://service.tossaguns.com/'}
+                />
               )}
             </div>
           </div>
@@ -390,7 +385,7 @@ function Appbar() {
                     {user ? (
                       <>
                         <div className="flex p-2 align-items-start bg-primary">
-                          <div class="border-circle w-4rem h-4rem m-2 bg-cyan-500 font-bold flex align-items-center justify-content-center">
+                          <div className="border-circle w-4rem h-4rem m-2 bg-cyan-500 font-bold flex align-items-center justify-content-center">
                             U
                             {/* {user.name.charAt(0).toUpperCase()} */}
                           </div>
@@ -403,13 +398,13 @@ function Appbar() {
                         <div className="px-3">
                           <div className="flex justify-content-between align-items-center">
                             <h4 className="m-0 p-0 font-semibold">การซื้อของฉัน</h4>
-                            <p className="text-900 no-underline" onClick={() => {
+                            <p className="text-900 no-underline cursor-pointer" onClick={() => {
                               setVisible1(false);
                               navigate("/AccountPage", { state: { activeTab: "orderHistory" } });
-                            }}><p>ดูประวัติการซื้อ</p></p>
+                            }}>ดูประวัติการซื้อ</p>
                           </div>
                           <ul className="flex justify-content-center gap-8 pl-0 list-none">
-                            <li className="flex flex-column text-center"
+                            <li className="flex flex-column text-center cursor-pointer"
                               onClick={() => {
                                 setVisible1(false);
                                 navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "กำลังเตรียมจัดส่ง" } });
@@ -417,7 +412,7 @@ function Appbar() {
                               <i className="pi pi-box" style={{ fontSize: '1.5rem' }}></i>
                               <p className="m-0 p-0 mt-2 text-sm">ที่ต้องจัดส่ง</p>
                             </li>
-                            <li className="flex flex-column text-center"
+                            <li className="flex flex-column text-center cursor-pointer"
                               onClick={() => {
                                 setVisible1(false);
                                 navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "จัดส่งแล้ว" } });
@@ -465,12 +460,8 @@ function Appbar() {
                     ) : (
                       <div>
                         <div className="flex justify-content-between pt-2 pb-4">
-                          <Link to="/LoginPage">
-                            <Button label="เข้าสู่ระบบ" outlined rounded />
-                          </Link>
-                          <Link to="/RegisterPage">
-                            <Button label="ลงทะเบียน" rounded />
-                          </Link>
+                          <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
+                          <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
                         </div>
                         <div>
                           <Button
@@ -569,7 +560,7 @@ function Appbar() {
                                               showToast();
                                               removeFromCart(partner_id, product.product_id);
                                             }}
-                                            className="text-primary"
+                                            className="text-red-500"
                                             rounded
                                             text
                                           />
@@ -623,7 +614,7 @@ function Appbar() {
                         <div>
                           <div className="flex align-items-center justify-content-between py-2">
                             <p className="m-0">ยอดชำระ</p>
-                            <p className="m-0">{totalPayable.toFixed(2)} ฿</p>
+                            <p className="m-0">฿{totalPayable.toFixed(2)}</p>
                           </div>
                         </div>
                       </div>
@@ -742,7 +733,7 @@ function Appbar() {
                 onHide={() => setVisible4(false)}
                 icons={customIcons}
               >
-                <>
+                <div>
                   <div className="box-menu mt-5">
                     <a href="#" onClick={() => setVisible4(false)}>
                       <i className="pi pi-angle-left mr-2"></i>
@@ -769,8 +760,9 @@ function Appbar() {
                       <i className="pi pi-angle-right mr-2"></i>
                     </Link>
                   </div>
-                  {categories.map((Item) => (
+                  {categories.map((Item, index) => (
                     <div
+                      key={Item._id || index}
                       className="box-menu py-3 hover:surface-hover"
                       onClick={() => handleCategorySelect(Item.name)}
                     >
@@ -781,7 +773,7 @@ function Appbar() {
                         <div className="flex align-items-center">
                           <img
                             src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
-                            alt="Item.name"
+                            alt={Item.name}
                             width={30}
                             height={30}
                           />
@@ -791,7 +783,7 @@ function Appbar() {
                       </Link>
                     </div>
                   ))}
-                </>
+                </div>
               </Sidebar>
               <Button
                 className="p-2 hidden"

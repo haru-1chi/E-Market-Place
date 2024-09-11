@@ -99,7 +99,7 @@ function CheckoutPage() {
             const orderDetails = {
                 partner_id: selectedItemsCart.partner_id,
                 customer_id: user._id,
-                
+                amountPayment: totalPayable,
                 
                 // customer_name: "",
                 // customer_address: "",
@@ -232,7 +232,7 @@ function CheckoutPage() {
                         )}
                     </div>
                     <div className='flex justify-content-end'>
-                        <p className='m-0 mt-3'>ยอดสั่งซื้อ {num_total} รายการ: {Number(totalPayable.toFixed(2)).toLocaleString('en-US')} ฿</p>
+                        <p className='m-0 mt-3'>ยอดสั่งซื้อ {num_total} รายการ: ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}</p>
                     </div>
                 </div>
 
@@ -240,7 +240,7 @@ function CheckoutPage() {
                     <h3 className="m-0 p-0 pb-2">ข้อมูลการชำระเงิน</h3>
                     <div className="flex justify-content-between py-1">
                         <p className='m-0'>ยอดชำระ</p>
-                        <p className='m-0 text-right'>{Number(totalPayable.toFixed(2)).toLocaleString('en-US')} ฿</p>
+                        <p className='m-0 text-right'>฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}</p>
                     </div>
                     <Button className="w-full mt-2" label="ไปหน้าชำระสินค้า" size="small" rounded onClick={handleConfirmPayment} />
                 </div>

@@ -82,8 +82,8 @@ export default TemplateDemo;
 //             <OverlayPanel ref={op} closeOnEscape>
 //                 <div className='w-20rem'>
 //                     <div className="flex p-0 pb-2 border-bottom-1 surface-border align-items-center">
-//                         <div class="flex flex-wrap justify-content-center">
-//                             <div class="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">U</div>
+//                         <div className="flex flex-wrap justify-content-center">
+//                             <div className="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">U</div>
 //                         </div>
 //                         <h4 className="ml-3">username</h4>
 //                     </div>

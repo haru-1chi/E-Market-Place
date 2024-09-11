@@ -57,15 +57,15 @@ function ShopCategriesSelected() {
     const sortData = () => {
         let sortedData = [...data];
         if (activeTab === 'new') {
-            sortedData.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
+            sortedData.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
         } else if (activeTab === 'topSales') {
-            sortedData.sort((a, b) => b.sales_count - a.sales_count);
+            sortedData.sort((a, b) => a.product_stock - b.product_stock);
         } else if (activeTab === 'price') {
             sortedData.sort((a, b) => priceSortOrder === 'asc'
                 ? a.product_price - b.product_price
                 : b.product_price - a.product_price);
         } else if (activeTab === 'popular') {
-            sortedData.sort((a, b) => b.popularity_score - a.popularity_score);
+            sortedData.sort((a, b) => b.product_stock - a.product_stock);
         }
         return sortedData;
     };
@@ -119,7 +119,7 @@ function ShopCategriesSelected() {
                                                 <div className="h-full px-2 flex flex-column justify-content-between">
                                                     <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
                                                     <div className="flex align-items-center justify-content-between mb-1">
-                                                        <div className="font-bold">{Number(product.product_price).toLocaleString('en-US')} ฿</div>
+                                                        <div className="font-bold">฿{Number(product.product_price).toLocaleString('en-US')}</div>
                                                         {/* <Button
                                                className="btn-plus-product"
                                                icon="pi pi-plus"

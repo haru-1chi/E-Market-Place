@@ -13,11 +13,18 @@ import axios from "axios";
 
 function HomePage() {
   const [categories, setCategories] = useState([]);
+
   useEffect(() => {
-    async function fetchCategories() {
-      const fetchedCategories = await GenerateCategories();
+    const fetchCategories = () => {
+
+      const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
+        key: index,
+        name: categoryName,
+        icon: CategoriesIcon[categoryName]
+      }));
+
       setCategories(fetchedCategories);
-    }
+    };
 
     fetchCategories();
   }, []);
@@ -120,8 +127,8 @@ function HomePage() {
                 <div className="category-title">สินค้าทุกหมวดหมู่</div>
               </div>
             </Link>
-            {categories.map((item) => (
-              <div onClick={() => handleCategorySelect(item.name)}>
+            {categories.map((item, index) => (
+              <div onClick={() => handleCategorySelect(item.name)} key={item._id || index}>
                 <Category data={item} />
               </div>
             ))}
@@ -163,10 +170,10 @@ function HomePage() {
           <span>
             <b>เปิดตัวแบรนด์ใหม่</b>
           </span>
-          <div class="flex category-scrllo w-full mt-4 justify-items-center">
+          <div className="flex category-scrllo w-full mt-4 justify-items-center">
             <div className="flex justify-content-between sm:col-12 gap-3 section-all-brand">
               {newBrabd.map((item) => (
-                <Brand data={item} />
+                <Brand data={item} key={item.id}/>
               ))}
             </div>
           </div>

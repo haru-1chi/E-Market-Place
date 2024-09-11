@@ -45,7 +45,7 @@ useEffect(() => {
   const renderActiveComponent = () => {
     switch (activeTab) {
       case 'HomeShop':
-        return <HomeShop />;
+        return <HomeShop partner_id={partner_id} />;
       case 'ShopListProduct':
         return <ShopListProduct partner_id={partner_id} />;
       case 'ShopCategries':

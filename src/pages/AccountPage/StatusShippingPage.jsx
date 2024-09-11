@@ -57,8 +57,8 @@ function StatusShippingPage({ orderId }) {
     }, [apiUrl, orderId]);
 
     const currentStatus = order?.statusdetail
-            .slice()
-            .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || "ไม่ทราบสถานะ";
+        .slice()
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || "ไม่ทราบสถานะ";
 
     return (
         <>
@@ -70,7 +70,7 @@ function StatusShippingPage({ orderId }) {
                     user={user}
                 />
 
-                {order?.paymentChannel === "bankCounter" ? <SlipPayment /> : ""}
+                {order?.payment === "บัญชีธนาคาร" ? "" : <SlipPayment />}
 
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round p-2 bg-white border-round-mb justify-content-center">
                     <div className="p-2 flex align-items-center">
@@ -105,7 +105,7 @@ function StatusShippingPage({ orderId }) {
                     <div className="flex align-items-center justify-content-end pt-3 pb-2">
                         <p className="m-0 p-0 mr-2">รวมคำสั่งซื้อ:</p>
                         <p className="m-0 p-0 pr-2 font-semibold text-900">
-                            {order?.totalproduct?.toFixed(2)} ฿
+                            ฿{order?.totalproduct?.toFixed(2)}
                         </p>
                     </div>
                 </div>
@@ -115,9 +115,9 @@ function StatusShippingPage({ orderId }) {
                             <h3 className="m-0 mb-2 p-0 font-semibold">ข้อมูลการชำระเงิน</h3>
                             <p className="m-0 p-0">
                                 ช่องทางการชำระเงิน:{" "}
-                                {order?.paymentChannel === "bankCounter"
-                                    ? "ชำระเงินผ่านเคาท์เตอร์ธนาคาร"
-                                    : "ชำระเงินผ่าน OnePay"}
+                                {order?.payment === "บัญชีธนาคาร"
+                                    ? "โอนชำระผ่านธนาคาร"
+                                    : "ชำระเงินผ่าน E-wallet"}
                             </p>
                             <p className="m-0 p-0">สถานะ: {currentStatus?.status}</p>
                             <p className="m-0 p-0">
@@ -129,7 +129,7 @@ function StatusShippingPage({ orderId }) {
                             <div className="flex align-items-center justify-content-between py-2">
                                 <p className="m-0 p-0">ราคารวม</p>
                                 <p className="m-0 p-0 pr-2 font-semibold text-primary">
-                                    {order?.totalproduct?.toFixed(2)} ฿
+                                    ฿{order?.totalproduct?.toFixed(2)}
                                 </p>
                             </div>
                         </div>

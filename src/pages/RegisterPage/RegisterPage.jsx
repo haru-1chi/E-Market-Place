@@ -61,7 +61,7 @@ function RegisterPage() {
       const response = await axios.post(`${apiUrl}/users`, formData);
       if (response.data.status) {
         console.log("Register successful", response.data);
-        navigate("/LoginPage");
+        window.location.href = 'https://service.tossaguns.com/'
       } else {
         setErrorMessage(response.data.message || "Register failed");
       }
@@ -158,7 +158,7 @@ function RegisterPage() {
             <span className="text-center hidden">หรือ</span>
             <Button className="mt-3 mb-5 hidden" label="สร้างบัญชีธุรกิจ" outlined rounded />
             <a href="#" className="text-center hidden">บัญชีธุรกิจคืออะไร</a>
-            <p className="text-center">มีบัญชีของอยู่แล้วใช่ไหม <a href="/LoginPage">เข้าสู่ระบบที่นี่</a></p>
+            <p className="text-center">มีบัญชีของอยู่แล้วใช่ไหม <a href="https://service.tossaguns.com/">เข้าสู่ระบบที่นี่</a></p>
           </div>
         </div>
       </div>

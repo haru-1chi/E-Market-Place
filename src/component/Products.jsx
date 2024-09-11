@@ -60,7 +60,7 @@ function Products({ data, startIndex }) {
         const token = localStorage.getItem("token");
         if (!token) {
             showWarningToast();
-            navigate("/LoginPage");
+            window.location.href = 'https://service.tossaguns.com/'
         } else {
             addToCart(product)
             showSuccessToast();
@@ -107,7 +107,7 @@ function Products({ data, startIndex }) {
                     <div className='h-full px-2 flex flex-column justify-content-between'>
                         <h4 className="m-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
                         <div className="flex align-items-center justify-content-between mb-1">
-                            <div className='font-bold'>{Number(product.product_price).toLocaleString('en-US')} ฿</div>
+                            <div className='font-bold'>฿{Number(product.product_price).toLocaleString('en-US')}</div>
                             {/* <Button
                                 className='btn-plus-product'
                                 icon="pi pi-plus"

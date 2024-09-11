@@ -61,7 +61,7 @@ function RegisterPage() {
             const response = await axios.post(`${apiUrl}/users`, formData);
             if (response.data.status) {
                 console.log("Register successful", response.data);
-                navigate("/LoginPage");
+            
             } else {
                 setErrorMessage(response.data.message || "Register failed");
             }

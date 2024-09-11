@@ -54,8 +54,8 @@ function AllBrand() {
 
     return (
         <>
-            {brand.map((Item) => (
-                <div className="block text-center">
+            {brand.map((Item, index) => (
+                <div className="block text-center" key={index}>
                     <img
                         src={Item.imgURL}
                         alt=""

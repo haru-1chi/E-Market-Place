@@ -32,8 +32,7 @@ function ListProductsPage() {
   const categoriesLocation = location.state?.categoryName ? location.state.categoryName : [];
   const defaultFilters = {
     priceRanges: { key: 'allRange', value: 'All' },
-    selectedCategories: [],
-    selectedBrands: []
+    selectedCategories: []
   };
   const [filters, setFilters] = useState(defaultFilters);
   const [sortOption, setSortOption] = useState('default'); //sort
@@ -99,10 +98,6 @@ function ListProductsPage() {
       filtered = filtered.filter(product => filters.selectedCategories.includes(product.product_category));
     }
 
-    if (filters.selectedBrands.length > 0) {
-      filtered = filtered.filter(product => filters.selectedBrands.includes(product.product_brand));
-    }
-
     filtered = sortProducts(filtered, sortOption);
 
     setFilteredData(filtered);
@@ -133,24 +128,28 @@ function ListProductsPage() {
         setPaginatedData(filtered.slice(first, first + rows));
       })
       .catch((error) => {
-        console.log(error);
-        console.log(apiUrl);
-      }).finally(() => {
+        console.error('Error fetching data:', error);
+      })
+      .finally(() => {
         setLoading(false);
       });
   };
 
   useEffect(() => {
     fetchData();
-  }, [searchTerm, location.state?.categoryName]);
+  }, [apiProductUrl, searchTerm, location.state?.categoryName, first, rows]);
 
   useEffect(() => {
     const categoryName = location.state?.categoryName;
     const updatedFilters = {
       ...filters,
-      selectedCategories: categoryName ? [categoryName, ...(filters.selectedCategories)] : filters.selectedCategories,
+      selectedCategories: categoryName
+        ? [...new Set([categoryName, ...filters.selectedCategories])]
+        : filters.selectedCategories,
     };
-    setFilters(updatedFilters);
+    if (JSON.stringify(updatedFilters) !== JSON.stringify(filters)) {
+      setFilters(updatedFilters);
+    }
     applyFilters(updatedFilters);
   }, [location.state?.categoryName, applyFilters, filters]);
 
@@ -168,7 +167,7 @@ function ListProductsPage() {
     const token = localStorage.getItem("token");
     if (!token) {
       showWarningToast();
-      navigate("/LoginPage");
+      window.location.href = 'https://service.tossaguns.com/'
     } else {
       addToCart(product)
       showSuccessToast();
@@ -184,9 +183,9 @@ function ListProductsPage() {
   const sortData = () => {
     let sortedData = [...paginatedData];
     if (activeTab === "new") {
-      sortedData.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
+      sortedData.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     } else if (activeTab === "topSales") {
-      sortedData.sort((a, b) => b.sales_count - a.sales_count);
+      sortedData.sort((a, b) => a.product_stock - b.product_stock);
     } else if (activeTab === "price") {
       sortedData.sort((a, b) =>
         priceSortOrder === "asc"
@@ -194,7 +193,7 @@ function ListProductsPage() {
           : b.product_price - a.product_price
       );
     } else if (activeTab === "popular") {
-      sortedData.sort((a, b) => b.popularity_score - a.popularity_score);
+      sortedData.sort((a, b) => b.product_stock - a.product_stock);
     }
     return sortedData;
   };
@@ -274,8 +273,8 @@ function ListProductsPage() {
             <>
               {data.length ? (
                 <div className="w-full">
-                  {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา "{searchTerm}"</h2>}
-                  {location.state?.categoryName && <h2 className="mt-0 font-semibold">ผลการค้นหาตามหมวดหมู่ "{location.state?.categoryName}"</h2>} */}
+                  {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา &quot;{searchTerm}&quot;</h2>}
+                  {location.state?.categoryName && <h2 className="mt-0 text-xs">ผลการค้นหาตามหมวดหมู่ &quot;{location.state?.categoryName}&quot;</h2>} */}
                   <div className="product-list">
                     {sortData().map((product, index) => (
                       <div key={index} className="relative flex h-18rem md:h-28rem">
@@ -291,7 +290,7 @@ function ListProductsPage() {
                           <div className="h-full px-2 flex flex-column justify-content-between">
                             <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
                             <div className="flex align-items-center justify-content-between mb-1">
-                              <div className="font-bold">{Number(product.product_price).toLocaleString('en-US')} ฿</div>
+                              <div className="font-bold">฿{Number(product.product_price).toLocaleString('en-US')}</div>
                               {/* <Button
                                 className="btn-plus-product"
                                 icon="pi pi-plus"

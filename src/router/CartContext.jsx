@@ -148,7 +148,7 @@ export const CartProvider = ({ children }) => {
     // const CODCost = totalBeforeDiscount * COD_COST_RATE;
     // const totalPayable = totalBeforeDiscount + CODCost;
 
-    const status = orderDetails.PaymentChannel === "bankCounter"
+    const status = orderDetails.PaymentChannel === "บัญชีธนาคาร"
       ? 'PendingPayment'
       : 'pending';
 

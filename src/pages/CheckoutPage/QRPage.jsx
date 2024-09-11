@@ -227,10 +227,10 @@ function QRPage() {
 
                 </div>
                 <div className="w-full flex-grow-1 flex flex-column text-center">
-                    <p className="m-0">Amount (LAK)</p>
+                    <p className="m-0">Amount (BATH)</p>
                     {totalPayable && (
                         <p className="my-3 text-2xl font-bold">
-                            {Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
+                            ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
                         </p>
                     )}
 
@@ -250,7 +250,7 @@ function QRPage() {
                 <div className='flex flex-column border-1 surface-border border-round py-5 px-3 bg-white border-round-mb '>
                     <h1 className="m-0 p-0">MakroLao</h1>
 
-                    {cartDetails.paymentChannel === 'QRCode' ? (
+                    {cartDetails.payment === 'QRCode' ? (
                         loading ? (
                             <ProgressSpinner />
                         ) : error ? (
