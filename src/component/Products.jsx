@@ -94,12 +94,14 @@ function Products({ data, startIndex }) {
         return (
             product ? (
                 <div className="carousel-product-items border-1 surface-border m-2 bg-white flex flex-column">
-                    <div className="flex align-items-center justify-content-center">
+                    <div className="align-items-center justify-content-center">
                         <Link to={`/List-Product/product/${product._id}`} state={{ product }}>
-                            <img
-                                src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
-                                alt={product.product_name}
-                                className="w-12 border-1 surface-border" />
+                            <div className="square-image">
+                                <img
+                                    src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
+                                    alt={product.product_name}
+                                    className="w-12 border-1 surface-border" />
+                            </div>
                         </Link>
                     </div>
                     <div className='h-full px-2 flex flex-column justify-content-between'>

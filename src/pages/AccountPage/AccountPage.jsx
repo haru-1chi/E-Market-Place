@@ -11,7 +11,7 @@ import img_placeholder from '../../assets/img_placeholder.png';
 
 function AccountPage() {
     const location = useLocation();
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [activeTab, setActiveTab] = useState('account');
     const [selectedOrderId, setSelectedOrderId] = useState(null);
     const [isContactUsVisible, setContactUsVisible] = useState(false);
@@ -28,48 +28,60 @@ function AccountPage() {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            const token = localStorage.getItem("token");
-            try {
-                const res = await axios.get(`${apiUrl}/orders`, {
-                    headers: { "token": token },
-                });
-                setUserOrders(res.data.data);
-            } catch (err) {
-                console.error("Error fetching user data", err.response?.data || err.message);
+            const user = localStorage.getItem("user");
+
+            if (user) {
+                const parsedUser = JSON.parse(user);
+                const user_id = parsedUser._id;
+                try {
+                    const res = await axios.get(`${apiUrl}/orderproduct/bycustomer/${user_id}`);
+                    setUserOrders(res.data.data);
+                } catch (err) {
+                    console.error("Error fetching user data", err.response?.data || err.message);
+                }
+            } else {
+                console.error("No user found in localStorage");
             }
         };
+
         fetchOrders();
     }, [apiUrl]);
 
+    const getLatestStatus = (statusDetails) => {
+        if (!Array.isArray(statusDetails) || statusDetails.length === 0) return null;
+        return statusDetails.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    };
+
     const statusCounts = (userOrders ?
         userOrders.reduce((counts, order) => {
-            // const statusDetails = statusEvents[order.status];
-            const statusDetails = Object.values(statusEvents).find(status => status.key === order.status);
-            counts[statusDetails?.key] = (counts[statusDetails?.key] || 0) + 1;
+            const latestStatusDetail = getLatestStatus(order.statusdetail);
+            if (!latestStatusDetail) return counts;
+
+            const statusDetails = Object.values(statusEvents).find(status => status.value === latestStatusDetail.status);
+            if (statusDetails) {
+                counts[statusDetails.key] = (counts[statusDetails.key] || 0) + 1;
+            }
             return counts;
         }, {})
-        : ("")
-    )
+        : ""
+    );
 
     const filteredOrders = (activeOrderStatus === 'all'
         ? (Array.isArray(userOrders) ? userOrders : [])
         : (Array.isArray(userOrders) ? userOrders.filter(order => {
-            const orderStatus = Object.values(statusEvents).find(status => status.key === order.status);
+            const latestStatusDetail = getLatestStatus(order.statusdetail);
+            if (!latestStatusDetail) return false;
+
+            const orderStatus = Object.values(statusEvents).find(status => status.value === latestStatusDetail.status);
             switch (activeOrderStatus) {
-                case 'ต้องชำระเงิน':
-                    return orderStatus?.key === statusEvents.PendingPayment?.key;
-                case 'กำลังจัดเตรียม':
-                    return [statusEvents.pending.key, statusEvents.Preparing.key].includes(orderStatus?.key);
-                case 'กำลังแพ็คสินค้า':
+                case 'กำลังเตรียมจัดส่ง':
                     return orderStatus?.key === statusEvents.Packaged?.key;
-                case 'กำลังจัดส่ง':
+                case 'จัดส่งแล้ว':
                     return orderStatus?.key === statusEvents.Delivering?.key;
-                case 'ถึงจุดรับสินค้าแล้ว':
-                    return orderStatus?.key === statusEvents.Delivering?.key;
-                case 'รับสินค้าสำเร็จ':
-                    return orderStatus?.key === statusEvents.Arrival.key;
-                case 'ถูกยกเลิก':
-                    return orderStatus?.key === statusEvents.Cancelled.key;
+                case 'รับสินค้าแล้ว':
+                    return orderStatus?.key === statusEvents.Received?.key;
+                case 'ยกเลิกออเดอร์':
+                    return orderStatus?.key === statusEvents.Cancelled?.key;
                 default:
                     return true;
             }
@@ -79,6 +91,9 @@ function AccountPage() {
     useEffect(() => {
         if (location.state?.activeTab) {
             setActiveTab(location.state.activeTab);
+        }
+        if (location.state?.activeOrderStatus) {
+            setActiveOrderStatus(location.state.activeOrderStatus);
         }
     }, [location.state]);
 
@@ -90,33 +105,21 @@ function AccountPage() {
                 onClick={() => setActiveOrderStatus('all')}>
                 ทั้งหมด {userOrders?.length}
             </li>
-            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'ต้องชำระเงิน' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
-                onClick={() => setActiveOrderStatus('ต้องชำระเงิน')}>
-                ต้องชำระเงิน {statusCounts[statusEvents?.PendingPayment.key] || ''}
+            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'กำลังเตรียมจัดส่ง' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+                onClick={() => setActiveOrderStatus('กำลังเตรียมจัดส่ง')}>
+                กำลังเตรียมจัดส่ง {statusCounts[statusEvents?.Packaged.key] || ''}
             </li>
-            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'กำลังจัดเตรียม' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
-                onClick={() => setActiveOrderStatus('กำลังจัดเตรียม')}>
-                กำลังจัดเตรียม {statusCounts[statusEvents.Preparing.key] || ''}
+            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'จัดส่งแล้ว' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+                onClick={() => setActiveOrderStatus('จัดส่งแล้ว')}>
+                จัดส่งแล้ว {statusCounts[statusEvents.Delivering.key] || ''}
             </li>
-            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'กำลังแพ็คสินค้า' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
-                onClick={() => setActiveOrderStatus('กำลังแพ็คสินค้า')}>
-                กำลังแพ็คสินค้า {statusCounts[statusEvents.Packaged.key] || ''}
+            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'รับสินค้าแล้ว' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+                onClick={() => setActiveOrderStatus('รับสินค้าแล้ว')}>
+                รับสินค้าแล้ว {statusCounts[statusEvents.Received.key] || ''}
             </li>
-            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'กำลังจัดส่ง' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
-                onClick={() => setActiveOrderStatus('กำลังจัดส่ง')}>
-                กำลังจัดส่ง {statusCounts[statusEvents.Delivering.key] || ''}
-            </li>
-            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'ถึงจุดรับสินค้าแล้ว' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
-                onClick={() => setActiveOrderStatus('ถึงจุดรับสินค้าแล้ว')}>
-                ถึงจุดรับสินค้าแล้ว {statusCounts[statusEvents.Arrival.key] || ''}
-            </li>
-            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'รับสินค้าสำเร็จ' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
-                onClick={() => setActiveOrderStatus('รับสินค้าสำเร็จ')}>
-                รับสินค้าสำเร็จ {statusCounts[statusEvents.Received.key] || ''}
-            </li>
-            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'ถูกยกเลิก' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
-                onClick={() => setActiveOrderStatus('ถูกยกเลิก')}>
-                ถูกยกเลิก {statusCounts[statusEvents.Cancelled.key] || ''}
+            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'ยกเลิกออเดอร์' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+                onClick={() => setActiveOrderStatus('ยกเลิกออเดอร์')}>
+                ยกเลิกออเดอร์ {statusCounts[statusEvents.Cancelled.key] || ''}
             </li>
         </ul>
     );
@@ -165,17 +168,19 @@ function AccountPage() {
     );
 
     const OrderItem = ({ order }) => {
-        const orderStatus = Object.values(statusEvents).find(status => status.key === order.status);
+        const latestStatus = order.statusdetail
+            .slice() // Copy the array to avoid mutating the original
+            .sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.status || "Unknown Status";
         return (
             <>
-                <div className='hidden md:flex w-full grid-nogutter bg-white border-1 surface-border border-round-xl py-3 px-2 mt-3 align-items-start'>
+                {/* <div className='hidden md:flex w-full grid-nogutter bg-white border-1 surface-border border-round-xl py-3 px-2 mt-3 align-items-start'>
                     <div className='col-2'>
                         <p className="m-0 p-0 text-sm">#{order.code}</p>
                         <p className="m-0 p-0 font-semibold">Makro PRO</p>
                     </div>
                     <div className='col-5'>
                         <div className="w-full flex flex-column text-left gap-2">
-                            {order._items.map((product, index) => (
+                            {order.product.map((product, index) => (
                                 <div key={index} className="cart-items flex justify-content-between align-items-center pb-1 border-bottom-1 surface-border">
                                     <div className="w-full flex align-items-center">
                                         <img
@@ -203,26 +208,26 @@ function AccountPage() {
                     <div className='col-2'>
                         <p className="m-0 p-0 text-right font-semibold text-primary text-l">{order.net_price?.toLocaleString('en-US')} ฿</p>
                     </div>
-                </div>
+                </div> */}
                 {/* responsive */}
                 <div className='block md:hidden w-full grid-nogutter bg-white border-1 surface-border border-round-xl p-3 mt-3 align-items-start'>
                     <div className='w-full pb-2'>
                         <div className='flex justify-content-between'>
                             <div className='flex align-items-center'>
                                 <i className="pi pi-shop"></i>
-                                <p className="m-0 ml-2 p-0">ชื่อร้านค้า</p>
+                                <p className="m-0 ml-2 p-0">ผู้ขาย: {order.partner_name}</p>
                             </div>
-                            <p className={`w-fit m-0 px-1 py-0 border-round-md surface-border ${orderStatus?.tagCSS}`}>{orderStatus?.value}</p>
+                            <p className={`w-fit m-0 px-1 py-0 border-round-md surface-border ${latestStatus?.tagCSS}`}>{latestStatus}</p>
                         </div>
 
                     </div>
                     <div className='w-full'>
                         <div className="w-full py-2 flex flex-column text-left gap-2">
-                            {order._items.map((product, index) => (
+                            {order.product.map((product, index) => (
                                 <div key={index} className="cart-items flex justify-content-between align-items-center pb-1">
                                     <div className="w-full flex">
                                         <img
-                                            src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
+                                            src={product.product_image ? apiProductUrl + product.product_image : img_placeholder}
                                             alt={product.product_name}
                                             width={90}
                                             height={90}
@@ -233,7 +238,7 @@ function AccountPage() {
                                                 <span className="max-w-17rem font-semibold text-sm  white-space-nowrap overflow-hidden text-overflow-ellipsis">{product.product_name}</span>
                                                 <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.product_qty}</span>
                                             </div>
-                                            <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.product_qty).toLocaleString('en-US')}</span>
+                                            <span className='text-ml text-right font-semibold'>฿{Number(product.product_price * product.product_qty).toLocaleString('en-US')}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -241,8 +246,8 @@ function AccountPage() {
                         </div>
                     </div>
                     <div className='w-full flex justify-content-end'>
-                        <p className="m-0 p-0 text-right">สินค้ารวม {order?._items?.length} รายการ: </p>
-                        <p className="m-0 ml-1 p-0 text-right font-semibold">฿{order.net_price?.toLocaleString('en-US')}</p>
+                        <p className="m-0 p-0 text-right">สินค้ารวม {order?.product?.length} รายการ: </p>
+                        <p className="m-0 ml-1 p-0 text-right font-semibold">฿{order.totalproduct?.toLocaleString('en-US')}</p>
                     </div>
                     {/* <div className='w-full text-right'>
                         <p className="m-0 pt-3 text-right font-semibold text-primary text-l">{order.net_price?.toLocaleString('en-US')} ฿</p>

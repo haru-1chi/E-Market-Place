@@ -10,7 +10,7 @@ const EXPIRE_TIME = 60;
 
 function QRPage() {
     const apiUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
-    const { cart, cartDetails, selectedItemsCart, clearCart, clearCartDetails,clearSelectedItemsCart } = useCart();
+    const { cart, cartDetails, selectedItemsCart, clearCart, clearCartDetails, clearSelectedItemsCart } = useCart();
     const navigate = useNavigate();
 
     const [qrCodeUrl, setQrCodeUrl] = useState('');
@@ -108,12 +108,14 @@ function QRPage() {
                 setError("User not authenticated. Please log in.");
                 return;
             }
-
             for (let partner_id in selectedItemsCart) {
                 const partner = selectedItemsCart[partner_id]; // This is each partner's data
                 const productsToPurchase = partner.products.map(product => ({
                     product_id: product.product_id,
-                    product_qty: product.product_qty
+                    product_image: product.product_image ? product.product_image : product.product_subimage1 ? product.product_subimage1 : product.product_subimage2 ? product.product_subimage2 : product.product_subimage3,
+                    product_name: product.product_name,
+                    product_price: product.product_price,
+                    product_qty: product.product_qty,
                 }));
 
                 // Construct order data for each partner
@@ -196,7 +198,7 @@ function QRPage() {
                 )}
             </div>
             <div className="flex">
-                <div className="block flex-grow-1 flex flex-column text-center">
+                <div className="flex-grow-1 flex flex-column text-center">
                     <p className="m-0">Amount (LAK)</p>
                     {totalPayable && (
                         <p className="my-3 text-2xl font-bold">
@@ -224,7 +226,7 @@ function QRPage() {
                     <p className="m-0 text-center">เลขบัญชี: 000-000000-0 (หรือรหัสอ้างอิง)</p>
 
                 </div>
-                <div className="w-full block flex-grow-1 flex flex-column text-center">
+                <div className="w-full flex-grow-1 flex flex-column text-center">
                     <p className="m-0">Amount (LAK)</p>
                     {totalPayable && (
                         <p className="my-3 text-2xl font-bold">

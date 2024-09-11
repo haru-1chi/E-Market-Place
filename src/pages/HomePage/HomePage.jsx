@@ -8,28 +8,21 @@ import Brand from "../../component/Brand";
 import AllBrand from "../../component/AllBrand";
 import Products from "../../component/Products";
 import CategoriesIcon from "../../component/CategoriesIcon";
+import GenerateCategories from "../../component/GenerateCategories";
 import axios from "axios";
 
 function HomePage() {
   const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
-
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.post(`${apiUrl}/categories`);
-        const dataWithImages = response.data.map((category) => ({
-          ...category,
-          imgURL: CategoriesIcon[category.name] || 'default-image-url.png',
-        }));
+    async function fetchCategories() {
+      const fetchedCategories = await GenerateCategories();
+      setCategories(fetchedCategories);
+    }
 
-        setCategories(dataWithImages);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
     fetchCategories();
   }, []);
+
+  const navigate = useNavigate();
 
   const newBrabd = [
     {
@@ -100,18 +93,16 @@ function HomePage() {
     fetchData();
   }, []);
 
+
+
   const handleCategorySelect = (categoryName) => {
     navigate('/List-Product', { state: { categoryName } });
   };
+  
   return (
     <>
-
       <div>
         <BannerSlider />
-        {/* <div class="category-scrllo section-all-brand w-full border-solid p-3">
-          <div className="flex text-center sm:col-12 gap-2">
-          </div>
-        </div> */}
         <div className="block lg:hidden">
           <div className="section-all-brand px-2 py-3 text-center gap-2 bg-yellow-100">
             <Link
@@ -148,7 +139,7 @@ function HomePage() {
           <Products data={data} startIndex={0} />
         </div>
 
-        <div className="mt-5">
+        <div className="hidden mt-5">
           <div className="flex align-items-center justify-content-between pl-3 pr-3">
             <span>
               <>ไอเท็มฮิต</>
@@ -166,9 +157,9 @@ function HomePage() {
               alt=""
             />
           </div>
-          <Products data={data} startIndex={10} />
+          <Products data={data} startIndex={5} />
         </div>
-        <div className="mt-4 pl-3 pr-3">
+        <div className="hidden mt-4 pl-3 pr-3">
           <span>
             <b>เปิดตัวแบรนด์ใหม่</b>
           </span>
@@ -180,16 +171,16 @@ function HomePage() {
             </div>
           </div>
         </div>
-        <div>
+        <div className="hidden">
           <div className="flex align-items-center justify-content-between pl-3 pr-3">
             <span>
               <b>ไอเท็มฮิต</b>
             </span>
             <Link to="/List-Product" className="no-underline text-900">ดูเพิ่มเติม <i className="pi pi-angle-right"></i></Link>
           </div>
-          <Products data={data} startIndex={15} />
+          <Products data={data} startIndex={0} />
         </div>
-        <div className="pl-3 pr-3">
+        <div className="hidden pl-3 pr-3">
           <span>
             <b>รวมแบรนด์เด็ด</b>
           </span>
@@ -197,14 +188,14 @@ function HomePage() {
             <AllBrand />
           </div>
         </div>
-        <div>
+        <div className="hidden">
           <div className="flex align-items-center justify-content-between pl-3 pr-3">
             <span>
               <b>ไอเท็มฮิต</b>
             </span>
             <Link to="/List-Product" className="no-underline text-900">ดูเพิ่มเติม <i className="pi pi-angle-right"></i></Link>
           </div>
-          <Products data={data} startIndex={20} />
+          <Products data={data} startIndex={0} />
         </div>
       </div>
       <Footer />

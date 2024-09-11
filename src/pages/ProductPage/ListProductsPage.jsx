@@ -182,7 +182,7 @@ function ListProductsPage() {
   }, [activeTab]);
 
   const sortData = () => {
-    let sortedData = [...data];
+    let sortedData = [...paginatedData];
     if (activeTab === "new") {
       sortedData.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
     } else if (activeTab === "topSales") {
@@ -277,15 +277,16 @@ function ListProductsPage() {
                   {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา "{searchTerm}"</h2>}
                   {location.state?.categoryName && <h2 className="mt-0 font-semibold">ผลการค้นหาตามหมวดหมู่ "{location.state?.categoryName}"</h2>} */}
                   <div className="product-list">
-                    {paginatedData.map((product, index) => (
+                    {sortData().map((product, index) => (
                       <div key={index} className="relative flex h-18rem md:h-28rem">
                         <div className="w-full border-1 surface-border bg-white flex flex-column">
                           <Link to={`/List-Product/product/${product._id}`} state={{ product }}>
-                            <img
-                              src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
-                              alt={product.product_name}
-                              className="w-12 border-1 surface-border"
-                            />
+                            <div className="square-image">
+                              <img
+                                src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
+                                alt={product.product_name}
+                                className="w-12 border-1 surface-border"
+                              /></div>
                           </Link>
                           <div className="h-full px-2 flex flex-column justify-content-between">
                             <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>

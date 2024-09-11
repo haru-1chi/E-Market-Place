@@ -13,7 +13,7 @@ import SlipPayment from "../../component/SlipPayment";
 import img_placeholder from '../../assets/img_placeholder.png';
 
 function StatusShippingPage({ orderId }) {
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [order, setOrder] = useState(null);
     const [user, setUser] = useState(null);
@@ -24,14 +24,8 @@ function StatusShippingPage({ orderId }) {
     useEffect(() => {
         const getUserProfile = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const user_id = localStorage.getItem("user_id");
-                const res = await axios.get(`${apiUrl}/users/${user_id}`, {
-                    headers: {
-                        token: token,
-                    },
-                });
-                setUser(res.data.data);
+                const res = localStorage.getItem("user");
+                setUser(JSON.parse(res));
             } catch (err) {
                 console.error(
                     "Error fetching user data",
@@ -45,11 +39,7 @@ function StatusShippingPage({ orderId }) {
     useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const response = await axios.get(`${apiUrl}/orders/${orderId}`, {
-                    headers: { token: token },
-                });
-
+                const response = await axios.get(`${apiUrl}/orderproduct/byid/${orderId}`);
                 if (response.data.status && response.data.data) {
                     setOrder(response.data.data);
                 } else {
@@ -66,9 +56,9 @@ function StatusShippingPage({ orderId }) {
         fetchOrder();
     }, [apiUrl, orderId]);
 
-    const currentStatus = order
-        ? Object.values(statusEvents).find((status) => status.key === order.status)
-        : null;
+    const currentStatus = order?.statusdetail
+            .slice()
+            .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || "ไม่ทราบสถานะ";
 
     return (
         <>
@@ -84,11 +74,11 @@ function StatusShippingPage({ orderId }) {
 
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round p-2 bg-white border-round-mb justify-content-center">
                     <div className="p-2 flex align-items-center">
-                        <p className="m-0 mr-2 p-0 text-lg font-semibold">ชื่อร้านค้า</p>
+                        <p className="m-0 mr-2 p-0 text-lg font-semibold">ผู้ขาย: {order?.partner_name}</p>
                         <i className="pi pi-angle-right" style={{ fontSize: '1rem', color: "gray" }}></i>
                     </div>
                     <div className="flex flex-column mx-1 my-2 gap-2 border-bottom-1 surface-border pb-2">
-                        {order?._items?.map((product, index) => (
+                        {order?.product?.map((product, index) => (
                             <div
                                 key={index}
                                 className="cart-items flex justify-content-between n align-items-center pb-1"
@@ -106,30 +96,16 @@ function StatusShippingPage({ orderId }) {
                                             <span className="font-semibold text-sm">{product.product_name}</span>
                                             <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.product_qty}</span>
                                         </div>
-                                        <span className='text-ml text-right font-semibold'>฿{Number(product.ppu * product.product_qty).toLocaleString('en-US')}</span>
+                                        <span className='text-ml text-right font-semibold'>฿{Number(product.product_price * product.product_qty).toLocaleString('en-US')}</span>
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    <div className="border-bottom-1 surface-border">
-                        <div className="flex align-items-center justify-content-between p-1">
-                            <p className="m-0 p-0">ยอดรวม</p>
-                            <p className="m-0 p-0 pr-2 font-semibold">
-                                {order?.items_price?.toFixed(2)} ฿
-                            </p>
-                        </div>
-                        <div className="flex align-items-center justify-content-between p-1">
-                            <p className="m-0 p-0">ค่า COD 3%</p>
-                            <p className="m-0 p-0 pr-2 font-semibold">
-                                {order?.cod_price?.toFixed(2)} ฿
-                            </p>
-                        </div>
-                    </div>
                     <div className="flex align-items-center justify-content-end pt-3 pb-2">
                         <p className="m-0 p-0 mr-2">รวมคำสั่งซื้อ:</p>
                         <p className="m-0 p-0 pr-2 font-semibold text-900">
-                            {order?.net_price?.toFixed(2)} ฿
+                            {order?.totalproduct?.toFixed(2)} ฿
                         </p>
                     </div>
                 </div>
@@ -143,7 +119,7 @@ function StatusShippingPage({ orderId }) {
                                     ? "ชำระเงินผ่านเคาท์เตอร์ธนาคาร"
                                     : "ชำระเงินผ่าน OnePay"}
                             </p>
-                            <p className="m-0 p-0">สถานะ: {currentStatus?.value}</p>
+                            <p className="m-0 p-0">สถานะ: {currentStatus?.status}</p>
                             <p className="m-0 p-0">
                                 วันที่: {formatDate(order?.updatedAt)} น.
                             </p>
@@ -151,21 +127,9 @@ function StatusShippingPage({ orderId }) {
                         <div className="w-full flex flex-column bg-white border-round-mb justify-content-center pt-3 lg:pt-0 border-top-1 lg:border-none surface-border">
                             <h3 className="m-0 mb-2 p-0 font-semibold">สรุปคำสั่งซื้อ</h3>
                             <div className="flex align-items-center justify-content-between py-2">
-                                <p className="m-0 p-0">ยอดรวม</p>
-                                <p className="m-0 p-0 pr-2 font-semibold">
-                                    {order?.items_price?.toFixed(2)} ฿
-                                </p>
-                            </div>
-                            <div className="flex align-items-center justify-content-between py-2">
-                                <p className="m-0 p-0">ค่า COD 3%</p>
-                                <p className="m-0 p-0 pr-2 font-semibold">
-                                    {order?.cod_price?.toFixed(2)} ฿
-                                </p>
-                            </div>
-                            <div className="flex align-items-center justify-content-between border-top-1 surface-border py-2">
                                 <p className="m-0 p-0">ราคารวม</p>
                                 <p className="m-0 p-0 pr-2 font-semibold text-primary">
-                                    {order?.net_price?.toFixed(2)} ฿
+                                    {order?.totalproduct?.toFixed(2)} ฿
                                 </p>
                             </div>
                         </div>

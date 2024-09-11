@@ -39,19 +39,11 @@ function Navbar() {
   );
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.post(`${apiUrl}/categories`);
-        const dataWithImages = response.data.map((category) => ({
-          ...category,
-          imgURL: CategoriesIcon[category.name] || "default-image-url.png",
-        }));
+    async function fetchCategories() {
+      const fetchedCategories = await GenerateCategories();
+      setCategories(fetchedCategories);
+    }
 
-        setCategories(dataWithImages);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
     fetchCategories();
   }, []);
 

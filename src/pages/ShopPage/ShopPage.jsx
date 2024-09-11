@@ -1,15 +1,19 @@
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import Footer from "../../component/Footer";
 import { Button } from "primereact/button";
 import HomeShop from './HomeShop';
 import ShopListProduct from './ShopListProduct';
 import ShopCategries from './ShopCategries';
+import axios from "axios";
 
 function ShopPage() {
+  const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
+  const [data, setData] = useState([]);
   const location = useLocation();
+  const { partner_id: paramPartnerId } = useParams();
   const { product } = location.state || {};
-  const partner_id = product?.product_partner_id?._id;
+  const partner_id = product?.product_partner_id?._id || paramPartnerId;
 
   const [activeTab, setActiveTab] = useState('HomeShop');
   const tabs = [
@@ -18,6 +22,26 @@ function ShopPage() {
     { id: 'ShopCategries', label: 'หมวดหมู่' },
   ];
 
+  const fetchData = () => {
+    axios({
+        method: "get",
+        url: `${apiProductUrl}/product/bypartner/${partner_id}`,
+    })
+        .then((response) => {
+            setData(response.data.data);
+        })
+        .catch((error) => {
+            console.log(error);
+            console.log(apiProductUrl);
+        })
+};
+
+useEffect(() => {
+    if (partner_id) {
+        fetchData();
+    }
+}, [partner_id]);
+
   const renderActiveComponent = () => {
     switch (activeTab) {
       case 'HomeShop':
@@ -25,13 +49,19 @@ function ShopPage() {
       case 'ShopListProduct':
         return <ShopListProduct partner_id={partner_id} />;
       case 'ShopCategries':
-        return <ShopCategries />;
+        return <ShopCategries partner_id={partner_id} />;
       default:
         return <HomeShop />;
     }
   };
 
-
+  useEffect(() => {
+    if (!partner_id) {
+      return(
+        <div>ไม่พบ ผู้ขาย</div>
+      )
+    }
+  }, [partner_id]);
 
   return (
     <>
@@ -41,7 +71,7 @@ function ShopPage() {
         </div>
         <div className="ml-3 w-full flex justify-content-between align-items-center">
           <div>
-            <p className="m-0">ผู้ขาย: {product?.product_partner_id?.partner_name || "ไม่ระบุชื่อ"}</p>
+          ผู้ขาย: {data.length > 0 ? data[0].product_partner_id.partner_name || "ไม่ระบุชื่อ" : ""}
             <p className="m-0">จังหวัด</p>
             <p className="m-0">จำนวนผู้ติดตาม</p>
           </div>

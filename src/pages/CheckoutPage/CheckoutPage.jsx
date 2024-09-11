@@ -22,24 +22,17 @@ function CheckoutPage() {
     const [deliveryBranch, setDeliveryBranch] = useState('');
     const [error, setError] = useState(false);
 
-    const [totalBeforeDiscount, setTotalBeforeDiscount] = useState(0);
-    const [CODCost, setCODCost] = useState(0);
     const [totalPayable, setTotalPayable] = useState(0);
     const num_total = 0
 
     useEffect(() => {
         if (Object.keys(selectedItemsCart).length > 0) {
-            const totalBeforeDiscount = Object.values(selectedItemsCart).reduce((total, partner) => {
+            const totalPayable = Object.values(selectedItemsCart).reduce((total, partner) => {
                 return total + partner.products.reduce((sum, product) => {
                     return sum + (product.product_price * product.product_qty);
                 }, 0);
             }, 0);
 
-            const CODCost = totalBeforeDiscount === 0 ? 0 : Math.max(totalBeforeDiscount * 0.03, 30);
-            const totalPayable = totalBeforeDiscount + CODCost;
-
-            setTotalBeforeDiscount(totalBeforeDiscount);
-            setCODCost(CODCost);
             setTotalPayable(totalPayable);
         }
     }, [selectedItemsCart]);
@@ -207,8 +200,8 @@ function CheckoutPage() {
                         {shipping === 'courierDelivery' ? (
                             <div className=''>
                                 <div className="flex gap-2">
-                                    <p className='m-0 m-0 w-full'>เลือกขนส่ง</p>
-                                    <p className='m-0 m-b-2 w-full'>รับที่สาขา</p>
+                                    <p className='m-0 p-0 w-full'>เลือกขนส่ง</p>
+                                    <p className='m-0 mb-2 w-full'>รับที่สาขา</p>
                                 </div>
                                 <div className="flex gap-2">
                                     <Dropdown
@@ -239,28 +232,17 @@ function CheckoutPage() {
                         )}
                     </div>
                     <div className='flex justify-content-end'>
-                        <p className='m-0 mt-3'>ยอดสั่งซื้อ {num_total} รายการ: {Number(totalBeforeDiscount.toFixed(2)).toLocaleString('en-US')} ฿</p>
-                    </div>
-                    <div className='flex justify-content-end'>
-                        <p className='m-0'>ค่า COD 3%: {Number(CODCost.toFixed(2)).toLocaleString('en-US')} ฿</p>
+                        <p className='m-0 mt-3'>ยอดสั่งซื้อ {num_total} รายการ: {Number(totalPayable.toFixed(2)).toLocaleString('en-US')} ฿</p>
                     </div>
                 </div>
 
-                <div className='mt-2 lg:mt-0 w-full lg:w-4 h-16rem flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb'>
-                    <h3 className="m-0 p-0 pb-3">ข้อมูลการชำระเงิน</h3>
-                    <div className="flex justify-content-between py-1">
-                        <p className='m-0 text-start'>รวมการสั่งซื้อ</p>
-                        <p className='m-0 text-right'>{Number(totalBeforeDiscount.toFixed(2)).toLocaleString('en-US')} ฿</p>
-                    </div>
-                    <div className="flex justify-content-between py-1">
-                        <p className='m-0'>ค่า COD 3%</p>
-                        <p className='m-0 text-right'>{Number(CODCost.toFixed(2)).toLocaleString('en-US')} ฿</p>
-                    </div>
+                <div className='mt-2 lg:mt-0 w-full lg:w-4 flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb'>
+                    <h3 className="m-0 p-0 pb-2">ข้อมูลการชำระเงิน</h3>
                     <div className="flex justify-content-between py-1">
                         <p className='m-0'>ยอดชำระ</p>
                         <p className='m-0 text-right'>{Number(totalPayable.toFixed(2)).toLocaleString('en-US')} ฿</p>
                     </div>
-                    <Button className="w-full" label="ไปหน้าชำระสินค้า" size="small" rounded onClick={handleConfirmPayment} />
+                    <Button className="w-full mt-2" label="ไปหน้าชำระสินค้า" size="small" rounded onClick={handleConfirmPayment} />
                 </div>
             </div >
         </div>

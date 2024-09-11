@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from "axios";
+import img_placeholder from '../../assets/img_placeholder.png';
 
 function ShopCategriesSelected() {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
+    const { partner_id } = useParams();
     const location = useLocation();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -25,23 +27,26 @@ function ShopCategriesSelected() {
         setLoading(true);
         axios({
             method: "get",
-            url: `${apiProductUrl}/product`
+            url: `${apiProductUrl}/product/bypartner/${partner_id}`,
         })
             .then((response) => {
-                const filtered = filterProducts(response.data, location.state?.categoryName);
+                const filtered = filterProducts(response.data.data, location.state?.categoryName);
+                setData(filtered);
+
                 setData(response.data.data);
             })
             .catch((error) => {
                 console.log(error);
                 console.log(apiProductUrl);
-            }).finally(() => {
+            })
+            .finally(() => {
                 setLoading(false);
             });
     };
 
     useEffect(() => {
         fetchData();
-    }, [location.state?.categoryName]);
+    }, [location.state?.categoryName, partner_id]);
 
     useEffect(() => {
         if (activeTab !== 'price') {
@@ -103,11 +108,13 @@ function ShopCategriesSelected() {
                                         <div key={index} className="relative flex h-18rem md:h-28rem">
                                             <div className="w-full border-1 surface-border bg-white flex flex-column">
                                                 <Link to={`/List-Product/product/${product._id}`} state={{ product }}>
-                                                    <img
-                                                        src={product.product_image}
-                                                        alt={product.product_name}
-                                                        className="w-12 border-1 surface-border"
-                                                    />
+                                                    <div className="square-image">
+                                                        <img
+                                                            src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
+                                                            alt={product.product_name}
+                                                            className="w-12 border-1 surface-border"
+                                                        />
+                                                    </div>
                                                 </Link>
                                                 <div className="h-full px-2 flex flex-column justify-content-between">
                                                     <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>

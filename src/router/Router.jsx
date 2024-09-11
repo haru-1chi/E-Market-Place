@@ -31,7 +31,7 @@ function Router() {
             <Route index element={<HomePage />} />
             <Route path="Pagepoint" element={<Pagepoint />} />
             <Route path="ShopPage/:partner_id" element={<ShopPage />} />
-            <Route path="/ShopCategriesSelected" element={<ShopCategriesSelected />} />
+            <Route path="/ShopCategriesSelected/:partner_id" element={<ShopCategriesSelected />} />
             <Route path="List-Product" element={<ListProductsPage />} />
             <Route path="List-Product/Product/:product_id" element={<ProductPage />} />
             <Route path="CheckoutPage" element={<CheckoutPage />} />

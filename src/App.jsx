@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import "primeicons/primeicons.css";
 import './assets/theme.css';
 // import "primereact/resources/themes/lara-light-pink/theme.css";
@@ -14,6 +15,8 @@ import ProductPage from "./pages/ProductPage/ProductPage";
 
 
 function App() {
+  const [tokenValid, setTokenValid] = useState(true);
+
   function decodeToken(token) {
     try {
       const base64Url = token.split('.')[1];
@@ -21,9 +24,7 @@ function App() {
       const jsonPayload = decodeURIComponent(
         atob(base64)
           .split('')
-          .map(function (c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          })
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
           .join('')
       );
       return JSON.parse(jsonPayload);
@@ -38,26 +39,57 @@ function App() {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get('token');
     }
+
+
+    function handleTokenExpiry(decodedToken) {
+      if (decodedToken && decodedToken.exp) {
+        const now = Math.floor(Date.now() / 1000); // Current time in seconds
+        if (decodedToken.exp < now) {
+          localStorage.removeItem('userToken');
+          return true;
+        }
+      }
+      return false; // Not expired
+    }
+
     const token = getTokenFromURL();
     const existingToken = localStorage.getItem("token");
-  
-    if (token && token !== existingToken) {
+
+    if (token) {
       localStorage.setItem('token', token);
+      const decodedToken = decodeToken(token);
+      localStorage.setItem('user', JSON.stringify(decodedToken));
 
-      try {
-        const decodedToken = decodeToken(token);
-        localStorage.setItem('user', JSON.stringify(decodedToken));
-        console.log('Decoded Token:', decodedToken);
-
-        if (decodedToken) {
-          const userId = decodedToken._id || decodedToken.user_id;
-          console.log('User ID:', userId);
-        }
-      } catch (error) {
-        console.error("Error decoding token", error);
+      if (handleTokenExpiry(decodedToken)) {
+        setTokenValid(false);
+      } else {
+        setTokenValid(true);
       }
+    } else if (existingToken) {
+      const decodedToken = decodeToken(existingToken);
+      if (handleTokenExpiry(decodedToken)) {
+        setTokenValid(false);
+      } else {
+        setTokenValid(true);
+      }
+    } else {
+      setTokenValid(false);
+    }
+
+    if (!token && !existingToken) {
+      let countdown = 5;
+      const timer = setInterval(() => {
+        console.log(`Redirecting to login in ${countdown} seconds...`);
+        countdown--;
+        if (countdown === 0) {
+          clearInterval(timer);
+          alert('กรุณาเข้าสู่ระบบจาก https://service.tossaguns.com/ เพื่อใช้งาน E-Market');
+          window.location.href = 'https://service.tossaguns.com/';
+        }
+      }, 1000);
     }
   }, []);
+
   // localStorage.clear();
   return (
     <>

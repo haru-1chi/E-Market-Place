@@ -14,21 +14,6 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
     const { t } = useTranslation()
     const { filter, clearFilter, priceRange, all, stock, instock, product_category, brand, promotion, onSale, show } = t("Filter")
 
-    const [categories, setCategories] = useState([]);
-    const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.post(`${apiUrl}/categories`);
-                setCategories(response.data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-        fetchCategories();
-    }, []);
-
     const generatePriceRanges = (products) => {
         const prices = products.map(product => product.product_price);
         const maxPrice = Math.max(...prices);

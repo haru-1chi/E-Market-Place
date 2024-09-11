@@ -143,20 +143,6 @@ function Pagepoint() {
   ];
 
   const navigate = useNavigate();
-  // const [categories, setCategories] = useState([]);
-  // const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
-
-  // useEffect(() => {
-  //   const fetchCategories = async () => {
-  //     try {
-  //       const response = await axios.post(`${apiUrl}/categories`);
-  //       setCategories(response.data);
-  //     } catch (error) {
-  //       console.error('Error fetching categories:', error);
-  //     }
-  //   };
-  //   fetchCategories();
-  // }, []);
 
   const handleCategorySelect = (categoryName) => {
     navigate('/List-Product', { state: { categoryName } });

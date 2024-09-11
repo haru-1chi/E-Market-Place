@@ -17,7 +17,8 @@ import { useCart } from "../router/CartContext";
 import axios from "axios";
 import ContactUs from "./ContactUs";
 import CategoriesIcon from "./CategoriesIcon";
-import LogoMakro from "../assets/macro-laos1.png";
+import GenerateCategories from "./GenerateCategories";
+import Logo from "../assets/tossaganLogo.png";
 import img_placeholder from '../assets/img_placeholder.png';
 //
 function Appbar() {
@@ -40,14 +41,6 @@ function Appbar() {
         navigate("/AccountPage", { state: { activeTab: "orderHistory" } });
       },
     },
-    // {
-    //   label: 'จัดการข้อมูลส่วนบุคคล',
-    //   command: () => {
-    //     setVisible1(false);
-
-    //     navigate("/AccountPage", { state: { activeTab: 'privacySettings' } });
-    //   }
-    // },
     {
       label: "ติดต่อเรา",
       command: () => {
@@ -120,9 +113,7 @@ function Appbar() {
     ) || [] // If products is undefined or null, return an empty array
   );
 
-  const totalBeforeDiscount = selectedProducts.reduce((total, product) => total + product.product_price * product.product_qty, 0);
-  const CODCost = totalBeforeDiscount === 0 ? 0 : Math.max(totalBeforeDiscount * 0.03, 30);
-  const totalPayable = totalBeforeDiscount + CODCost;
+  const totalPayable = selectedProducts.reduce((total, product) => total + product.product_price * product.product_qty, 0);
 
   const confirmToCheckout = () => {
     setSelectedItemsCart(selectedItems);
@@ -160,13 +151,8 @@ function Appbar() {
 
     const getUserProfile = async () => {
       try {
-
-        const token = localStorage.getItem("token");
-        const user_id = localStorage.getItem("user_id");
-        const res = await axios.get(`${apiUrl}/users/${user_id}`, {
-          headers: { token: token },
-        });
-        setUser(res.data.data);
+        const res = localStorage.getItem("user");
+        setUser(JSON.parse(res));
       } catch (err) {
         console.error(
           "Error fetching user data",
@@ -175,22 +161,14 @@ function Appbar() {
       }
     };
     getUserProfile();
-  }, [apiUrl]);
+  }, []);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.post(`${apiUrl}/categories`);
-        const dataWithImages = response.data.map((category) => ({
-          ...category,
-          imgURL: CategoriesIcon[category.name] || "default-image-url.png",
-        }));
+    async function fetchCategories() {
+      const fetchedCategories = await GenerateCategories();
+      setCategories(fetchedCategories);
+    }
 
-        setCategories(dataWithImages);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
     fetchCategories();
   }, []);
 
@@ -208,9 +186,9 @@ function Appbar() {
 
   const customHeader = (
     <div className="flex align-items-center gap-2">
-      <Link to="/" className="no-underline">
-        <h2 className="m-0 text-900">E-Market-Place</h2>
-      </Link>
+      <a href="/">
+        <img src={Logo} alt="Logo" className="w-7 p-0 m-0" />
+      </a>
     </div>
   );
 
@@ -223,7 +201,7 @@ function Appbar() {
   const customHeader3 = (
     <div className="flex align-items-center gap-2">
       <a href="/">
-        <img src={LogoMakro} alt="Logo" className="w-7 p-0 m-0" />
+        <img src={Logo} alt="Logo" className="w-7 p-0 m-0" />
       </a>
     </div>
   );
@@ -231,7 +209,7 @@ function Appbar() {
   const customHeader4 = (
     <div className="flex align-items-center gap-2">
       <a href="/">
-        <img src={LogoMakro} alt="Logo" className="w-7 p-0 m-0" />
+        <img src={Logo} alt="Logo" className="w-7 p-0 m-0" />
       </a>
     </div>
   );
@@ -243,7 +221,7 @@ function Appbar() {
     localStorage.removeItem("user_id");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/LoginPage");
+    window.location.href = '/';
   };
 
   return (
@@ -265,7 +243,7 @@ function Appbar() {
                 />
               </div>
               <Link to="/">
-                <img src={LogoMakro} alt="Logo" height={40} />
+                <img src={Logo} alt="Logo" height={40} />
               </Link>
             </div>
             <div className="w-5 mx-4">
@@ -328,10 +306,14 @@ function Appbar() {
                       <div className="flex p-0 pb-2 border-bottom-1 surface-border align-items-center">
                         <div class="flex flex-wrap justify-content-center">
                           <div class="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">
-                            {user.name.charAt(0).toUpperCase()}
+                            U
+                            {/* {user.name.charAt(0).toUpperCase()} */}
                           </div>
                         </div>
-                        <h4 className="ml-3">{user.name}</h4>
+                        <h4 className="ml-3">
+                          {user._id}
+                          {/* {user.name} */}
+                        </h4>
                       </div>
                       <div className="flex flex-column">
                         <Menu model={itemsMenu} className="p-menu" />
@@ -397,7 +379,7 @@ function Appbar() {
         {/* <Toast ref={toast} position="top-center" /> */}
         <div className="pt-2 pr-3 pl-3">
           <div className="card flex justify-content-between mb-2 border-solid align-items-center">
-            <div className="block flex align-items-center">
+            <div className="flex align-items-center">
               <Sidebar
                 header={customHeader}
                 visible={visible1}
@@ -409,9 +391,13 @@ function Appbar() {
                       <>
                         <div className="flex p-2 align-items-start bg-primary">
                           <div class="border-circle w-4rem h-4rem m-2 bg-cyan-500 font-bold flex align-items-center justify-content-center">
-                            {user.name.charAt(0).toUpperCase()}
+                            U
+                            {/* {user.name.charAt(0).toUpperCase()} */}
                           </div>
-                          <h3 className="ml-3 font-semibold text-900">{user.name}</h3>
+                          <h3 className="ml-3 font-semibold text-900">
+                            {user._id}
+                            {/* {user.name} */}
+                          </h3>
                         </div>
 
                         <div className="px-3">
@@ -419,16 +405,20 @@ function Appbar() {
                             <h4 className="m-0 p-0 font-semibold">การซื้อของฉัน</h4>
                             <Link to="/AccountPage"><p>ดูประวัติการซื้อ</p></Link>
                           </div>
-                          <ul className="flex justify-content-between pl-0 px-5 list-none">
-                            <li className="flex flex-column text-center">
-                              <i className="pi pi-wallet" style={{ fontSize: '1.5rem' }}></i>
-                              <p className="m-0 p-0 mt-2 text-sm">ที่ต้องชำระ</p>
-                            </li>
-                            <li className="flex flex-column text-center">
+                          <ul className="flex justify-content-center gap-8 pl-0 list-none">
+                            <li className="flex flex-column text-center"
+                              onClick={() => {
+                                setVisible1(false);
+                                navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "กำลังเตรียมจัดส่ง" } });
+                              }}>
                               <i className="pi pi-box" style={{ fontSize: '1.5rem' }}></i>
                               <p className="m-0 p-0 mt-2 text-sm">ที่ต้องจัดส่ง</p>
                             </li>
-                            <li className="flex flex-column text-center">
+                            <li className="flex flex-column text-center"
+                              onClick={() => {
+                                setVisible1(false);
+                                navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "จัดส่งแล้ว" } });
+                              }}>
                               <i className="pi pi-truck" style={{ fontSize: '1.5rem' }}></i>
                               <p className="m-0 p-0 mt-2 text-sm">ที่ต้องได้รับ</p>
                             </li>
@@ -548,11 +538,12 @@ function Appbar() {
                         {Object.keys(groupedCart).map(partner_id => (
                           <div key={partner_id} className="border-1 border-round-xl surface-border p-2 mb-3">
                             <div className="flex justify-content-between">
-                              <div className='flex align-items-center mb-2'>
-                                <i className="pi pi-shop"></i>
-                                <p className="m-0 ml-2 p-0">ผู้ขาย {groupedCart[partner_id].partner_name}</p>
-                              </div>
-                              <p className="p-0 m-0">แก้ไข</p>
+                              <Link to={`/ShopPage/${partner_id}`} className="no-underline text-900">
+                                <div className='flex align-items-center mb-2' onClick={() => setVisible2(false)}>
+                                  <i className="pi pi-shop"></i>
+                                  <p className="m-0 ml-2 p-0">ผู้ขาย {groupedCart[partner_id].partner_name}</p>
+                                </div>
+                              </Link>
                             </div>
                             <div className="flex flex-column gap-4">
                               {groupedCart[partner_id].products.map((product, index) => (
@@ -627,14 +618,6 @@ function Appbar() {
                           </div>
                         ))}
                         <div>
-                          <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
-                            <p className="m-0">ยอดสั่งซื้อ</p>
-                            <p className="m-0">{totalBeforeDiscount.toFixed(2)} ฿</p>
-                          </div>
-                          <div className="flex align-items-center justify-content-between border-bottom-1 surface-border py-2">
-                            <p className="m-0">ค่า COD 3%</p>
-                            <p className="m-0">{CODCost.toFixed(2)} ฿</p>
-                          </div>
                           <div className="flex align-items-center justify-content-between py-2">
                             <p className="m-0">ยอดชำระ</p>
                             <p className="m-0">{totalPayable.toFixed(2)} ฿</p>
@@ -646,18 +629,26 @@ function Appbar() {
                         <p className="m-0 mr-2 text-900 font-semibold">
                           รวม ฿{totalPayable.toFixed(2)}
                         </p>
-                        <Link to="/CheckoutPage">
+                        {Object.keys(selectedItems).length === 0 ? (
                           <Button
                             label="เช็คเอาท์"
                             size="small"
-                            className="w-full border-noround"
-                            onClick={() => {
-                              setVisible2(false);
-                              confirmToCheckout();
-                            }}
-                            disabled={Object.keys(selectedItems).length === 0}
+                            className="w-fit border-noround"
+                            disabled
                           />
-                        </Link>
+                        ) : (
+                          <Link to="/CheckoutPage">
+                            <Button
+                              label="เช็คเอาท์"
+                              size="small"
+                              className="w-fit border-noround"
+                              onClick={() => {
+                                setVisible2(false);
+                                confirmToCheckout();
+                              }}
+                            />
+                          </Link>
+                        )}
                       </div>
                     </>
                   ) : (
@@ -678,13 +669,14 @@ function Appbar() {
               <Button
                 icon="pi pi-bars"
                 onClick={() => setVisible1(true)}
+                className="w-full"
                 rounded
                 text
               />
-              <div className="flex justify-content-start">
-                <Link to="/" className="no-underline">
-                  <h2 className="m-0 text-900">E-Market-Place</h2>
-                </Link>
+              <div className="">
+                <a href="/">
+                  <img src={Logo} alt="Logo" className="w-7 p-0 m-0" />
+                </a>
               </div>
             </div>
 
@@ -747,7 +739,7 @@ function Appbar() {
                 onHide={() => setVisible4(false)}
                 icons={customIcons}
               >
-                <div>
+                <>
                   <div className="box-menu mt-5">
                     <a href="#" onClick={() => setVisible4(false)}>
                       <i className="pi pi-angle-left mr-2"></i>
@@ -785,7 +777,7 @@ function Appbar() {
                       >
                         <div className="flex align-items-center">
                           <img
-                            src={Item.imgURL}
+                            src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
                             alt="Item.name"
                             width={30}
                             height={30}
@@ -796,7 +788,7 @@ function Appbar() {
                       </Link>
                     </div>
                   ))}
-                </div>
+                </>
               </Sidebar>
               <Button
                 className="p-2 hidden"
