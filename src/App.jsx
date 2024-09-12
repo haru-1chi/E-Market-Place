@@ -36,12 +36,12 @@ function App() {
 
   useEffect(() => {
     function getTokenFromURL() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('token');
-      //  return'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjlhOWZmNTg2MzBlYmE3YzgxZmRmMmUiLCJzaG9wX2lkIjoiNjY5YTlkZjc4NjMwZWJhN2M4MWZkZjFmIiwicGhvbmUiOiIwOTgxOTA5OTk5Iiwicm93IjoiZW1wbG95ZWUiLCJzdGF0dXMiOnRydWUsImlhdCI6MTcyNTg2MjkwMiwiZXhwIjoxNzI1ODg0NTAyfQ.mki2SWn53aCQL3MPxLEK9cR6C_sYhGM1vrS5aVKfeaU'
+      // const urlParams = new URLSearchParams(window.location.search);
+      // return urlParams.get('token');
+       return'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjlhOWZmNTg2MzBlYmE3YzgxZmRmMmUiLCJzaG9wX2lkIjoiNjY5YTlkZjc4NjMwZWJhN2M4MWZkZjFmIiwicGhvbmUiOiIwOTgxOTA5OTk5Iiwicm93IjoiZW1wbG95ZWUiLCJzdGF0dXMiOnRydWUsImlhdCI6MTcyNTg2MjkwMiwiZXhwIjoxNzI1ODg0NTAyfQ.mki2SWn53aCQL3MPxLEK9cR6C_sYhGM1vrS5aVKfeaU'
     }
 
-
+  
     function handleTokenExpiry(decodedToken) {
       if (decodedToken && decodedToken.exp) {
         const now = Math.floor(Date.now() / 1000); // Current time in seconds
@@ -77,18 +77,18 @@ function App() {
       setTokenValid(false);
     }
 
-    if (!token && !existingToken) {
-      let countdown = 5;
-      const timer = setInterval(() => {
-        console.log(`Redirecting to login in ${countdown} seconds...`);
-        countdown--;
-        if (countdown === 0) {
-          clearInterval(timer);
-          alert('กรุณาเข้าสู่ระบบจาก https://service.tossaguns.com/ เพื่อใช้งาน E-Market');
-          window.location.href = 'https://service.tossaguns.com/';
-        }
-      }, 1000);
-    }
+    // if (!token && !existingToken) {
+    //   let countdown = 5;
+    //   const timer = setInterval(() => {
+    //     console.log(`Redirecting to login in ${countdown} seconds...`);
+    //     countdown--;
+    //     if (countdown === 0) {
+    //       clearInterval(timer);
+    //       alert('กรุณาเข้าสู่ระบบจาก https://service.tossaguns.com/ เพื่อใช้งาน E-Market');
+    //       window.location.href = 'https://service.tossaguns.com/';
+    //     }
+    //   }, 1000);
+    // }
   }, []);
 
   return (

@@ -15,6 +15,7 @@ function ProductPage() {
   const { addToCart } = useCart();
   const [dataCarousel, setDataCarousel] = useState([]);
   const [partnerItemsCount, setPartnerItemsCount] = useState(0);
+  const [data, setData] = useState([]);
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
 
   const shuffleArray = (array) => {
@@ -70,17 +71,23 @@ function ProductPage() {
     });
   };
 
-  const data = [
-    {
-      imgURL: `${product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`
-    },
-    {
-      imgURL: `${product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`
-    },
-    {
-      imgURL: `${product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`
-    },
-  ]
+  useEffect(() => {
+    if (product) {
+      const productImages = [
+        {
+          imgURL: `${product?.product_subimage1 ? apiProductUrl + product.product_subimage1 : product?.product_subimage2 ? apiProductUrl + product.product_subimage2 : product?.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`,
+        },
+        {
+          imgURL: `${product?.product_subimage2 ? apiProductUrl + product.product_subimage2 : product?.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`,
+        },
+        {
+          imgURL: `${product?.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`,
+        },
+      ];
+      setData(productImages);
+      setCurrentImageURL(productImages[0]?.imgURL || img_placeholder);
+    }
+  }, [product, apiProductUrl]);
 
   const responsiveOptions = [
     {
@@ -109,7 +116,8 @@ function ProductPage() {
     return <div>Product not found</div>;
   }
 
-  const [currentImageURL, setCurrentImageURL] = useState(data[0].imgURL);
+  const [currentImageURL, setCurrentImageURL] = useState('');
+
   const handleThumbnailClick = (imgURL) => {
     setCurrentImageURL(imgURL);
   };
@@ -120,14 +128,6 @@ function ProductPage() {
         <div className="flex flex-column">
           <div className="lg:flex gap-4">
             <div className="md:w-full lg:w-30rem shadow-2 border-round-lg bg-white p-4 mb-3 lg:mb-0 flex justify-content-center">
-              {/* <Galleria
-                value={data}
-                responsiveOptions={responsiveOptions}
-                numVisible={3}
-                item={itemTemplate}
-                thumbnail={thumbnailTemplate}
-                style={{ maxWidth: '640px' }}
-              /> */}
               <div className="galleria-container">
                 <div className="galleria-main">
                   <img src={currentImageURL} alt="Main" className="main-image" />

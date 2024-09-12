@@ -168,9 +168,12 @@ function AccountPage() {
     );
 
     const OrderItem = ({ order }) => {
+
         const latestStatus = order.statusdetail
-            .slice() // Copy the array to avoid mutating the original
+            .slice()
             .sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.status || "Unknown Status";
+        const latestStatusEvent = Object.values(statusEvents).find(event => event.value === latestStatus);
+        const tagCSS = latestStatusEvent?.tagCSS || 'bg-gray-100 border-0 text-gray-700';
         return (
             <>
                 {/* <div className='hidden md:flex w-full grid-nogutter bg-white border-1 surface-border border-round-xl py-3 px-2 mt-3 align-items-start'>
@@ -217,7 +220,7 @@ function AccountPage() {
                                 <i className="pi pi-shop"></i>
                                 <p className="m-0 ml-2 p-0">ผู้ขาย: {order.partner_name}</p>
                             </div>
-                            <p className={`w-fit m-0 px-1 py-0 border-round-md surface-border ${latestStatus?.tagCSS}`}>{latestStatus}</p>
+                            <p className={`w-fit m-0 px-1 py-0 border-round-md ${tagCSS}`}>{latestStatus}</p>
                         </div>
 
                     </div>
@@ -284,7 +287,7 @@ function AccountPage() {
                         {tabs.map((tab) => (
                             <li
                                 key={tab.id}
-                                className={`list-none py-3 cursor-pointer ${activeTab === tab.id ? 'text-primary' : ''}`}
+                                className={`list-none py-3 cursor-pointer ${activeTab === tab.id ? 'text-yellow-500' : ''}`}
                                 onClick={() => {
                                     setActiveTab(tab.id);
                                     if (tab.id === 'contactUs') {

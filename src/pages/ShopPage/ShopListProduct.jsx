@@ -152,12 +152,11 @@ function ShopListProduct({ partner_id }) {
                                                             )}{" "}
 
                                                         </div>
-                                                        {/* <Button
-                                                            className="btn-plus-product"
+                                                        <Button
+                                                            className='btn-plus-product'
                                                             icon="pi pi-plus"
-                                                            rounded
                                                             onClick={() => addCart(product)}
-                                                        /> */}
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -183,7 +182,7 @@ function ShopListProduct({ partner_id }) {
                                                 className="w-12rem mb-3"
                                                 label="ค้นหาตามหมวดหมู่"
                                                 rounded
-                                     
+
                                             />
                                         </Link>
                                         <Link to="/">
@@ -192,7 +191,7 @@ function ShopListProduct({ partner_id }) {
                                                 label="ลองค้นหาด้วยคำอื่นๆ"
                                                 rounded
                                                 outlined
-                            
+
                                             />
                                         </Link>
                                     </div>

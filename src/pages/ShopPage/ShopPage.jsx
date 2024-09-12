@@ -45,13 +45,13 @@ useEffect(() => {
   const renderActiveComponent = () => {
     switch (activeTab) {
       case 'HomeShop':
-        return <HomeShop partner_id={partner_id} />;
+        return <HomeShop partner_id={partner_id} setActiveTab={setActiveTab}/>;
       case 'ShopListProduct':
         return <ShopListProduct partner_id={partner_id} />;
       case 'ShopCategries':
         return <ShopCategries partner_id={partner_id} />;
       default:
-        return <HomeShop />;
+        return <HomeShop setActiveTab={setActiveTab} partner_id={partner_id} />;
     }
   };
 

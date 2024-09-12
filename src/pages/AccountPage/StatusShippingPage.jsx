@@ -1,13 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useCart } from "../../router/CartContext";
-import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import axios from "axios";
-import {
-    formatDate,
-    convertTHBtoLAK,
-    formatLaosPhone,
-} from "../../utils/DateTimeFormat";
+import { formatDate } from "../../utils/DateTimeFormat";
 import TimelineStatus from "../../component/TimelineStatus";
 import SlipPayment from "../../component/SlipPayment";
 import img_placeholder from '../../assets/img_placeholder.png';
@@ -17,9 +12,17 @@ function StatusShippingPage({ orderId }) {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [order, setOrder] = useState(null);
     const [user, setUser] = useState(null);
-
-    const { statusEvents } = useCart();
+    const statusDetails = order?.statusdetail || [];
     const toast = useRef(null);
+
+    const getStatusDate = (statusValue) => {
+        const status = statusDetails.find((status) => status.status === statusValue);
+        return status?.date ? formatDate(status.date) : null;
+    };
+
+    const isDelivered = !!getStatusDate("จัดส่งแล้ว");
+    const isReceived = !!getStatusDate("รับสินค้าสำเร็จ");
+    const isCancelled = !!getStatusDate("ยกเลิกออเดอร์");
 
     useEffect(() => {
         const getUserProfile = async () => {
@@ -111,36 +114,51 @@ function StatusShippingPage({ orderId }) {
                 </div>
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center">
                     <div className="xl:flex lg:flex">
-                        <div className="w-full mb-3">
-                            <h3 className="m-0 mb-2 p-0 font-semibold">ข้อมูลการชำระเงิน</h3>
-                            <p className="m-0 p-0">
-                                ช่องทางการชำระเงิน:{" "}
-                                {order?.payment === "บัญชีธนาคาร"
-                                    ? "โอนชำระผ่านธนาคาร"
-                                    : "ชำระเงินผ่าน E-wallet"}
-                            </p>
-                            <p className="m-0 p-0">สถานะ: {currentStatus?.status}</p>
-                            <p className="m-0 p-0">
-                                วันที่: {formatDate(order?.updatedAt)} น.
-                            </p>
-                        </div>
-                        <div className="w-full flex flex-column bg-white border-round-mb justify-content-center pt-3 lg:pt-0 border-top-1 lg:border-none surface-border">
-                            <h3 className="m-0 mb-2 p-0 font-semibold">สรุปคำสั่งซื้อ</h3>
-                            <div className="flex align-items-center justify-content-between py-2">
-                                <p className="m-0 p-0">ราคารวม</p>
-                                <p className="m-0 p-0 pr-2 font-semibold text-primary">
-                                    ฿{order?.totalproduct?.toFixed(2)}
-                                </p>
+                        <div className="w-full mb-1">
+                            <div className="flex justify-content-between align-items-center mb-3">
+                                <h3 className="m-0 p-0 font-semibold">หมายเลขคำสั่งซื้อ</h3>
+                                <p className="m-0 p-0 font-normal text-sm">{order?.orderref}</p>
                             </div>
-                        </div>
-                    </div>
-                    <div className="hidden">
-                        <div className="border-round surface-100 flex justify-content-center align-items-center">
-                            <i className="pi pi-mobile mr-2 text-primary"></i>
-                            <p className="text-center">
-                                หากมีคำถามหรือข้อสงสัยเกี่ยวกับคำสั่งซื้อ
-                                ติดต่อฝ่ายบริการลูกค้าผ่านไลน์ @makropro หรือโทร 1432
-                            </p>
+                            <div className="flex justify-content-between align-items-center border-bottom-1 surface-border pb-3">
+                                <p className="m-0 p-0 font-normal text-sm">ชำระผ่าน</p>
+                                <p className="m-0 p-0 font-normal text-sm">
+                                    {order?.payment === "บัญชีธนาคาร"
+                                        ? "โอนชำระผ่านธนาคาร"
+                                        : "ชำระเงินผ่าน E-wallet"}</p>
+                            </div>
+                            <div className="pt-3">
+
+                                <div className="flex justify-content-between align-items-center">
+                                    <p className="m-0 mb-2 p-0 font-normal text-sm">วันที่สั่งซื้อ</p>
+                                    <p className="m-0 mb-2 p-0 font-normal text-sm">
+                                        {formatDate(order?.createdAt)} น.
+                                    </p>
+                                </div>
+                                {isDelivered && (
+                                    <div className="flex justify-content-between align-items-center">
+                                        <p className="m-0 mb-2 p-0 font-normal text-sm">วันที่จัดส่งสินค้า</p>
+                                        <p className="m-0 mb-2 p-0 font-normal text-sm">
+                                            {getStatusDate("จัดส่งแล้ว")} น.
+                                        </p>
+                                    </div>
+                                )}
+                                {isReceived && (
+                                    <div className="flex justify-content-between align-items-center">
+                                        <p className="m-0 mb-2 p-0 font-normal text-sm">วันที่รับสินค้าสำเร็จ</p>
+                                        <p className="m-0 mb-2 p-0 font-normal text-sm">
+                                            ว{getStatusDate("รับสินค้าสำเร็จ")} น.
+                                        </p>
+                                    </div>
+                                )}
+                                {isCancelled && (
+                                    <div className="flex justify-content-between align-items-center">
+                                        <p className="m-0 mb-2 p-0 font-normal text-sm">วันที่ยกเลิกออเดอร์</p>
+                                        <p className="m-0 mb-2 p-0 font-normal text-sm">
+                                            {getStatusDate("ยกเลิกออเดอร์")} น.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

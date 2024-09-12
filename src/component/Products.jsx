@@ -8,39 +8,6 @@ import img_placeholder from '../assets/img_placeholder.png';
 
 function Products({ data, startIndex }) {
 
-    // const data = [
-    //     {
-    //         id : '1',
-    //         imgURL : 'https://www.makro.pro/_next/image?url=https%3A%2F%2Fimages.mango-prod.siammakro.cloud%2FSOURCE%2F074fc00deace464ba94af3b81fe4ec78&w=384&q=75',
-    //         name : 'product',
-    //         price : '999.00'
-    //     },
-    //     {
-    //         id : '2',
-    //         imgURL : 'https://www.makro.pro/_next/image?url=https%3A%2F%2Fimages.mango-prod.siammakro.cloud%2FSOURCE%2F074fc00deace464ba94af3b81fe4ec78&w=384&q=75',
-    //         name : 'product',
-    //         price : '999.00'
-    //     },
-    //     {
-    //         id : '3',
-    //         imgURL : 'https://www.makro.pro/_next/image?url=https%3A%2F%2Fimages.mango-prod.siammakro.cloud%2FSOURCE%2F074fc00deace464ba94af3b81fe4ec78&w=384&q=75',
-    //         name : 'product',
-    //         price : '999.00'
-    //     },
-    //     {
-    //         id : '4',
-    //         imgURL : 'https://www.makro.pro/_next/image?url=https%3A%2F%2Fimages.mango-prod.siammakro.cloud%2FSOURCE%2F074fc00deace464ba94af3b81fe4ec78&w=384&q=75',
-    //         name : 'product',
-    //         price : '999.00'
-    //     }
-    //     ,
-    //     {
-    //         id : '4',
-    //         imgURL : 'https://www.makro.pro/_next/image?url=https%3A%2F%2Fimages.mango-prod.siammakro.cloud%2FSOURCE%2F074fc00deace464ba94af3b81fe4ec78&w=384&q=75',
-    //         name : 'product',
-    //         price : '999.00'
-    //     }
-    // ];
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const { addToCart } = useCart();
     const toast = useRef(null);
@@ -108,12 +75,11 @@ function Products({ data, startIndex }) {
                         <h4 className="m-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
                         <div className="flex align-items-center justify-content-between mb-1">
                             <div className='font-bold'>฿{Number(product.product_price).toLocaleString('en-US')}</div>
-                            {/* <Button
+                            <Button
                                 className='btn-plus-product'
                                 icon="pi pi-plus"
-                                rounded
                                 onClick={() => addCart(product)}
-                            /> */}
+                            />
                         </div>
                     </div>
                 </div>
@@ -137,3 +103,4 @@ function Products({ data, startIndex }) {
 }
 
 export default Products
+

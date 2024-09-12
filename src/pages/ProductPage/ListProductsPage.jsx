@@ -57,9 +57,9 @@ function ListProductsPage() {
       if (searchTerm) {
         return product.product_name.toLowerCase().includes(searchTerm.toLowerCase());
       } else if (categoryName) {
-        return product.product_category.includes(categoryName)
+        return product.product_category.includes(categoryName);
       }
-      return products;
+      return true;
     });
   };
 
@@ -277,8 +277,8 @@ function ListProductsPage() {
             <>
               {data.length ? (
                 <div className="w-full">
-                  {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา &quot;{searchTerm}&quot;</h2>}
-                  {location.state?.categoryName && <h2 className="mt-0 text-xs">ผลการค้นหาตามหมวดหมู่ &quot;{location.state?.categoryName}&quot;</h2>} */}
+                  {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา &quot;{searchTerm}&quot;</h2>} */}
+                  {location.state?.categoryName && <h2 className="mt-0 text-xs">ผลการค้นหาตามหมวดหมู่ &quot;{location.state?.categoryName}&quot;</h2>}
                   <div className="product-list">
                     {sortData().map((product, index) => (
                       <div key={index} className="relative flex h-18rem md:h-28rem">
@@ -295,12 +295,11 @@ function ListProductsPage() {
                             <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
                             <div className="flex align-items-center justify-content-between">
                               <div className="font-bold">฿{Number(product.product_price).toLocaleString('en-US')}</div>
-                              {/* <Button
-                                className="btn-plus-product"
+                              <Button
+                                className='btn-plus-product'
                                 icon="pi pi-plus"
-                                rounded
                                 onClick={() => addCart(product)}
-                              /> */}
+                              />
                             </div>
                           </div>
                         </div>
@@ -310,7 +309,8 @@ function ListProductsPage() {
                 </div>
               ) : (
                 <div className="w-full">
-                  {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา "{searchTerm}"</h2>}
+                  {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา "{searchTerm}"</h2>} */}
+                  {location.state?.categoryName && <h2 className="mt-0 text-xs">ผลการค้นหาตามหมวดหมู่ &quot;{location.state?.categoryName}&quot;</h2>}
                   <div className="w-full flex justify-content-center">
                     <div className="flex flex-column justify-content-center align-items-center">
                       <div className='flex justify-content-center'>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Products from "../../component/Products";
 import axios from "axios";
 
-function HomeShop({ partner_id }) {
+function HomeShop({ partner_id, setActiveTab }) {
   const [data, setData] = useState([]);
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
   const shuffleArray = (array) => {
@@ -29,13 +29,15 @@ function HomeShop({ partner_id }) {
     fetchData();
   }, []);
 
-
+  const handleSeeMoreClick = () => {
+    setActiveTab('ShopListProduct'); // Switch to ShopListProduct when clicked
+  };
   return (
     <div className="shop">
       <div className="bg-white m-0 p-3 lg:mx-2 my-3">
-          <span>
-            ยินดีต้อนรับ 
-          </span>
+        <span>
+          ยินดีต้อนรับ
+        </span>
       </div>
 
       <div className="bg-white m-0 pt-3 lg:mx-2">
@@ -43,7 +45,9 @@ function HomeShop({ partner_id }) {
           <span>
             <>สินค้าแนะนำสำหรับคุณ</>
           </span>
-          <Link to="/List-Product" className="no-underline text-900">ดูเพิ่มเติม <i className="pi pi-angle-right"></i></Link>
+
+          <Link onClick={handleSeeMoreClick} className="no-underline text-900">ดูเพิ่มเติม <i className="pi pi-angle-right"></i></Link>
+
         </div>
         <Products data={data} startIndex={0} />
       </div>

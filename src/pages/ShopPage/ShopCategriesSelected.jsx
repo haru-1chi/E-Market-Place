@@ -120,12 +120,11 @@ function ShopCategriesSelected() {
                                                     <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
                                                     <div className="flex align-items-center justify-content-between mb-1">
                                                         <div className="font-bold">฿{Number(product.product_price).toLocaleString('en-US')}</div>
-                                                        {/* <Button
-                                               className="btn-plus-product"
-                                               icon="pi pi-plus"
-                                               rounded
-                                               onClick={() => addCart(product)}
-                                             /> */}
+                                                        <Button
+                                                            className='btn-plus-product'
+                                                            icon="pi pi-plus"
+                                                            onClick={() => addCart(product)}
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>
@@ -146,14 +145,14 @@ function ShopCategriesSelected() {
                                             className="w-12rem mb-3"
                                             label="ค้นหาตามหมวดหมู่"
                                             rounded
-                                            /></Link>
+                                        /></Link>
                                         <Link to="/">
                                             <Button
                                                 className="w-12rem"
                                                 label="ลองค้นหาด้วยคำอื่นๆ"
                                                 rounded
                                                 outlined
-                                           />
+                                            />
                                         </Link>
                                     </div>
                                 </div>

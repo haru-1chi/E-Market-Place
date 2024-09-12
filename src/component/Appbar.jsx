@@ -9,7 +9,7 @@ import { InputText } from "primereact/inputtext";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { Badge } from "primereact/badge";
 import { Menu } from "primereact/menu";
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 //
 import LanguageSelector from "./LanguageSelector";
 import { useTranslation } from "react-i18next";
@@ -22,6 +22,9 @@ import Logo from "../assets/tossaganLogo.png";
 import img_placeholder from '../assets/img_placeholder.png';
 //
 function Appbar() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
   const op = useRef(null);
   const [isContactUsVisible, setContactUsVisible] = useState(false);
   const itemsMenu = [
@@ -62,15 +65,23 @@ function Appbar() {
     });
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const search = params.get("search");
+    if (search) {
+      setSearchTerm(search);
+    }
+  }, [location]);
+
   const handleSearchKeyPress = (event) => {
     if (event.key === "Enter" && searchTerm.trim() !== "") {
-      window.location.href = `/List-Product?search=${searchTerm}`;
+      navigate(`/List-Product?search=${searchTerm}`);
     }
   };
+
   const handleSearchClick = () => {
     if (searchTerm.trim() !== "") {
-      window.location.href = `/List-Product?search=${searchTerm}`;
+      navigate(`/List-Product?search=${searchTerm}`);
     }
   };
   const [selectedItems, setSelectedItems] = useState({});
@@ -116,7 +127,7 @@ function Appbar() {
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
   const [user, setUser] = useState(null);
   const [categories, setCategories] = useState([]);
-  const navigate = useNavigate();
+
 
   const groupByPartner = (cart) => {
     if (typeof cart !== 'object') {
