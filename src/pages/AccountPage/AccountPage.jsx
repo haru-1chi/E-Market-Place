@@ -22,7 +22,7 @@ function AccountPage() {
 
     const tabs = [
         { id: 'account', label: 'บัญชีของฉัน' },
-        { id: 'orderHistory', label: 'ประวัติการสั่งซื้อ' },
+        { id: 'orderHistory', label: 'การซื้อของฉัน' },
         { id: 'contactUs', label: 'ติดต่อเรา' },
     ];
 
@@ -100,7 +100,7 @@ function AccountPage() {
     const handleRevertClick = () => setSelectedOrderId(null);
 
     const StatusBar = () => (
-        <ul className='navmenu w-full flex gap-4 overflow-scroll white-space-nowrap justify-content-between font-semibold p-0 pl-4 m-0 text-center'>
+        <ul className='navmenu w-full flex gap-4 overflow-scroll white-space-nowrap justify-content-between font-semibold p-0 px-4 m-0 text-center'>
             <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'all' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
                 onClick={() => setActiveOrderStatus('all')}>
                 ทั้งหมด {userOrders?.length}
@@ -130,7 +130,7 @@ function AccountPage() {
                 <div>
                     <div className='flex align-items-center bg-white px-2 py-3' onClick={handleRevertClick}>
                         <i className="pi pi-angle-left" style={{ fontSize: '1.5rem' }}></i>
-                        <p className='m-0 ml-3 p-0 text-900'>รายละเอียดคำสั่งซื้อ</p>
+                        <p className='m-0 ml-3 p-0 text-900'>ย้อนกลับ</p>
                     </div>
                     <StatusShippingPage orderId={selectedOrderId} />
                 </div>
@@ -176,53 +176,61 @@ function AccountPage() {
         const tagCSS = latestStatusEvent?.tagCSS || 'bg-gray-100 border-0 text-gray-700';
         return (
             <>
-                {/* <div className='hidden md:flex w-full grid-nogutter bg-white border-1 surface-border border-round-xl py-3 px-2 mt-3 align-items-start'>
-                    <div className='col-2'>
-                        <p className="m-0 p-0 text-sm">#{order.code}</p>
-                        <p className="m-0 p-0 font-semibold">Makro PRO</p>
+                <div className='hidden md:block w-full grid-nogutter bg-white border-1 surface-border border-round-xl p-3 mt-3 align-items-start'>
+                    <div className='w-full border-bottom-1 surface-border pb-2 mb-2'>
+                        <div className='flex justify-content-between'>
+                            <Link to={`/ShopPage/${order.partner_id}`} className="no-underline text-900">
+                                <div className='flex align-items-center'>
+                                    <i className="pi pi-shop"></i>
+                                    <p className="m-0 ml-2 p-0 font-semibold">ผู้ขาย: {order.partner_name}</p>
+                                </div>
+                            </Link>
+                            <p className={`w-fit m-0 px-1 py-0 border-round-md ${tagCSS}`}>{latestStatus}</p>
+                        </div>
                     </div>
-                    <div className='col-5'>
+                    <div className='w-full'>
                         <div className="w-full flex flex-column text-left gap-2">
                             {order.product.map((product, index) => (
-                                <div key={index} className="cart-items flex justify-content-between align-items-center pb-1 border-bottom-1 surface-border">
-                                    <div className="w-full flex align-items-center">
+                                <div key={index} className="cart-items flex justify-content-between align-items-center border-bottom-1 surface-border pb-2">
+                                    <div className="w-full flex align-items-start">
                                         <img
                                             src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                             alt={product.product_name}
-                                            width={50}
-                                            height={50}
+                                            width={90}
+                                            height={90}
+                                            className='border-1 border-round-lg surface-border'
                                         />
                                         <div className="flex flex-column ml-3">
                                             <span className="mb-1 font-semibold">{product.product_name}</span>
-                                            <span>{product.product_qty} หน่วย</span>
+                                            <span>x{product.product_qty}</span>
                                         </div>
                                     </div>
                                     <div className='w-4 text-right'>
-                                        <span className='text-xl'>{Number(product.ppu * product.product_qty).toLocaleString('en-US')} ฿</span>
+                                        <span className='text-xl'>฿{Number(product.product_price * product.product_qty).toLocaleString('en-US')}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className='col-3 justify-content-center pl-3'>
-                        <p className={`w-fit m-0 px-1 py-0 border-round-md surface-border ${orderStatus?.tagCSS}`}>{orderStatus?.value}</p>
-                        <p className="mt-2 p-0 text-sm"><i className='pi pi-shopping-cart mr-1'></i>{formatDate(order.createdAt)} น.</p>
+                    <div className='w-full flex justify-content-end'>
+                        <p className="mt-2 p-0 text-sm"><i className='pi pi-shopping-cart mr-1'></i>วันที่สั่งซื้อ: {formatDate(order.createdAt)} น.</p>
                     </div>
-                    <div className='col-2'>
-                        <p className="m-0 p-0 text-right font-semibold text-primary text-l">{order.net_price?.toLocaleString('en-US')} ฿</p>
+                    <div className=''>
+                        <p className="m-0 p-0 text-right font-semibold text-900 text-l">รวมการสั่งซื้อ: ฿{order.totalproduct?.toLocaleString('en-US')}</p>
                     </div>
-                </div> */}
+                </div>
                 {/* responsive */}
                 <div className='block md:hidden w-full grid-nogutter bg-white border-1 surface-border border-round-xl p-3 mt-3 align-items-start'>
                     <div className='w-full pb-2'>
                         <div className='flex justify-content-between'>
-                            <div className='flex align-items-center'>
-                                <i className="pi pi-shop"></i>
-                                <p className="m-0 ml-2 p-0">ผู้ขาย: {order.partner_name}</p>
-                            </div>
+                            <Link to={`/ShopPage/${order.partner_id}`} className="no-underline text-900">
+                                <div className='flex align-items-center'>
+                                    <i className="pi pi-shop"></i>
+                                    <p className="m-0 ml-2 p-0">ผู้ขาย: {order.partner_name}</p>
+                                </div>
+                            </Link>
                             <p className={`w-fit m-0 px-1 py-0 border-round-md ${tagCSS}`}>{latestStatus}</p>
                         </div>
-
                     </div>
                     <div className='w-full'>
                         <div className="w-full py-2 flex flex-column text-left gap-2">
@@ -282,7 +290,7 @@ function AccountPage() {
     return (
         <>
             <div className="flex lg:mx-8 gap-4">
-                <div className="hidden xl:block w-20rem h-fit bg-white border-1 surface-border border-round-xl">
+                <div className="hidden xl:block w-20rem h-fit bg-white border-1 surface-border border-round-xl mt-4">
                     <ul className='font-semibold'>
                         {tabs.map((tab) => (
                             <li

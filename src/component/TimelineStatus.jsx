@@ -62,7 +62,7 @@ function TimelineStatus({ order, currentStatus, user }) {
                     <Timeline value={events} align="rigth" className="customized-timeline" marker={customizedMarker} content={customizedContent} />
                 </div>
                 <div className="w-full flex flex-column pl-5 border-top-1 md:border-none surface-border">
-                    <div className='md:mt-7'>
+                    <div className='md:mt-2'>
                         <h3 className='mb-2 font-semibold'>ที่อยู่ในการจัดส่ง</h3>
                         {user && (
                             <>

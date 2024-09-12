@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from '../../router/CartContext';
 import { convertTHBtoLAK, formatLaosPhone } from '../../utils/DateTimeFormat';
 import { RadioButton } from 'primereact/radiobutton';
@@ -42,7 +42,7 @@ function CheckoutPage() {
             try {
                 const res = localStorage.getItem("user");
                 setUser(JSON.parse(res));
-            
+
             } catch (err) {
                 console.error("Error fetching user data", err.response?.data || err.message);
             }
@@ -100,7 +100,7 @@ function CheckoutPage() {
                 partner_id: selectedItemsCart.partner_id,
                 customer_id: user._id,
                 amountPayment: totalPayable,
-                
+
                 // customer_name: "",
                 // customer_address: "",
                 // customer_tambon: "",
@@ -117,7 +117,7 @@ function CheckoutPage() {
                 // deliveryBranch,
                 // amountPayment: totalPayable,
             };
-            
+
             placeCartDetail(orderDetails);
             navigate("/PaymentPage");
         }
@@ -125,18 +125,19 @@ function CheckoutPage() {
 
     return (
         <div className="mx-2 sm:px-2 md:px-4 lg:px-6 xl:px-8">
-            <h1 className='flex justify-content-center font-semibold m-0 p-0 py-2'>ทำการสั่งซื้อ</h1>
+            <h1 className='flex font-semibold m-0 p-0 py-2'>ทำการสั่งซื้อ</h1>
             <div className='w-full gap-4 lg:flex justify-content-between'>
                 <div className='w-full lg:w-9 flex flex-column gap-2'>
                     <div className='address p-3 border-1 surface-border border-round bg-white border-round-mb flex flex-column justify-content-center'>
                         <div className='flex align-items-center mb-2'>
                             <i className="m-0 mr-2 pi pi-map-marker"></i>
-                            <h2 className='m-0'>ข้อมูลผู้สั่งสินค้า</h2>
+                            <h2 className='m-0 font-semibold'>ที่อยู่ในการจัดส่ง</h2>
                         </div>
                         {user ? (
                             <>
                                 <p className='m-0'>ชื่อ: {user.name}</p>
-                                {/* <p className='m-0'>เบอร์โทร: {formatLaosPhone(user.phone)}</p> */}
+                                <p className='m-0'>เบอร์โทร: {formatLaosPhone(user.phone)}</p>
+                                <p className='m-0'>ที่อยู่:</p>
                             </>
                         ) : ("")
                         }
@@ -150,10 +151,12 @@ function CheckoutPage() {
                         return (
                             <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                 <div className='w-full'>
-                                    <div className='flex align-items-center mb-2'>
-                                        <i className="pi pi-shop mr-1"></i>
-                                        <h4 className='m-0 font-semibold'>ผู้ขาย {partner_name}</h4>
-                                    </div>
+                                    <Link to={`/ShopPage/${selectedItemsCart.partner_id}`} className="no-underline text-900">
+                                        <div className='flex align-items-center mb-2'>
+                                            <i className="pi pi-shop mr-1"></i>
+                                            <h4 className='m-0 font-semibold'>ผู้ขาย {partner_name}</h4>
+                                        </div>
+                                    </Link>
                                     {items.map((product, idx) => (
                                         <div key={idx} className="cart-items flex align-items-center py-2">
                                             <div className="w-full flex align-items-center">
@@ -236,8 +239,8 @@ function CheckoutPage() {
                     </div>
                 </div>
 
-                <div className='mt-2 lg:mt-0 w-full lg:w-4 flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb'>
-                    <h3 className="m-0 p-0 pb-2">ข้อมูลการชำระเงิน</h3>
+                <div className='mt-2 lg:mt-0 w-full lg:w-4 h-fit flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb mb-2'>
+                    <h3 className="m-0 p-0 pb-2 font-semibold">ข้อมูลการชำระเงิน</h3>
                     <div className="flex justify-content-between py-1">
                         <p className='m-0'>ยอดชำระ</p>
                         <p className='m-0 text-right'>฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}</p>

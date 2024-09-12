@@ -1,5 +1,6 @@
 import React from "react";
 import { Dialog } from "primereact/dialog";
+import line_contact from '../assets/line_contact.jpg';
 
 function ContactUs({ visible, setVisible }) {
     return (
@@ -12,19 +13,12 @@ function ContactUs({ visible, setVisible }) {
                     setVisible(false);
                 }}
             >
-                <div className="text-center">
-                    <h3 className="font-semibold mt-0">ต้องการความช่วยเหลือ</h3>
-                    <p>คุณสามารถติดต่อเราผ่านทาง Line หรือทางโทรศัพท์</p>
+                <div className="flex justify-content-center">
+                    <img src={line_contact} alt="ติดต่อผ่านไลน์" width={150} height={150} />
                 </div>
-                <div className="hidden">
-                    <div className="flex align-items-center border-bottom-1 surface-border mt-4">
-                        <i className="pi pi-mobile mr-2"></i>
-                        <p>เพิ่มเพื่อนทางไลน์ @MakroPRO</p>
-                    </div>
-                    <div className="flex align-items-center border-bottom-1 surface-border">
-                        <i className="pi pi-phone mr-2"></i>
-                        <p>โทรคุยกับเรา 1234 กด 5</p>
-                    </div>
+                <div className="text-center">
+                    <h3 className="font-semibold my-2">ต้องการความช่วยเหลือ</h3>
+                    <p className="my-2">คุณสามารถติดต่อเราผ่านทาง Line</p>
                 </div>
             </Dialog>
         </>

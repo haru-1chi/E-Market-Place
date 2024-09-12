@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link } from 'react-router-dom';
 import { useCart } from "../../router/CartContext";
 import { Toast } from "primereact/toast";
 import axios from "axios";
@@ -76,15 +77,17 @@ function StatusShippingPage({ orderId }) {
                 {order?.payment === "บัญชีธนาคาร" ? "" : <SlipPayment />}
 
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round p-2 bg-white border-round-mb justify-content-center">
-                    <div className="p-2 flex align-items-center">
-                        <p className="m-0 mr-2 p-0 text-lg font-semibold">ผู้ขาย: {order?.partner_name}</p>
-                        <i className="pi pi-angle-right" style={{ fontSize: '1rem', color: "gray" }}></i>
-                    </div>
-                    <div className="flex flex-column mx-1 my-2 gap-2 border-bottom-1 surface-border pb-2">
+                    <Link to={`/ShopPage/${order?.partner_id}`} className="no-underline text-900">
+                        <div className="p-2 flex align-items-center">
+                            <p className="m-0 mr-2 p-0 text-lg font-semibold">ผู้ขาย: {order?.partner_name}</p>
+                            <i className="pi pi-angle-right" style={{ fontSize: '1rem', color: "gray" }}></i>
+                        </div>
+                    </Link>
+                    <div className="flex flex-column mx-1 my-2 gap-2 border-bottom-1 md:border-none surface-border pb-2">
                         {order?.product?.map((product, index) => (
                             <div
                                 key={index}
-                                className="cart-items flex justify-content-between n align-items-center pb-1"
+                                className="cart-items flex justify-content-between n align-items-center pb-2 border-none md:border-bottom-1 surface-border"
                             >
                                 <div className="w-full flex">
                                     <img
@@ -105,7 +108,7 @@ function StatusShippingPage({ orderId }) {
                             </div>
                         ))}
                     </div>
-                    <div className="flex align-items-center justify-content-end pt-3 pb-2">
+                    <div className="flex align-items-center justify-content-end pb-2 mt-2 md:mt-0">
                         <p className="m-0 p-0 mr-2">รวมคำสั่งซื้อ:</p>
                         <p className="m-0 p-0 pr-2 font-semibold text-900">
                             ฿{order?.totalproduct?.toFixed(2)}

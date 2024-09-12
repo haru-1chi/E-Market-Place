@@ -5,6 +5,7 @@ import HomePage from "../pages/HomePage/HomePage";
 import Pagepoint from "../pages/PointPage/Pagepoint";
 import Appbar from "../component/Appbar";
 import ShopPage from "../pages/ShopPage/ShopPage";
+import HelpCenterPage from "../pages/HelpCenterPage/HelpCenterPage";
 import ShopCategriesSelected from "../pages/ShopPage/ShopCategriesSelected";
 import ListProductsPage from "../pages/ProductPage/ListProductsPage";
 import ProductPage from "../pages/ProductPage/ProductPage";
@@ -30,6 +31,7 @@ function Router() {
           <Route path="/" element={<Appbar />}>
             <Route index element={<HomePage />} />
             <Route path="Pagepoint" element={<Pagepoint />} />
+            <Route path="HelpCenterPage" element={<HelpCenterPage />} />
             <Route path="ShopPage/:partner_id" element={<ShopPage />} />
             <Route path="/ShopCategriesSelected/:partner_id" element={<ShopCategriesSelected />} />
             <Route path="List-Product" element={<ListProductsPage />} />

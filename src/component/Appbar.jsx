@@ -350,7 +350,7 @@ function Appbar() {
                 onClick={() => setVisible4(true)}
               />
             </div>
-            <div className="flex align-items-center">
+            <div className="hidden align-items-center">
               <img
                 src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FMakro_PRO_Points_GIF_fe64aa9600.gif&w=32&q=75"
                 width={20}
@@ -411,12 +411,15 @@ function Appbar() {
                         <div className="px-3">
                           <div className="flex justify-content-between align-items-center">
                             <h4 className="m-0 p-0 font-semibold">การซื้อของฉัน</h4>
-                            <p className="text-900 no-underline cursor-pointer" onClick={() => {
+                            <div className="flex align-items-center" onClick={() => {
                               setVisible1(false);
                               navigate("/AccountPage", { state: { activeTab: "orderHistory" } });
-                            }}>ดูประวัติการซื้อ</p>
+                            }}>
+                              <p className="text-900 no-underline cursor-pointer">ดูประวัติการซื้อ</p>
+                              <i className="pi pi-angle-right"></i>
+                            </div>
                           </div>
-                          <ul className="flex justify-content-center gap-8 pl-0 list-none">
+                          <ul className="flex justify-content-center gap-7 pl-0 list-none">
                             <li className="flex flex-column text-center cursor-pointer"
                               onClick={() => {
                                 setVisible1(false);
@@ -432,6 +435,14 @@ function Appbar() {
                               }}>
                               <i className="pi pi-truck" style={{ fontSize: '1.5rem' }}></i>
                               <p className="m-0 p-0 mt-2 text-sm">ที่ต้องได้รับ</p>
+                            </li>
+                            <li className="flex flex-column text-center cursor-pointer"
+                              onClick={() => {
+                                setVisible1(false);
+                                navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "รับสินค้าแล้ว" } });
+                              }}>
+                              <i className="pi pi-check" style={{ fontSize: '1.5rem' }}></i>
+                              <p className="m-0 p-0 mt-2 text-sm">รับสินค้าแล้ว</p>
                             </li>
                           </ul>
                         </div>
@@ -676,17 +687,30 @@ function Appbar() {
               <Button
                 icon="pi pi-bars"
                 onClick={() => setVisible1(true)}
-                className="w-full"
                 rounded
                 text
               />
-              <div className="">
-                <a href="/">
-                  <img src={Logo} alt="Logo" className="w-7 p-0 m-0" />
-                </a>
+            </div>
+            <div className="flex justify-content-between align-items-center gap-2">
+              <div className="w-full flex justify-content-between align-items-center">
+                <IconField className="w-10" iconPosition="left">
+                  <InputIcon className="pi pi-search text-900"></InputIcon>
+                  <InputText
+                    className="w-full border-round-3xl py-2 surface-100 border-none"
+                    type="text"
+                    placeholder="ค้นหาสินค้า"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </IconField>
+                <Button
+                  className="p-0 m-0 border-900"
+                  icon="pi pi-search"
+                  onClick={handleSearchClick}
+                  rounded
+                />
               </div>
             </div>
-
             <div className="flex justify-content-between align-items-center">
               <div className="flex justify-content-end">
                 {/* <Button icon="pi pi-heart" rounded text /> */}
@@ -714,10 +738,11 @@ function Appbar() {
                   onClick={() => setVisible2(true)}
                 />
               </div>
+
             </div>
           </div>
 
-          <div className="flex justify-content-between align-items-center gap-2">
+          {/* <div className="flex justify-content-between align-items-center gap-2">
             <div className="w-full flex justify-content-between align-items-center">
               <IconField className="w-10" iconPosition="left">
                 <InputIcon className="pi pi-search text-900"></InputIcon>
@@ -736,7 +761,7 @@ function Appbar() {
                 rounded
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="navmenu w-full overflow-scroll border-solid py-1">
             <div>

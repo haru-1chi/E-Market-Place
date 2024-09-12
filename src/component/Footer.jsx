@@ -1,37 +1,32 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 function Footer() {
+  const navigate = useNavigate();
   return (
-    <div className="footer-data-list bg-white mt-2 hidden">
+    <div className="footer-data-list bg-white py-2">
       <div className="border-solid">
-        <ul>
-          <li>
-            <a href="#">คำถามที่พบบ่อย</a>
+        <ul className="mb-0">
+          <li className="cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "privacyPolicyMembers" } })}>
+            นโยบายความเป็นส่วนตัวสำหรับสมาชิก
           </li>
-          <li>
-            <a href="#">ติดต่อเรา</a>
+          <li className="cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "privacyPolicyCustomers" } })}>
+            นโยบายความเป็นส่วนตัวสำหรับลูกค้า
           </li>
-          <li>
-            <a href="#">แม็คโครลาว</a>
+          <li className="cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "cookiePolicy" } })}>
+            นโยบายเกี่ยวกับการใช้งาน Cookies
           </li>
-          <li>
-            <a href="#">การตั้งค่าความเป็นส่วนตัว</a>
+          <li className="cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "companyPolicy" } })}>
+            นโยบาย บริษัท
           </li>
-          <li>
-            <a href="#">นโยบายการใช้คุกกี้</a>
+          <li className="cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "pdpaLegalTeam" } })}>
+            ทีมกฎหมาย PDPA Form
           </li>
-          <li>
-            <a href="#">การตั้งค่าคุกกี้</a>
-          </li>
-          <li>
-            <a href="#">ข้อกำหนดและเงื่อนไข</a>
-          </li>
-          <li>
-            <a href="#">เข้าร่วม Makro PRO เป็นผู้ขาย</a>
+          <li className="cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "legalRightsPrivacy" } })}>
+            ข้อกฎหมายและสิทธิส่วนบุคคล
           </li>
         </ul>
       </div>
-      <div className="border-solid mt-2"><p>ลิขสิทธิ์ © 2024 บมจ. ซีพี แอ็กซ์ตร้า สงวนลิขสิทธิ์.</p></div>
+      <div className="border-solid"><p>© Copyright 2024. บริษัท ทศกัณฐ์ ดิจิตอล นิว เจเนเรชั่น จำกัด.</p></div>
     </div>
   );
 }
