@@ -24,28 +24,28 @@ function ShopPage() {
 
   const fetchData = () => {
     axios({
-        method: "get",
-        url: `${apiProductUrl}/product/bypartner/${partner_id}`,
+      method: "get",
+      url: `${apiProductUrl}/product/bypartner/${partner_id}`,
     })
-        .then((response) => {
-            setData(response.data.data);
-        })
-        .catch((error) => {
-            console.log(error);
-            console.log(apiProductUrl);
-        })
-};
+      .then((response) => {
+        setData(response.data.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        console.log(apiProductUrl);
+      })
+  };
 
-useEffect(() => {
+  useEffect(() => {
     if (partner_id) {
-        fetchData();
+      fetchData();
     }
-}, [partner_id]);
+  }, [partner_id]);
 
   const renderActiveComponent = () => {
     switch (activeTab) {
       case 'HomeShop':
-        return <HomeShop partner_id={partner_id} setActiveTab={setActiveTab}/>;
+        return <HomeShop partner_id={partner_id} setActiveTab={setActiveTab} />;
       case 'ShopListProduct':
         return <ShopListProduct partner_id={partner_id} />;
       case 'ShopCategries':
@@ -57,51 +57,53 @@ useEffect(() => {
 
   useEffect(() => {
     if (!partner_id) {
-      return(
+      return (
         <div>ไม่พบ ผู้ขาย</div>
       )
     }
   }, [partner_id]);
 
   return (
-    <>
-      <div className="shop-header flex align-items-center w-full p-3 bg-white border-bottom-1 surface-border">
-        <div>
-          <img src="" alt='' width={80} height={80} className="border-circle" />
-        </div>
-        <div className="ml-3 w-full flex justify-content-between align-items-center">
+    <div className="h-screen flex flex-column justify-content-between">
+      <div>
+        <div className="shop-header flex align-items-start w-full p-3 bg-white border-bottom-1 surface-border">
           <div>
-          ผู้ขาย: {data.length > 0 ? data[0].product_partner_id.partner_name || "ไม่ระบุชื่อ" : ""}
-            <p className="m-0">จังหวัด</p>
-            <p className="m-0">จำนวนผู้ติดตาม</p>
+            <img src="" alt='' width={80} height={80} className="border-circle" />
           </div>
-          <div className="flex flex-column gap-2">
-            <Button label="ติดตาม" className="p-0 px-3" />
-            <Button label="พูดคุย" className="p-0 px-3" />
+          <div className="ml-3 w-full flex justify-content-between align-items-start">
+            <div>
+              ผู้ขาย: {data.length > 0 ? data[0].product_partner_id.partner_name || "ไม่ระบุชื่อ" : ""}
+              <p className="hidden m-0">จังหวัด</p>
+              <p className="hidden m-0">จำนวนผู้ติดตาม</p>
+            </div>
+            <div className="hidden flex-column gap-2">
+              <Button label="ติดตาม" className="p-0 px-3" />
+              <Button label="พูดคุย" className="p-0 px-3" />
+            </div>
           </div>
         </div>
-      </div>
 
-      <ul className="section-sortbar bg-white flex list-none m-0 px-3 py-0 gap-5 border-bottom-1 surface-border">
-        {tabs.map((tab) => (
-          <li
-            key={tab.id}
-            className={`list-none py-2 cursor-pointer ${activeTab === tab.id ? 'border-bottom-3 border-yellow-500 text-yellow-500' : ''}`}
-            onClick={() => {
-              setActiveTab(tab.id);
-            }}
-          >
-            {tab.label}
+        <ul className="section-sortbar bg-white flex list-none m-0 px-3 py-0 gap-5 border-bottom-1 surface-border">
+          {tabs.map((tab) => (
+            <li
+              key={tab.id}
+              className={`list-none py-2 cursor-pointer ${activeTab === tab.id ? 'border-bottom-3 border-yellow-500 text-yellow-500' : ''}`}
+              onClick={() => {
+                setActiveTab(tab.id);
+              }}
+            >
+              {tab.label}
 
-          </li>
-        ))}
-      </ul>
-      <div className='w-full'>
-        {renderActiveComponent()}
+            </li>
+          ))}
+        </ul>
+        <div className='w-full'>
+          {renderActiveComponent()}
+        </div>
       </div>
 
       <Footer />
-    </>
+    </div>
   )
 }
 

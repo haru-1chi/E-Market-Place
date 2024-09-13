@@ -234,7 +234,7 @@ function Appbar() {
       <Toast ref={toast} position="top-center" />
       <div className="hidden lg:block section-appbar">
         <div className="pt-3 pr-3 pl-3">
-          <div className="flex justify-content-end">
+          <div className="hidden justify-content-end">
             <LanguageSelector />
           </div>
           <div className="card flex justify-content-between mb-2 border-solid align-items-center">
@@ -248,7 +248,7 @@ function Appbar() {
                 />
               </div>
               <Link to="/">
-                <img src={Logo} alt="Logo" height={40} />
+                <img src={Logo} alt="Logo" height={80} />
               </Link>
             </div>
             <div className="w-5 mx-4">
@@ -257,7 +257,7 @@ function Appbar() {
                 <InputText
                   className="w-full border-round-3xl py-2 surface-100 border-none"
                   type="text"
-                  placeholder="ค้นหาสินค้า"
+                  placeholder="ค้นหาสินค้าภายในเว็บ"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyPress={handleSearchKeyPress}
@@ -385,8 +385,8 @@ function Appbar() {
       {/* responsive */}
       <div className="block lg:hidden section-appbar">
         {/* <Toast ref={toast} position="top-center" /> */}
-        <div className="pt-2 pr-3 pl-3">
-          <div className="card flex justify-content-between mb-2 border-solid align-items-center">
+        <div className="p-2">
+          <div className="card flex justify-content-between border-solid align-items-center">
             <div className="flex align-items-center">
               <Sidebar
                 header={customHeader}
@@ -693,21 +693,22 @@ function Appbar() {
             </div>
             <div className="flex justify-content-between align-items-center gap-2">
               <div className="w-full flex justify-content-between align-items-center">
-                <IconField className="w-10" iconPosition="left">
+                <IconField className="w-10 mr-2" iconPosition="left">
                   <InputIcon className="pi pi-search text-900"></InputIcon>
                   <InputText
                     className="w-full border-round-3xl py-2 surface-100 border-none"
                     type="text"
-                    placeholder="ค้นหาสินค้า"
+                    placeholder="ค้นหาสินค้าภายในเว็บ"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </IconField>
                 <Button
-                  className="p-0 m-0 border-900"
+                  className="p-0 m-0 border-900 text-primary"
                   icon="pi pi-search"
                   onClick={handleSearchClick}
                   rounded
+                  style={{width: '2.5rem', height: '2.5rem', backgroundColor: 'black'}}
                 />
               </div>
             </div>
@@ -763,7 +764,7 @@ function Appbar() {
             </div>
           </div> */}
 
-          <div className="navmenu w-full overflow-scroll border-solid py-1">
+          <div className="navmenu w-full overflow-scroll border-solid">
             <div>
               <Sidebar
                 header={customHeader4}

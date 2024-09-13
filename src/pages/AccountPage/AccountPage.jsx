@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../router/CartContext';
 import { Button } from "primereact/button";
+import Footer from "../../component/Footer";
 import StatusShippingPage from './StatusShippingPage';
 import MyAccount from './MyAccount';
 import axios from "axios";
@@ -135,7 +136,7 @@ function AccountPage() {
                     <StatusShippingPage orderId={selectedOrderId} />
                 </div>
             ) : (
-                <div>
+                <div className='mb-3'>
                     <div className='section-sortbar bg-white block pt-2'>
                         <h2 className="m-0 p-0 pl-2 font-normal">การซื้อของฉัน</h2>
                         <StatusBar />
@@ -154,7 +155,7 @@ function AccountPage() {
                 </div>
             )
         ) : (
-            <div>
+            <div className='mb-3'>
                 <div className='section-sortbar bg-white block pt-2'>
                     <h2 className="m-0 p-0 pl-2 font-normal">การซื้อของฉัน</h2>
                     <StatusBar />
@@ -288,7 +289,7 @@ function AccountPage() {
     };
 
     return (
-        <>
+        <div className="h-screen flex flex-column justify-content-between">
             <div className="flex lg:mx-8 gap-4">
                 <div className="hidden xl:block w-20rem h-fit bg-white border-1 surface-border border-round-xl mt-4">
                     <ul className='font-semibold'>
@@ -314,7 +315,8 @@ function AccountPage() {
                     <ContactUs visible={isContactUsVisible} setVisible={setContactUsVisible} />
                 </div>
             </div>
-        </>
+            <Footer />
+        </div>
 
     )
 }

@@ -91,7 +91,6 @@ function HomePage() {
       })
       .catch((error) => {
         console.log(error);
-        console.log(apiUrl);
       });
   };
 

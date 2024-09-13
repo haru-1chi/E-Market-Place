@@ -66,10 +66,11 @@ function ShopCategries({partner_id}) {
                     <i className="pi pi-angle-right mr-2"></i>
                 </Link>
             </div>
-            {categories.map((Item) => (
+            {categories.map((Item,index) => (
                 <div
                     className="box-menu py-3 hover:surface-hover"
                     onClick={() => handleCategorySelect(Item.name)}
+                    key={index}
                 >
                     <Link
                         className="flex justify-content-between align-items-center"

@@ -4,6 +4,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import axios from "axios";
 import img_placeholder from '../../assets/img_placeholder.png';
+import Footer from "../../component/Footer";
 
 function ShopCategriesSelected() {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
@@ -71,7 +72,8 @@ function ShopCategriesSelected() {
     };
 
     return (
-        <div>
+        <div className="h-screen flex flex-column justify-content-between">
+            <div>
             <ul className='section-sortbar bg-white flex justify-content-between list-none m-0 px-5 py-0 gap-5 border-bottom-1 surface-border'>
                 <li className={`py-2 list-none cursor-pointer ${activeTab === 'popular' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
                     onClick={() => setActiveTab('popular')}>
@@ -161,6 +163,8 @@ function ShopCategriesSelected() {
                     </>
                 )}
             </div>
+            </div>
+            <Footer />
         </div>
     )
 }
