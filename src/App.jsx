@@ -44,21 +44,50 @@ function App() {
   
     function handleTokenExpiry(decodedToken) {
       if (decodedToken && decodedToken.exp) {
-        const now = Math.floor(Date.now() / 1000); // Current time in seconds
+        const now = Math.floor(Date.now() / 1000);
         if (decodedToken.exp < now) {
           localStorage.removeItem('userToken');
           return true;
         }
       }
-      return false; // Not expired
+      return false;
     }
 
     const token = getTokenFromURL();
     const existingToken = localStorage.getItem("token");
 
+    const seededUserAddress = [
+      {
+        _id: 1,
+        label: 'บ้าน',
+        customer_name: "น้องหญิง",
+        customer_phone: "0633333333",
+        customer_address: "103/3 หมู่ 4",
+        customer_tambon: "สงเปลือย",
+        customer_amphure: "นามน",
+        customer_province: "กาฬสินธุ์",
+        customer_zipcode: "46230",
+        isDefault: true
+      },
+      {
+        _id: 2,
+        label: 'บ้าน',
+        customer_name: "ซากุระโกะ ฟุบุกิ",
+        customer_phone: "0855555555",
+        customer_address: "5 หมู่ 5",
+        customer_tambon: "ช้างม่อย",
+        customer_amphure: "เมืองเชียงใหม่",
+        customer_province: "เชียงใหม่",
+        customer_zipcode: "50000",
+        isDefault: false
+      },
+    ];
+
     if (token) {
-      localStorage.setItem('token', token);
       const decodedToken = decodeToken(token);
+      decodedToken.user_address = seededUserAddress;
+
+      localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(decodedToken));
 
       if (handleTokenExpiry(decodedToken)) {
@@ -66,6 +95,7 @@ function App() {
       } else {
         setTokenValid(true);
       }
+
     } else if (existingToken) {
       const decodedToken = decodeToken(existingToken);
       if (handleTokenExpiry(decodedToken)) {

@@ -279,18 +279,14 @@ function AccountPage() {
                 return <MyAccount />;
             case 'orderHistory':
                 return <OrderHistory />;
-            // case 'favorites':
-            //     return <Favorites />;
-            // case 'privacySettings':
-            //     return <PrivacySettings />;
             default:
                 return <MyAccount />;
         }
     };
 
     return (
-        <div className="h-screen flex flex-column justify-content-between">
-            <div className="flex lg:mx-8 gap-4">
+        <div className="min-h-screen flex flex-column justify-content-between">
+            <div className="flex flex-grow lg:mx-8 gap-4">
                 <div className="hidden xl:block w-20rem h-fit bg-white border-1 surface-border border-round-xl mt-4">
                     <ul className='font-semibold'>
                         {tabs.map((tab) => (

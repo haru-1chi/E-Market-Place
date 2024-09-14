@@ -72,8 +72,8 @@ function ShopCategriesSelected() {
     };
 
     return (
-        <div className="h-screen flex flex-column justify-content-between">
-            <div>
+        <div className="min-h-screen flex flex-column justify-content-between">
+            <div className="flex-grow">
             <ul className='section-sortbar bg-white flex justify-content-between list-none m-0 px-5 py-0 gap-5 border-bottom-1 surface-border'>
                 <li className={`py-2 list-none cursor-pointer ${activeTab === 'popular' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
                     onClick={() => setActiveTab('popular')}>
@@ -106,7 +106,7 @@ function ShopCategriesSelected() {
                         {data.length ? (
                             <div className="w-full">
                                 <div className="product-list">
-                                    {data.map((product, index) => (
+                                    {sortData().map((product, index) => (
                                         <div key={index} className="relative flex h-18rem md:h-28rem">
                                             <div className="w-full border-1 surface-border bg-white flex flex-column">
                                                 <Link to={`/List-Product/product/${product._id}`} state={{ product }}>

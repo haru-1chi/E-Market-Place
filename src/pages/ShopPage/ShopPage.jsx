@@ -64,8 +64,8 @@ function ShopPage() {
   }, [partner_id]);
 
   return (
-    <div className="h-screen flex flex-column justify-content-between">
-      <div>
+    <div className="min-h-screen flex flex-column justify-content-between">
+      <div className="flex-grow">
         <div className="shop-header flex align-items-start w-full p-3 bg-white border-bottom-1 surface-border">
           <div>
             <img src="" alt='' width={80} height={80} className="border-circle" />

@@ -10,45 +10,56 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
     const [tambons, setTambons] = useState([]);
 
     useEffect(() => {
+        
         axios.get('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json')
             .then(response => {
                 setProvinces(response.data);
+                if (addressFormData.customer_province) {
+                    const selectedProvince = response.data.find(province => province.name_th === addressFormData.customer_province);
+                    setAddressFormData(prevData => ({ ...prevData, customer_province: selectedProvince }));
+                }
             });
     }, []);
 
     useEffect(() => {
-        if (addressFormData.province) {
-            setAddressFormData(prevData => ({ ...prevData, amphure: null, tambon: null, zipcode: '' }));
+        if (addressFormData.customer_province) {
             axios.get('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_amphure.json')
                 .then(response => {
-                    const filteredAmphures = response.data.filter(amphure => amphure.province_id === addressFormData.province.id);
+                    const filteredAmphures = response.data.filter(amphure => amphure.province_id === addressFormData.customer_province.id);
                     setAmphures(filteredAmphures);
+                    if (addressFormData.customer_amphure) {
+                        const selectedAmphure = filteredAmphures.find(amphure => amphure.name_th === addressFormData.customer_amphure);
+                        setAddressFormData(prevData => ({ ...prevData, customer_amphure: selectedAmphure }));
+                    }
                 });
         } else {
             setAmphures([]);
             setTambons([]);
         }
-    }, [addressFormData.province]);
+    }, [addressFormData.customer_province]);
 
     useEffect(() => {
-        if (addressFormData.amphure) {
-            setAddressFormData(prevData => ({ ...prevData, tambon: null, zipcode: '' }));
+        if (addressFormData.customer_amphure) {
             axios.get('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_tambon.json')
                 .then(response => {
-                    const filteredTambons = response.data.filter(tambon => tambon.amphure_id === addressFormData.amphure.id);
+                    const filteredTambons = response.data.filter(tambon => tambon.amphure_id === addressFormData.customer_amphure.id);
                     setTambons(filteredTambons);
+                    if (addressFormData.customer_tambon) {
+                        const selectedTambon = filteredTambons.find(tambon => tambon.name_th === addressFormData.customer_tambon);
+                        setAddressFormData(prevData => ({ ...prevData, customer_tambon: selectedTambon }));
+                    }
                 });
         } else {
             setTambons([]);
         }
-    }, [addressFormData.amphure]);
+    }, [addressFormData.customer_amphure]);
 
     const handleTambonChange = (e) => {
         const selectedTambon = e.value;
         setAddressFormData(prevData => ({
             ...prevData,
-            tambon: selectedTambon,
-            zipcode: selectedTambon ? selectedTambon.zip_code : ''
+            customer_tambon: selectedTambon,
+            customer_zipcode: selectedTambon ? selectedTambon.zip_code : ''
         }));
     };
 
@@ -59,8 +70,8 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                     <Dropdown
                         filter
                         inputId="dd-province"
-                        value={addressFormData.province || null}
-                        onChange={(e) => setAddressFormData(prevData => ({ ...prevData, province: e.value }))}
+                        value={addressFormData.customer_province || null}
+                        onChange={(e) => setAddressFormData(prevData => ({ ...prevData, customer_province: e.value }))}
                         options={provinces}
                         optionLabel="name_th"
                         placeholder="Select a Province"
@@ -72,13 +83,13 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                     <Dropdown
                         filter
                         inputId="dd-amphure"
-                        value={addressFormData.amphure || null}
-                        onChange={(e) => setAddressFormData(prevData => ({ ...prevData, amphure: e.value }))}
+                        value={addressFormData.customer_amphure || null}
+                        onChange={(e) => setAddressFormData(prevData => ({ ...prevData, customer_amphure: e.value }))}
                         options={amphures}
                         optionLabel="name_th"
                         placeholder="Select an Amphure"
                         className="w-full"
-                        disabled={!addressFormData.province}
+                        disabled={!addressFormData.customer_province}
                     />
                     <label htmlFor="dd-amphure">เลือกอำเภอ</label>
                 </FloatLabel>
@@ -89,13 +100,13 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                     <Dropdown
                         filter
                         inputId="dd-tambon"
-                        value={addressFormData.tambon || null}
+                        value={addressFormData.customer_tambon || null}
                         onChange={handleTambonChange}
                         options={tambons}
                         optionLabel="name_th"
                         placeholder="Select a Tambon"
                         className="w-full"
-                        disabled={!addressFormData.amphure}
+                        disabled={!addressFormData.customer_amphure}
                     />
                     <label htmlFor="dd-tambon">เลือกตำบล</label>
                 </FloatLabel>
@@ -103,8 +114,8 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                     <InputText
                         className="w-full"
                         type="text"
-                        value={addressFormData.zipcode || ''}
-                        onChange={(e) => setAddressFormData(prevData => ({ ...prevData, zipcode: e.target.value }))}
+                        value={addressFormData.customer_zipcode || ''}
+                        onChange={(e) => setAddressFormData(prevData => ({ ...prevData, customer_zipcode: e.target.value }))}
                     />
                     <label htmlFor="dd-zipcode">รหัสไปรษณีย์</label>
                 </FloatLabel>

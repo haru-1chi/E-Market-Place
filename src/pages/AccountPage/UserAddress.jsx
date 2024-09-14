@@ -13,34 +13,43 @@ function UserAddress() {
     const [addresses, setAddresses] = useState([]);
     const [addressFormData, setAddressFormData] = useState({
         label: '',
-        fullName: '',
-        phoneNumber: '',
-        addressLine: '',
-        province: '',
-        amphure: '',
-        tambon: '',
+        customer_name: '',
+        customer_phone: '',
+        customer_address: '',
+        customer_province: '',
+        customer_amphure: '',
+        customer_tambon: '',
+        customer_zipcode: '',
         isDefault: false
     });
     const [selectedAddressId, setSelectedAddressId] = useState(null);
 
-    // useEffect(() => {
-    //     axios.get('/api/addresses')
-    //         .then(response => setAddresses(response.data))
-    //         .catch(error => console.error(error));
-    // }, []);
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+
+        if (storedUser) {
+            const userData = JSON.parse(storedUser);
+            const userAddresses = userData.user_address || [];
+            setAddresses(userAddresses);
+        } else {
+            console.error('No user data found in localStorage');
+        }
+
+    }, []);
 
     useEffect(() => {
         if (selectedAddressId) {
-            const selectedAddress = addresses.find(address => address.id === selectedAddressId);
+            const selectedAddress = addresses.find(address => address._id === selectedAddressId);
             if (selectedAddress) {
                 setAddressFormData({
                     label: selectedAddress.label || '',
-                    fullName: selectedAddress.fullName || '',
-                    phoneNumber: selectedAddress.phoneNumber || '',
-                    addressLine: selectedAddress.addressLine || '',
-                    province: selectedAddress.province || '',  // Ensure this is not undefined
-                    amphure: selectedAddress.amphure || '',     // Ensure this is not undefined
-                    tambon: selectedAddress.tambon || '',       // Ensure this is not undefined
+                    customer_name: selectedAddress.customer_name || '',
+                    customer_phone: selectedAddress.customer_phone || '',
+                    customer_address: selectedAddress.customer_address || '',
+                    customer_province: selectedAddress.customer_province || '',
+                    customer_amphure: selectedAddress.customer_amphure || '',
+                    customer_tambon: selectedAddress.customer_tambon || '',
+                    customer_zipcode: selectedAddress.customer_zipcode || '',
                     isDefault: selectedAddress.isDefault || false
                 });
             }
@@ -56,54 +65,78 @@ function UserAddress() {
     };
 
     const handleSubmit = () => {
-        console.log(addressFormData)
-        setVisible1(false);
-        resetForm();
-        // if (selectedAddressId) {
-        //     // Update the existing address logic
-        //     axios.put(`/api/addresses/${selectedAddressId}`, addressFormData)
-        //         .then(response => {
-        //             const updatedAddresses = addresses.map(address =>
-        //                 address.id === selectedAddressId ? response.data : address
-        //             );
-        //             setAddresses(updatedAddresses);
-        //             setVisible1(false);
-        //         })
-        //         .catch(error => console.error(error));
-        // } else {
-        //     // Create new address logic
-        //     axios.post('/api/addresses', addressFormData)
-        //         .then(response => {
-        //             setAddresses([...addresses, response.data]);
-        //             setVisible1(false);
-        //         })
-        //         .catch(error => console.error(error));
-        // }
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            const userData = JSON.parse(storedUser);
+
+            const formattedAddressFormData = {
+                ...addressFormData,
+                customer_province: addressFormData.customer_province ? addressFormData.customer_province.name_th : null,
+                customer_amphure: addressFormData.customer_amphure ? addressFormData.customer_amphure.name_th : null,
+                customer_tambon: addressFormData.customer_tambon ? addressFormData.customer_tambon.name_th : null,
+            };
+
+            if (selectedAddressId) {
+                const updatedAddresses = addresses.map(address =>
+                    address._id === selectedAddressId ? { ...address, ...formattedAddressFormData } : address
+                );
+
+                userData.user_address = updatedAddresses;
+                localStorage.setItem('user', JSON.stringify(userData));
+
+                setAddresses(updatedAddresses);
+            } else {
+                const newAddress = {
+                    ...formattedAddressFormData,
+                    _id: Date.now(),
+                };
+
+                const updatedAddresses = [...addresses, newAddress];
+                userData.user_address = updatedAddresses;
+                localStorage.setItem('user', JSON.stringify(userData));
+
+                setAddresses(updatedAddresses);
+                console.log(newAddress);
+            }
+
+            setVisible1(false);
+            resetForm();
+        } else {
+            console.error('No user data found in localStorage');
+        }
     };
 
+
     const handleDelete = () => {
-        if (selectedAddressId) {
-            axios.delete(`/api/addresses/${selectedAddressId}`)
-                .then(() => {
-                    setAddresses(addresses.filter(address => address.id !== selectedAddressId)); // Remove the deleted address from the list
-                    setVisible2(false); // Close the delete confirmation modal
-                })
-                .catch(error => console.error(error));
+        const storedUser = localStorage.getItem('user');
+        if (storedUser && selectedAddressId) {
+            const userData = JSON.parse(storedUser);
+            const updatedAddresses = addresses.filter(address => address._id !== selectedAddressId);
+
+            userData.user_address = updatedAddresses;
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            setAddresses(updatedAddresses);
+            setVisible2(false);
+        } else {
+            console.error('No user data found or no address selected');
         }
     };
 
     const resetForm = () => {
         setAddressFormData({
             label: '',
-            fullName: '',
-            phoneNumber: '',
-            addressLine: '',
-            province: null,
-            amphure: null,
-            tambon: null,
+            customer_name: '',
+            customer_phone: '',
+            customer_address: '',
+            customer_province: '',
+            customer_amphure: '',
+            customer_tambon: '',
+            customer_zipcode: '',
             isDefault: false
         });
     };
+
     return (
         <>
             <div className='bg-section-product w-full flex flex-column border-1 surface-border border-round mt-3 py-3 px-3 bg-white border-round-mb justify-content-center align-self-center'>
@@ -113,48 +146,53 @@ function UserAddress() {
                         <Button icon="pi pi-plus" label="เพิ่มที่อยู่ใหม่" onClick={() => setVisible1(true)} />
                     </div>
                 </div>
-                <div className='flex justify-content-between align-items-start border-bottom-1 surface-border'>
-                    <div>
-                        <p>ชื่อ ซากุระโกะ ฟุบุกิ</p>
-                        <p>เบอร์โทร 055 555 5555</p>
-                        <p>ที่อยู่ สันติธรรม ชัยเหมี่ยง ประเทศไทย</p>
-                        <p className='w-fit px-1 border-1 border-round border-primary'>ค่าเริ่มต้น</p>
-                    </div>
-                    <div className='text-right'>
-                        <div className='flex gap-2 justify-content-end'>
-                            <p className='text-blue-500 cursor-pointer'
-                                onClick={() => {
-                                    //  setSelectedAddressId(address.id);
-                                    setVisible1(true);
-                                }}
-                            >แก้ไข</p>
-                            <p className='text-blue-500 cursor-pointer'
-                                onClick={() => {
-                                    //  setSelectedAddressId(address.id);
-                                    setVisible2(true);
-                                }}
-                            >ลบ</p>
-                        </div>
-                        <Button label='ตั้งเป็นค่าเริ่มต้น' outlined className='px-2 py-1 text-900 border-primary' />
-                    </div>
-                </div>
-                {/* {addresses.map((address, index) => (
-                    <div key={index} className='flex justify-content-between align-items-center border-bottom-1 surface-border'>
-                        <div>
-                            <p>{address.fullName}</p>
-                            <p>เบอร์โทร {address.phoneNumber}</p>
-                            <p>{address.addressLine}, {address.tambon}, {address.amphure}, {address.province}</p>
-                            <p className={address.isDefault ? 'w-fit px-1 border-1 border-round border-primary' : ''}>{address.isDefault ? 'ค่าเริ่มต้น' : ''}</p>
-                        </div>
-                        <div className='text-right'>
-                            <div className='flex gap-2 justify-content-end'>
-                                <p className='text-blue-500' onClick={() => { setSelectedAddressId(address.id); setVisible1(true); }}>แก้ไข</p>
-                                <p className='text-blue-500 cursor-pointer' onClick={() => { setSelectedAddressId(address.id); setVisible2(true); }}>ลบ</p>
+                {addresses.length > 0 ? (
+                    addresses.map((address) => (
+                        <div key={address._id} className='flex justify-content-between align-items-start border-bottom-1 surface-border'>
+                            <div>
+                                <p>ชื่อ {address.customer_name}</p>
+                                <p>เบอร์โทร {address.customer_phone || 'เบอร์โทรไม่ระบุ'}</p>
+                                <p>ที่อยู่ {`${address.customer_address}, ${address.customer_tambon}, ${address.customer_amphure}, ${address.customer_province}, ${address.customer_zipcode}`}</p>
+                                {address.isDefault ? (
+                                    <p className='w-fit px-1 border-1 border-round border-primary'>ค่าเริ่มต้น</p>
+                                ) : (
+                                    ""
+                                )}
+
                             </div>
-                            <Button label='ตั้งเป็นค่าเริ่มต้น' outlined className='px-2 py-1 text-900 border-primary' />
+                            <div className='text-right'>
+                                <div className='flex gap-2 justify-content-end'>
+                                    <p
+                                        className='text-blue-500 cursor-pointer'
+                                        onClick={() => {
+                                            setVisible1(true);
+                                            setSelectedAddressId(address._id);
+                                        }}
+                                    >
+                                        แก้ไข
+                                    </p>
+                                    <p
+                                        className='text-blue-500 cursor-pointer'
+                                        onClick={() => {
+                                            setVisible2(true);
+                                            setSelectedAddressId(address._id);
+                                        }}
+                                    >
+                                        ลบ
+                                    </p>
+                                </div>
+                                {address.isDefault ? (
+                                    <Button label='ตั้งเป็นค่าเริ่มต้น' outlined className='px-2 py-1 text-900 border-primary' disabled />
+                                ) : (
+                                    <Button label='ตั้งเป็นค่าเริ่มต้น' outlined className='px-2 py-1 text-900 border-primary' />
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))} */}
+                    ))
+                ) : (
+                    <p>ไม่พบที่อยู่ กรุณาเพิ่มที่อยู่ใหม่</p>
+                )}
+
             </div>
 
             <Dialog
@@ -176,22 +214,22 @@ function UserAddress() {
                 <div className="flex flex-column gap-4 mt-4">
                     <div className='w-full block md:flex gap-3'>
                         <FloatLabel className='w-full'>
-                            <InputText id="fullName" value={addressFormData.fullName}
+                            <InputText id="customer_name" value={addressFormData.customer_name}
                                 onChange={handleAddressInputChange}
                                 className='w-full'
                             />
-                            <label htmlFor="fullName">ชื่อ-นามสกุล</label>
+                            <label htmlFor="customer_name">ชื่อ-นามสกุล</label>
                         </FloatLabel>
                         <FloatLabel className='w-full mt-4 md:mt-0'>
-                            <InputText id="phoneNumber" value={addressFormData.phoneNumber}
+                            <InputText id="customer_phone" value={addressFormData.customer_phone}
                                 onChange={handleAddressInputChange}
                                 className='w-full'
                             />
-                            <label htmlFor="phoneNumber">หมายเลขโทรศัพท์</label>
+                            <label htmlFor="customer_phone">หมายเลขโทรศัพท์</label>
                         </FloatLabel>
                     </div>
 
-                    <InputText id="addressLine" value={addressFormData.addressLine} onChange={handleAddressInputChange} className="w-full" placeholder='บ้านเลขที่, ซอย, หมู่, ถนน' />
+                    <InputText id="customer_address" value={addressFormData.customer_address} onChange={handleAddressInputChange} className="w-full" placeholder='บ้านเลขที่, ซอย, หมู่, ถนน' />
                     <ProvinceSelection
                         addressFormData={addressFormData}
                         setAddressFormData={setAddressFormData} />
@@ -221,7 +259,7 @@ function UserAddress() {
             >
                 <div className='flex justify-content-end gap-3 mt-4'>
                     <Button onClick={() => setVisible2(false)} label='ยกเลิก' text />
-                    <Button onClick={handleSubmit} label='ลบ' />
+                    <Button onClick={handleDelete} label='ลบ' />
                 </div>
             </Dialog>
         </>

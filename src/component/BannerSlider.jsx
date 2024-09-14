@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Carousel } from "primereact/carousel";
+import bannerSlide1 from '../assets/bannerSlide1.png';
+import bannerSlide2 from '../assets/bannerSlide2.png';
 
 function BannerSlider() {
   const data = [
     {
-      imgURL: 'https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FMM_16_Crazy_Jumbo_Web_Banner_TH_b00302_01526f1368.png&w=1920&q=90'
+      imgURL: bannerSlide1
     },
     {
-      imgURL: 'https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FUpdated17_Jul_Makro_FB_Challenge_1290x480_TH_0cb0869b3d.png&w=3840&q=90'
+      imgURL: bannerSlide2
     }
   ]
 

@@ -27,7 +27,7 @@ function CheckoutPage() {
     const [deliveries, setDeliveries] = useState([]);
     const [deliveryBranch, setDeliveryBranch] = useState('');
     const [error, setError] = useState(false);
-
+    const [addresses, setAddresses] = useState([]);
     const [totalPayable, setTotalPayable] = useState(0);
     const num_total = 0
 
@@ -42,6 +42,19 @@ function CheckoutPage() {
         isDefault: false
     });
     const [selectedAddressId, setSelectedAddressId] = useState(null);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+
+        if (storedUser) {
+            const userData = JSON.parse(storedUser);
+            const userAddresses = userData.user_address || [];
+            setAddresses(userAddresses);
+        } else {
+            console.error('No user data found in localStorage');
+        }
+
+    }, []);
 
     const handleSubmit = () => {
         console.log(addressFormData)
@@ -245,6 +258,15 @@ function CheckoutPage() {
                                 </div>
                             );
                         })}
+
+                        <div className='flex-column p-3 mt-2 border-1 surface-border border-round  bg-white border-round-mb justify-content-center'>
+                            <p className='m-0 mb-2'>วิธีการรับสินค้า</p>
+                            <Dropdown
+                                placeholder="เลือกขนส่ง"
+                                className="w-full"
+                            />
+                            <Button label="คำนวณค่าส่ง" className="align-self-center" />
+                        </div>
                     </div>
 
                     <div className='mt-2 lg:mt-0 w-full lg:w-4 h-fit flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb mb-2'>
@@ -255,8 +277,11 @@ function CheckoutPage() {
                         </div>
                         <Button className="w-full mt-2" label="ไปหน้าชำระสินค้า" size="small" rounded onClick={handleConfirmPayment} />
                     </div>
+
                 </div >
             </div>
+
+
             <Footer />
 
             <Dialog
@@ -321,59 +346,45 @@ function CheckoutPage() {
                 onHide={() => setVisible2(false)}
                 closable={false}
             >
-                <div className="w-full flex align-items-start pt-4 border-bottom-1 surface-border">
-                    <RadioButton
-                        inputId={`address`}
-                        name="shippingAddress"
-                    />
-                    <div className='w-full ml-3 flex justify-content-between align-items-start'>
-                        <div>
-                            <p className="mt-0">ชื่อ ซากุระโกะ ฟุบุกิ</p>
-                            <p>เบอร์โทร 055 555 5555</p>
-                            <p>ที่อยู่ สันติธรรม ชัยเหมี่ยง ประเทศไทย</p>
-                            <p className='w-fit px-1 border-1 border-round border-primary'>ค่าเริ่มต้น</p>
-                        </div>
-                        <div className='text-right'>
-                            <div className='flex gap-2 justify-content-end'>
-                                <p className='text-blue-500 cursor-pointer m-0'
-                                    onClick={() => {
-                                        //  setSelectedAddressId(address.id);
-                                        setVisible1(true);
-                                    }}
-                                >แก้ไข</p>
+                {addresses.length > 0 ? (
+                    addresses.map((address) => (
+                        <div key={address._id} className="w-full flex align-items-start pt-4 border-bottom-1 surface-border">
+                            <RadioButton
+                                inputId={`address`}
+                                name="shippingAddress"
+                            />
+                            <div className='w-full ml-3 flex justify-content-between align-items-start'>
+                                <div>
+                                    <p className="m-0">ชื่อ {address.customer_name}</p>
+                                    <p>เบอร์โทร {address.customer_phone || 'เบอร์โทรไม่ระบุ'}</p>
+                                    <p>ที่อยู่ {`${address.customer_address}, ${address.customer_tambon}, ${address.customer_amphure}, ${address.customer_province}, ${address.customer_zipcode}`}</p>
+                                    {address.isDefault ? (
+                                        <p className='w-fit px-1 border-1 border-round border-primary'>ค่าเริ่มต้น</p>
+                                    ) : (
+                                        ""
+                                    )}
+
+                                </div>
+                                <div className='text-right'>
+                                    <div className='flex gap-2 justify-content-end'>
+                                        <p
+                                            className='text-blue-500 cursor-pointer'
+                                            onClick={() => {
+                                                setVisible1(true);
+                                                setSelectedAddressId(address._id);
+                                            }}
+                                        >
+                                            แก้ไข
+                                        </p>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-
-                {/* {addresses.map((address, index) => (
-                <div key={index} className='flex justify-content-between align-items-center border-bottom-1 surface-border'>
-                    <div className="flex align-items-center">
-                        
-                        <RadioButton
-                            inputId={`address${index}`}
-                            name="shippingAddress"
-                            value={address.id} 
-                            checked={selectedShippingAddressId === address.id}
-                            onChange={() => setSelectedShippingAddressId(address.id)}
-                        />
-                        <label htmlFor={`address${index}`} className="ml-2">
-                            <p>{address.fullName}</p>
-                            <p>เบอร์โทร {address.phoneNumber}</p>
-                            <p>{address.addressLine}, {address.tambon}, {address.amphure}, {address.province}</p>
-                            <p className={address.isDefault ? 'w-fit px-1 border-1 border-round border-primary' : ''}>{address.isDefault ? 'ค่าเริ่มต้น' : ''}</p>
-                        </label>
-                    </div>
-                    <div className='text-right'>
-                        <div className='flex gap-2 justify-content-end'>
-                            <p className='text-blue-500' onClick={() => { setSelectedShippingAddressId(address.id); setVisible1(true); }}>แก้ไข</p>
-                            <p className='text-blue-500 cursor-pointer' onClick={() => { setSelectedShippingAddressId(address.id); setVisible2(true); }}>ลบ</p>
-                        </div>
-                        <Button label='ตั้งเป็นค่าเริ่มต้น' outlined className='px-2 py-1 text-900 border-primary' />
-                    </div>
-                </div>
-            ))} */}
+                    ))
+                ) : (
+                    <p>ไม่พบที่อยู่ กรุณาเพิ่มที่อยู่ใหม่</p>
+                )}
 
                 <div className='flex justify-content-end gap-3 mt-4'>
                     <Button onClick={() => setVisible2(false)} label='ยกเลิก' className="text-900 border-primary" outlined />

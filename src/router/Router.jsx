@@ -40,7 +40,7 @@ function Router() {
             <Route path="PaymentPage" element={<PaymentPage />} />
             <Route path="PaymentSuccessfully" element={<PaymentSuccessfully />} />
             <Route path="QRPage" element={<QRPage />} />
-            <Route path="AccountPage" element={<AccountPage />} />2
+            <Route path="AccountPage" element={<AccountPage />} />
             <Route path="StatusShippingPage/:orderId" element={<StatusShippingPage />} />
             <Route path="*" element={<NoPage />} />
             <Route path="/OrderSummaryPage" element={<OrderSummaryPage />} />
