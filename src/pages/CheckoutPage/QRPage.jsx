@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import { Button } from "primereact/button";
+import { Toast } from 'primereact/toast';
 import { useCart } from '../../router/CartContext';
 import { useNavigate } from "react-router-dom";
 import { convertTHBtoLAK } from '../../utils/DateTimeFormat';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import Logo from '../../assets/tossaganLogo.png';
+import KBANK from '../../assets/KPULS1_0_0.png';
 
 const EXPIRE_TIME = 60;
 
@@ -219,21 +222,22 @@ function QRPage() {
 
     const renderBankDetails = () => (
         <>
-            <div className="flex mt-3">
-                <div className="w-full flex flex-column justify-content-center gap-2 border-right-1 surface-border overflow-hidden text-overflow-ellipsis">
-                    <p className="m-0 text-center">ธนาคาร: ไทยพานิชย์</p>
-                    <p className="m-0 text-center">ชื่อบัญชี: บริษัท</p>
-                    <p className="m-0 text-center">เลขบัญชี: 000-000000-0 (หรือรหัสอ้างอิง)</p>
-
+            <div className="block md:flex mt-3">
+                <div className="w-fit flex flex-column justify-content-center align-items-center pr-2">
+                    <img src={KBANK} alt="" className="w-24rem" />
+                    <Button label="คัดลอกเลขที่บัญชี" size="small" className="w-fit" rounded onClick={handleCopyLink} />
                 </div>
-                <div className="w-full flex-grow-1 flex flex-column text-center">
-                    <p className="m-0">Amount (BATH)</p>
+                <div className="border-none md:border-left-1 surface-border w-24rem flex flex-column justify-content-center text-center">
                     {totalPayable && (
-                        <p className="my-3 text-2xl font-bold">
-                            ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
-                        </p>
+                        <div className="pt-5 md:mt-0">
+                            <p className="m-0 mb-3 p-0 text-2xl font-bold">
+                                จำนวนเงิน(บาท)
+                            </p>
+                            <p className="m-0 p-0 text-2xl font-bold">
+                                ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
+                            </p>
+                        </div>
                     )}
-
                 </div>
             </div>
             <div className="my-5">
@@ -243,12 +247,24 @@ function QRPage() {
         </>
     )
 
+    const toast = useRef(null);
+    const link = "1803182937";
 
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(link).then(() => {
+            toast.current.show({ severity: 'success', summary: 'คัดลอกเลขบัญชีไปยังคลิปบอร์ดแล้ว!', life: 3000 });
+        }).catch((err) => {
+            console.error('คัดลอกไม่สำเร็จ: ', err);
+        });
+    };
     return (
         <>
-            <div className='w-full px-2 sm:px-2 lg:px-8 pt-5 flex justify-content-center'>
+            <Toast ref={toast} position="top-center" />
+            <div className='w-full lg:px-8 pt-5 flex justify-content-center'>
                 <div className='flex flex-column border-1 surface-border border-round py-5 px-3 bg-white border-round-mb '>
-                    <h1 className="m-0 p-0">MakroLao</h1>
+                    <div className=" align-self-center">
+                        <img src={Logo} alt="" className="w-16rem" />
+                    </div>
 
                     {cartDetails.payment === 'QRCode' ? (
                         loading ? (
@@ -263,6 +279,7 @@ function QRPage() {
                     )}
 
                     <div className="flex align-items-center justify-content-center">
+
                         <Button label="Return to Merchant" size="small" rounded onClick={handleCreateOrder} />
                     </div>
                 </div>

@@ -9,8 +9,8 @@ function HelpCenterPage() {
         { id: 'privacyPolicyMembers', label: 'นโยบายความเป็นส่วนตัวสำหรับสมาชิก' },
         { id: 'privacyPolicyCustomers', label: 'นโยบายความเป็นส่วนตัวสำหรับลูกค้า' },
         { id: 'cookiePolicy', label: 'นโยบายเกี่ยวกับการใช้งาน Cookies' },
-        { id: 'companyPolicy', label: 'นโยบาย บริษัท' },
-        { id: 'pdpaLegalTeam', label: 'ทีมกฎหมาย PDPA Form' },
+        { id: 'companyPolicy', label: 'นโยบายบริษัท' },
+        // { id: 'pdpaLegalTeam', label: 'ทีมกฎหมาย PDPA Form' },
         { id: 'legalRightsPrivacy', label: 'ข้อกฎหมายและสิทธิส่วนบุคคล' },
     ];
 

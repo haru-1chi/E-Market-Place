@@ -258,15 +258,6 @@ function CheckoutPage() {
                                 </div>
                             );
                         })}
-
-                        <div className='flex-column p-3 mt-2 border-1 surface-border border-round  bg-white border-round-mb justify-content-center'>
-                            <p className='m-0 mb-2'>วิธีการรับสินค้า</p>
-                            <Dropdown
-                                placeholder="เลือกขนส่ง"
-                                className="w-full"
-                            />
-                            <Button label="คำนวณค่าส่ง" className="align-self-center" />
-                        </div>
                     </div>
 
                     <div className='mt-2 lg:mt-0 w-full lg:w-4 h-fit flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb mb-2'>

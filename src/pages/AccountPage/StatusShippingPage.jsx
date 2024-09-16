@@ -68,14 +68,6 @@ function StatusShippingPage({ orderId }) {
         <>
             <div className="w-full p-2 flex flex-column gap-2 justify-content-center">
                 <Toast ref={toast}></Toast>
-                <TimelineStatus
-                    order={order}
-                    currentStatus={currentStatus}
-                    user={user}
-                />
-
-                {order?.payment === "บัญชีธนาคาร" ? "" : <SlipPayment />}
-
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round p-2 bg-white border-round-mb justify-content-center">
                     <Link to={`/ShopPage/${order?.partner_id}`} className="no-underline text-900">
                         <div className="p-2 flex align-items-center">
@@ -115,6 +107,13 @@ function StatusShippingPage({ orderId }) {
                         </p>
                     </div>
                 </div>
+                <TimelineStatus
+                    order={order}
+                    currentStatus={currentStatus}
+                    user={user}
+                />
+
+                {order?.payment === "บัญชีธนาคาร" ? "" : <SlipPayment />}
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center">
                     <div className="xl:flex lg:flex">
                         <div className="w-full mb-1">

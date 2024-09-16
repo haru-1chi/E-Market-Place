@@ -10,7 +10,6 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
     const [tambons, setTambons] = useState([]);
 
     useEffect(() => {
-        
         axios.get('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json')
             .then(response => {
                 setProvinces(response.data);
@@ -22,14 +21,20 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
     }, []);
 
     useEffect(() => {
-        if (addressFormData.customer_province) {
+        if (addressFormData.customer_province && typeof addressFormData.customer_province === 'object') {
             axios.get('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_amphure.json')
                 .then(response => {
                     const filteredAmphures = response.data.filter(amphure => amphure.province_id === addressFormData.customer_province.id);
                     setAmphures(filteredAmphures);
-                    if (addressFormData.customer_amphure) {
+
+                    if (typeof addressFormData.customer_amphure === 'string') {
                         const selectedAmphure = filteredAmphures.find(amphure => amphure.name_th === addressFormData.customer_amphure);
-                        setAddressFormData(prevData => ({ ...prevData, customer_amphure: selectedAmphure }));
+                        if (selectedAmphure) {
+                            setAddressFormData(prevData => ({
+                                ...prevData,
+                                customer_amphure: selectedAmphure
+                            }));
+                        }
                     }
                 });
         } else {
@@ -38,15 +43,22 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
         }
     }, [addressFormData.customer_province]);
 
+
     useEffect(() => {
-        if (addressFormData.customer_amphure) {
+        if (addressFormData.customer_amphure && typeof addressFormData.customer_amphure === 'object') {
             axios.get('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_tambon.json')
                 .then(response => {
                     const filteredTambons = response.data.filter(tambon => tambon.amphure_id === addressFormData.customer_amphure.id);
                     setTambons(filteredTambons);
-                    if (addressFormData.customer_tambon) {
+
+                    if (typeof addressFormData.customer_tambon === 'string') {
                         const selectedTambon = filteredTambons.find(tambon => tambon.name_th === addressFormData.customer_tambon);
-                        setAddressFormData(prevData => ({ ...prevData, customer_tambon: selectedTambon }));
+                        if (selectedTambon) {
+                            setAddressFormData(prevData => ({
+                                ...prevData,
+                                customer_tambon: selectedTambon
+                            }));
+                        }
                     }
                 });
         } else {

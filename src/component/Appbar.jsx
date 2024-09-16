@@ -234,8 +234,11 @@ function Appbar() {
       <Toast ref={toast} position="top-center" />
       <div className="hidden lg:block section-appbar">
         <div className="pt-3 pr-3 pl-3">
-          <div className="hidden justify-content-end">
-            <LanguageSelector />
+          <div className="flex justify-content-start gap-3">
+            <Link>Seller Center</Link>
+            <Link>ช่องทางการติดต่อ</Link>
+            <Link>ติดตามเรา</Link>
+            {/* <LanguageSelector /> */}
           </div>
           <div className="card flex justify-content-between mb-2 border-solid align-items-center">
             <div className="flex justify-content-between align-items-center">
@@ -247,7 +250,7 @@ function Appbar() {
                   text
                 />
               </div>
-              <Link to="/">
+              <Link to="/" className="bg-white border-round-3xl">
                 <img src={Logo} alt="Logo" height={80} />
               </Link>
             </div>
@@ -385,6 +388,12 @@ function Appbar() {
       {/* responsive */}
       <div className="block lg:hidden section-appbar">
         {/* <Toast ref={toast} position="top-center" /> */}
+        <div className="flex justify-content-start gap-3 p-2 pb-0">
+            <Link>Seller Center</Link>
+            <Link>ช่องทางการติดต่อ</Link>
+            <Link>ติดตามเรา</Link>
+            {/* <LanguageSelector /> */}
+          </div>
         <div className="p-2">
           <div className="card flex justify-content-between border-solid align-items-center">
             <div className="flex align-items-center">

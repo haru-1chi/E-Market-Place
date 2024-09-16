@@ -48,6 +48,10 @@ function TimelineStatus({ order, currentStatus, user }) {
         );
     };
 
+    const latestStatus = order?.statusdetail
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.status || "Unknown Status";
+    
     return (
         <div className='bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center'>
             <div className='border-round px-3 py-2 bg-primary-400'>
@@ -77,6 +81,9 @@ function TimelineStatus({ order, currentStatus, user }) {
             {(order?.payment === 'บัญชีธนาคาร' && currentStatus?.key === 1) ? (
                 <Button className="mt-3 w-fit align-self-center" label="ยกเลิกคำสั่งซื้อ" rounded />
             ) : null}
+            <div className='w-full flex justify-content-end'>
+                        {latestStatus === 'จัดส่งแล้ว' ? <Button label='ยืนยันการรับสินค้า' /> : ("")}
+                    </div>
         </div>
 
     )

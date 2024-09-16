@@ -219,6 +219,9 @@ function AccountPage() {
                     <div className=''>
                         <p className="m-0 p-0 text-right font-semibold text-900 text-l">รวมการสั่งซื้อ: ฿{order.totalproduct?.toLocaleString('en-US')}</p>
                     </div>
+                    <div className='w-full flex justify-content-end'>
+                        {latestStatus === 'จัดส่งแล้ว' ? <Button label='ยืนยันการรับสินค้า' /> : ("")}
+                    </div>
                 </div>
                 {/* responsive */}
                 <div className='block md:hidden w-full grid-nogutter bg-white border-1 surface-border border-round-xl p-3 mt-3 align-items-start'>
@@ -260,6 +263,9 @@ function AccountPage() {
                     <div className='w-full flex justify-content-end'>
                         <p className="m-0 p-0 text-right">สินค้ารวม {order?.product?.length} รายการ: </p>
                         <p className="m-0 ml-1 p-0 text-right font-semibold">฿{order.totalproduct?.toLocaleString('en-US')}</p>
+                    </div>
+                    <div className='w-full flex justify-content-end'>
+                        {latestStatus === 'จัดส่งแล้ว' ? <Button label='ยืนยันการรับสินค้า' /> : ("")}
                     </div>
                     {/* <div className='w-full text-right'>
                         <p className="m-0 pt-3 text-right font-semibold text-primary text-l">{order.net_price?.toLocaleString('en-US')} ฿</p>
