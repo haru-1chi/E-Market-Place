@@ -35,24 +35,6 @@ function Products({ data, startIndex }) {
         }
     };
 
-    const scrollLeft = () => {
-        if (carouselRef.current) {
-            carouselRef.current.scrollBy({
-                left: -300,
-                behavior: 'smooth'
-            });
-        }
-    };
-
-    const scrollRight = () => {
-        if (carouselRef.current) {
-            carouselRef.current.scrollBy({
-                left: 300,
-                behavior: 'smooth'
-            });
-        }
-    };
-
     const productSubset = data.slice(startIndex, startIndex + 5);
 
     const productTemplate = (product) => {
@@ -92,19 +74,49 @@ function Products({ data, startIndex }) {
         );
     };
 
+    const responsiveOptions = [
+        {
+            breakpoint: '1400px',
+            numVisible: 5
+        },
+        {
+            breakpoint: '1199px',
+            numVisible: 5
+        },
+        {
+            breakpoint: '767px',
+            numVisible: 3
+        },
+        {
+            breakpoint: '575px',
+            numVisible: 2
+        }
+    ];
+
     return (
-        <div className="products-carousel-wrapper">
-            <Toast ref={toast} position="top-center" />
-            <button className="arrow-left" onClick={scrollLeft}>‹</button>
-            <div className="products-carousel" ref={carouselRef}>
-                {data.map((product, index) => (
-                    <div key={index} className="product-item">
-                        {productTemplate(product)}
-                    </div>
-                ))}
+        <>
+            <div className="block md:hidden products-carousel-wrapper">
+                <Toast ref={toast} position="top-center" />
+                <div className="products-carousel" ref={carouselRef}>
+                    {data.map((product, index) => (
+                        <div key={index} className="product-item">
+                            {productTemplate(product)}
+                        </div>
+                    ))}
+                </div>
             </div>
-            <button className="arrow-right" onClick={scrollRight}>›</button>
-        </div>
+
+            <div className="hidden md:block">
+                <Carousel
+                value={data}
+                numVisible={5}
+                numScroll={3}
+                showIndicators={false}
+              
+                responsiveOptions={responsiveOptions}
+                itemTemplate={productTemplate} />
+            </div>
+        </>
     );
 }
 
