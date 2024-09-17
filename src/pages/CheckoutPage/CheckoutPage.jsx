@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Footer from "../../component/Footer";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from '../../router/CartContext';
-import { formatLaosPhone } from '../../utils/DateTimeFormat';
 import { RadioButton } from 'primereact/radiobutton';
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
@@ -24,63 +23,44 @@ function CheckoutPage() {
     const { selectedItemsCart, placeCartDetail } = useCart();
     const [shipping, setShipping] = useState('selfPickup');
     const [selectedDelivery, setSelectedDelivery] = useState('');
-    const [deliveries, setDeliveries] = useState([]);
     const [deliveryBranch, setDeliveryBranch] = useState('');
     const [error, setError] = useState(false);
-    const [addresses, setAddresses] = useState([]);
+    const [address, setAddress] = useState(null);
+    const [totalProductPrice, setTotalProductPrice] = useState(0);
+    const [totalDiscount, setTotalDiscount] = useState(0);
+    const [totalVat, setTotalVat] = useState(0);
+    const [totalDeliveryPrice, setTotalDeliveryPrice] = useState(0);
     const [totalPayable, setTotalPayable] = useState(0);
-    const num_total = 0
 
     const [addressFormData, setAddressFormData] = useState({
         label: '',
-        fullName: '',
-        phoneNumber: '',
-        addressLine: '',
-        province: null,
-        amphure: null,
-        tambon: null,
+        customer_name: '',
+        customer_telephone: '',
+        customer_address: '',
+        customer_province: '',
+        customer_amphure: '',
+        customer_tambon: '',
+        customer_zipcode: '',
         isDefault: false
     });
-    const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [validationErrors, setValidationErrors] = useState({});
+    const [isUsingNewAddress, setIsUsingNewAddress] = useState(false);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-
-        if (storedUser) {
-            const userData = JSON.parse(storedUser);
-            const userAddresses = userData.user_address || [];
-            setAddresses(userAddresses);
-        } else {
-            console.error('No user data found in localStorage');
-        }
-
-    }, []);
-
-    const handleSubmit = () => {
-        console.log(addressFormData)
-        setVisible1(false);
-        resetForm();
-        // if (selectedAddressId) {
-        //     // Update the existing address logic
-        //     axios.put(`/api/addresses/${selectedAddressId}`, addressFormData)
-        //         .then(response => {
-        //             const updatedAddresses = addresses.map(address =>
-        //                 address.id === selectedAddressId ? response.data : address
-        //             );
-        //             setAddresses(updatedAddresses);
-        //             setVisible1(false);
-        //         })
-        //         .catch(error => console.error(error));
-        // } else {
-        //     // Create new address logic
-        //     axios.post('/api/addresses', addressFormData)
-        //         .then(response => {
-        //             setAddresses([...addresses, response.data]);
-        //             setVisible1(false);
-        //         })
-        //         .catch(error => console.error(error));
-        // }
-    };
+        const fetchUserData = async () => {
+            const token = localStorage.getItem("token");
+            try {
+                const res = await axios.post(`${apiUrl}/me`, null, {
+                    headers: { "auth-token": token }
+                });
+                setUser(res.data.data);
+                setAddress(res.data.data.current_address);
+            } catch (err) {
+                console.error("Error fetching user data", err.response?.data || err.message);
+            }
+        };
+        fetchUserData();
+    }, [apiUrl]);
 
     const handleAddressInputChange = (e) => {
         const { id, value, type, checked } = e.target;
@@ -90,43 +70,62 @@ function CheckoutPage() {
         });
     };
 
+    const validateForm = () => {
+        const errors = {};
+        if (!addressFormData.customer_name) errors.customer_name = 'กรุณากรอกชื่อ-นามสกุล';
+        if (!addressFormData.customer_telephone) errors.customer_telephone = 'กรุณากรอกหมายเลขโทรศัพท์';
+        if (!addressFormData.customer_address) errors.customer_address = 'กรุณากรอกที่อยู่';
+        if (!addressFormData.customer_province) errors.customer_province = 'กรุณาเลือกจังหวัด';
+        if (!addressFormData.customer_amphure) errors.customer_amphure = 'กรุณาเลือกอำเภอ';
+        if (!addressFormData.customer_tambon) errors.customer_tambon = 'กรุณาเลือกตำบล';
+        if (!addressFormData.customer_zipcode) errors.customer_zipcode = 'กรุณากรอกรหัสไปรษณีย์';
+
+        return errors;
+    };
+
+    const handleConfirmNewAddress = () => {
+        const errors = validateForm();
+        if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            return;
+        }
+        setAddress({
+            ...addressFormData,
+        });
+        setIsUsingNewAddress(true);
+        setVisible1(false);
+    };
+
     useEffect(() => {
         if (Object.keys(selectedItemsCart).length > 0) {
-            const totalPayable = Object.values(selectedItemsCart).reduce((total, partner) => {
-                return total + partner.products.reduce((sum, product) => {
+            let totalProductPrice = 0;
+            let totalPayable = 0;
+            let totalDiscount = 0;
+            let totalVat = 0;
+            let totalDeliveryPrice = 0;
+
+            Object.values(selectedItemsCart).forEach(partner => {
+                const totalPartnerPrice = partner.products.reduce((sum, product) => {
                     return sum + (product.product_price * product.product_qty);
                 }, 0);
-            }, 0);
 
+                const partnerDiscount = 0;
+                const partnerVat = totalPartnerPrice * 7 / 107;
+                const partnerDeliveryPrice = 50;
+
+                totalProductPrice += totalPartnerPrice
+                totalPayable += totalPartnerPrice + partnerDeliveryPrice;
+                totalDiscount += partnerDiscount;
+                totalVat += partnerVat;
+                totalDeliveryPrice += partnerDeliveryPrice;
+            });
+            setTotalProductPrice(totalProductPrice);
             setTotalPayable(totalPayable);
+            setTotalDiscount(totalDiscount);
+            setTotalVat(totalVat);
+            setTotalDeliveryPrice(totalDeliveryPrice);
         }
     }, [selectedItemsCart]);
-
-    useEffect(() => {
-        const getUserProfile = async () => {
-            try {
-                const res = localStorage.getItem("user");
-                setUser(JSON.parse(res));
-
-            } catch (err) {
-                console.error("Error fetching user data", err.response?.data || err.message);
-            }
-        };
-        getUserProfile();
-    }, []);
-
-    useEffect(() => {
-        const fetchDeliveries = async () => {
-            try {
-                const response = await axios.get(`${apiUrl}/deliveries`);
-                setDeliveries(response.data.data);
-            } catch (error) {
-                console.error('Error fetching deliveries:', error);
-            }
-        };
-
-        fetchDeliveries();
-    }, []);
 
     const groupByPartner = Object.keys(selectedItemsCart).reduce((result, key) => {
         const partner = selectedItemsCart[key];
@@ -144,83 +143,79 @@ function CheckoutPage() {
     }, {});
 
     const handleConfirmPayment = () => {
-        if (shipping === 'courierDelivery') {
-            if (!selectedDelivery || !deliveryBranch) {
-                setError(true);
-            } else {
-                setError(false);
-                const orderDetails = {
-                    currency: "THB",
-                    dropoff_id: "66bdd3023208ada843eb3a1c",
-                    shipping,
-                    delivery_id: selectedDelivery._id,
-                    deliveryBranch,
-                    amountPayment: totalPayable,
-                };
-                placeCartDetail(orderDetails);
-                navigate("/PaymentPage");
-            }
-        } else {
-            const orderDetails = {
-                partner_id: selectedItemsCart.partner_id,
-                customer_id: user._id,
-                amountPayment: totalPayable,
-
-                // customer_name: "",
-                // customer_address: "",
-                // customer_tambon: "",
-                // customer_province: "",
-                // customer_zipcode: "",
-                // customer_telephone: "",
-
-
-
-                // currency: "THB",
-                // dropoff_id: "66bdd3023208ada843eb3a1c",
-                // shipping,
-                // delivery_id: "66bdd415203788461da41f81",
-                // deliveryBranch,
-                // amountPayment: totalPayable,
-            };
-
-            placeCartDetail(orderDetails);
-            navigate("/PaymentPage");
-        }
+        const orderDetails = {
+            partner_id: selectedItemsCart.partner_id,
+            amountPayment: totalPayable,
+            customer_id: user._id,
+            customer_name: address?.customer_name || user?.fristname + " " + user?.lastname,
+            customer_address: address?.customer_address || address?.address,
+            customer_tambon: address?.customer_tambon?.name_th || address?.subdistrict,
+            customer_amphure: address?.customer_amphure?.name_th || address?.district,
+            customer_province: address?.customer_province?.name_th || address?.province,
+            customer_zipcode: address?.customer_zipcode || address?.postcode,
+            customer_telephone: address?.customer_telephone || user.tel,
+        };
+        placeCartDetail(orderDetails);
+        navigate("/PaymentPage");
     };
 
     return (
 
-        <div className="w-full">
+        <div className="min-h-screen flex flex-column justify-content-between w-full">
             <div className="mx-2 sm:px-2 md:px-4 lg:px-6 xl:px-8 mb-3">
                 <h1 className='flex font-semibold m-0 p-0 py-2'>ทำการสั่งซื้อ</h1>
                 <div className='w-full gap-4 lg:flex justify-content-between'>
                     <div className='w-full lg:w-9 flex flex-column gap-2'>
                         <div className='address p-3 border-1 surface-border border-round bg-white border-round-mb flex flex-column justify-content-center'>
-                            <div className='flex align-items-center mb-2'>
-                                <i className="m-0 mr-2 pi pi-map-marker"></i>
-                                <h2 className='m-0 font-semibold'>ที่อยู่ในการจัดส่ง</h2>
+                            <div className='flex justify-content-between mb-2'>
+                                <div className='flex align-items-center mb-2'>
+                                    <i className="m-0 mr-2 pi pi-map-marker"></i>
+                                    <h2 className='m-0 font-semibold'>ที่อยู่สำหรับจัดส่ง</h2>
+                                </div>
+                                <div>
+                                    <p
+                                        className='text-blue-500 cursor-pointer'
+                                        onClick={() => {
+                                            setVisible1(true);
+                                        }}
+                                    >
+                                        ใช้ที่อยู่ใหม่
+                                    </p>
+                                </div>
                             </div>
-                            {user ? (
+                            {user && address && (
                                 <div className="flex justify-content-between">
                                     <div>
-                                        <p className='m-0'>ชื่อ: {user.name}</p>
-                                        <p className='m-0'>เบอร์โทร: {formatLaosPhone(user.phone)}</p>
-                                        <p className='m-0'>ที่อยู่:</p>
-                                        <p className='w-fit px-1 border-1 border-round border-primary'>ค่าเริ่มต้น</p>
+                                        <p className='m-0'>ชื่อ: {address.customer_name || (user.fristname + ' ' + user.lastname)}</p>
+                                        <p className='m-0'>เบอร์โทร: {address.customer_telephone || user.tel}</p>
+                                        <p className='m-0'>ที่อยู่: {`${address.customer_address || address?.address}, ${address.customer_tambon?.name_th || address?.subdistrict}, ${address.customer_amphure?.name_th || address?.district}, ${address.customer_province?.name_th || address?.province}, ${address.customer_zipcode || address?.postcode}`}</p>
+                                        {!isUsingNewAddress ? <p className='w-fit px-1 border-1 border-round border-primary'>ค่าเริ่มต้น</p> : <p className='w-fit px-1 border-1 border-round border-primary'>ใช้ที่อยู่ใหม่</p>}
                                     </div>
-                                    <div>
-                                        <p className="m-0 text-blue-500 cursor-pointer" onClick={() => setVisible2(true)}>เปลี่ยนที่อยู่</p>
-                                    </div>
+                                    {/* <div className="hidden md:block">
+                                        <p
+                                            className='text-blue-500 cursor-pointer'
+                                            onClick={() => {
+                                                setVisible1(true);
+                                            }}
+                                        >
+                                            ใช้ที่อยู่ใหม่
+                                        </p>
+                                    </div> */}
                                 </div>
-                            ) : ("")
-                            }
+                            )}
                         </div>
 
                         {Object.keys(groupByPartner).map((partner_name, index) => {
                             const items = groupByPartner[partner_name];
                             const totalItems = items.reduce((acc, product) => acc + product.product_qty, 0);
-                            const totalPrice = items.reduce((acc, product) => acc + product.product_price * product.product_qty, 0);
-
+                            const totalPrice = (items.reduce((acc, product) => acc + product.product_price * product.product_qty, 0));
+                            const totalPriceBeforeVat = totalPrice * 100 / 107;
+                            const discount = 0;
+                            const vat = totalPrice * 7 / 107;
+                            const summaryPrice = totalPriceBeforeVat - discount + vat;
+                            const deliveryPrice = 50;
+                            const netTotalPrice = totalPrice + deliveryPrice;
+                            //
                             return (
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                     <div className='w-full'>
@@ -250,9 +245,34 @@ function CheckoutPage() {
                                                 </div>
                                             </div>
                                         ))}
-                                        <div className="border-top-1 surface-border pt-3 flex justify-content-between">
-                                            <p className="p-0 m-0">คำสั่งซื้อทั้งหมด ({totalItems} ชิ้น):</p>
-                                            <p className="p-0 m-0 font-semibold">฿{totalPrice.toLocaleString('en-US')}</p>
+                                        <div className="border-top-1 surface-border pt-3">
+                                            <div className="flex justify-content-between">
+                                                <p className="p-0 m-0">ราคาสินค้าทั้งหมด ({totalItems} ชิ้น):</p>
+                                                <p className="p-0 m-0 font-semibold">฿{totalPriceBeforeVat.toLocaleString('en-US')}</p>
+                                            </div>
+                                            <div className="flex justify-content-between">
+                                                <p className="p-0 m-0">ส่วนลดร้านค้า:</p>
+                                                <p className="p-0 m-0 font-semibold">-฿{discount}</p>
+                                            </div>
+
+
+                                            <div className="flex justify-content-between">
+                                                <p className="p-0 m-0">vat 7%:</p>
+                                                <p className="p-0 m-0 font-semibold">฿{vat.toLocaleString('en-US')}</p>
+                                            </div>
+
+                                            <div className="flex justify-content-between">
+                                                <p className="p-0 m-0">รวม:</p>
+                                                <p className="p-0 m-0 font-semibold">฿{summaryPrice.toLocaleString('en-US')}</p>
+                                            </div>
+                                            <div className="flex justify-content-between">
+                                                <p className="p-0 m-0">ค่าขนส่ง:</p>
+                                                <p className="p-0 m-0 font-semibold">฿{deliveryPrice}</p>
+                                            </div>
+                                            <div className="flex justify-content-between">
+                                                <p className="p-0 m-0">ราคาสุทธิ:</p>
+                                                <p className="p-0 m-0 font-semibold">฿{netTotalPrice.toLocaleString('en-US')}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -262,6 +282,18 @@ function CheckoutPage() {
 
                     <div className='mt-2 lg:mt-0 w-full lg:w-4 h-fit flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb mb-2'>
                         <h3 className="m-0 p-0 pb-2 font-semibold">ข้อมูลการชำระเงิน</h3>
+                        <div className="flex justify-content-between py-1">
+                            <p className='m-0'>ส่วนลดร้านค้าทั้งหมด</p>
+                            <p className='m-0 text-right'>-฿{Number(totalDiscount.toFixed(2)).toLocaleString('en-US')}</p>
+                        </div>
+                        <div className="flex justify-content-between py-1">
+                            <p className='m-0'>ราคาสินค้าทั้งหมด (รวม vat 7%)</p>
+                            <p className='m-0 text-right'>฿{Number(totalProductPrice.toFixed(2)).toLocaleString('en-US')}</p>
+                        </div>
+                        <div className="flex justify-content-between py-1">
+                            <p className='m-0'>ค่าขนส่งทั้งหมด</p>
+                            <p className='m-0 text-right'>฿{Number(totalDeliveryPrice.toFixed(2)).toLocaleString('en-US')}</p>
+                        </div>
                         <div className="flex justify-content-between py-1">
                             <p className='m-0'>ยอดชำระ</p>
                             <p className='m-0 text-right'>฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}</p>
@@ -293,27 +325,38 @@ function CheckoutPage() {
 
                 <div className="flex flex-column gap-4 mt-4">
                     <div className='w-full block md:flex gap-3'>
+
                         <FloatLabel className='w-full'>
-                            <InputText id="fullName" value={addressFormData.fullName}
+                            <InputText id="customer_name" value={addressFormData.customer_name}
                                 onChange={handleAddressInputChange}
                                 className='w-full'
                             />
-                            <label htmlFor="fullName">ชื่อ-นามสกุล</label>
+                            <label htmlFor="customer_name">ชื่อ-นามสกุล</label>
+                            {validationErrors.customer_name && <small className="p-error">{validationErrors.customer_name}</small>}
                         </FloatLabel>
+                        
+
                         <FloatLabel className='w-full mt-4 md:mt-0'>
-                            <InputText id="phoneNumber" value={addressFormData.phoneNumber}
+                            <InputText id="customer_telephone" value={addressFormData.customer_telephone}
                                 onChange={handleAddressInputChange}
                                 className='w-full'
                             />
-                            <label htmlFor="phoneNumber">หมายเลขโทรศัพท์</label>
+                            <label htmlFor="customer_telephone">หมายเลขโทรศัพท์</label>
+                            {validationErrors.customer_telephone && <small className="p-error">{validationErrors.customer_telephone}</small>}
                         </FloatLabel>
+                        
+                    </div>
+                    <div>
+                        <InputText id="customer_address" value={addressFormData.customer_address} onChange={handleAddressInputChange} className="w-full" placeholder='บ้านเลขที่, ซอย, หมู่, ถนน' />
+                        {validationErrors.customer_address && <small className="p-error">{validationErrors.customer_address}</small>}
                     </div>
 
-                    <InputText id="addressLine" value={addressFormData.addressLine} onChange={handleAddressInputChange} className="w-full" placeholder='บ้านเลขที่, ซอย, หมู่, ถนน' />
                     <ProvinceSelection
                         addressFormData={addressFormData}
-                        setAddressFormData={setAddressFormData} />
-                    <div>
+                        setAddressFormData={setAddressFormData}
+                        validationErrors={validationErrors}
+                    />
+                    <div className="hidden">
                         <Checkbox
                             id="isDefault"
                             checked={addressFormData.isDefault}
@@ -326,63 +369,10 @@ function CheckoutPage() {
                 </div>
                 <div className='flex justify-content-end gap-3 mt-4'>
                     <Button onClick={() => setVisible1(false)} label='ยกเลิก' text />
-                    <Button onClick={handleSubmit} label='ยืนยัน' />
+                    <Button label='ยืนยัน' onClick={handleConfirmNewAddress} />
                 </div>
             </Dialog>
 
-            <Dialog
-                header={<h3 className="font-semibold m-0">ที่อยู่ของฉัน</h3>}
-                visible={visible2}
-                style={{ width: "500px" }}
-                onHide={() => setVisible2(false)}
-                closable={false}
-            >
-                {addresses.length > 0 ? (
-                    addresses.map((address) => (
-                        <div key={address._id} className="w-full flex align-items-start pt-4 border-bottom-1 surface-border">
-                            <RadioButton
-                                inputId={`address`}
-                                name="shippingAddress"
-                            />
-                            <div className='w-full ml-3 flex justify-content-between align-items-start'>
-                                <div>
-                                    <p className="m-0">ชื่อ {address.customer_name}</p>
-                                    <p>เบอร์โทร {address.customer_phone || 'เบอร์โทรไม่ระบุ'}</p>
-                                    <p>ที่อยู่ {`${address.customer_address}, ${address.customer_tambon}, ${address.customer_amphure}, ${address.customer_province}, ${address.customer_zipcode}`}</p>
-                                    {address.isDefault ? (
-                                        <p className='w-fit px-1 border-1 border-round border-primary'>ค่าเริ่มต้น</p>
-                                    ) : (
-                                        ""
-                                    )}
-
-                                </div>
-                                <div className='text-right'>
-                                    <div className='flex gap-2 justify-content-end'>
-                                        <p
-                                            className='text-blue-500 cursor-pointer'
-                                            onClick={() => {
-                                                setVisible1(true);
-                                                setSelectedAddressId(address._id);
-                                            }}
-                                        >
-                                            แก้ไข
-                                        </p>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <p>ไม่พบที่อยู่ กรุณาเพิ่มที่อยู่ใหม่</p>
-                )}
-
-                <div className='flex justify-content-end gap-3 mt-4'>
-                    <Button onClick={() => setVisible2(false)} label='ยกเลิก' className="text-900 border-primary" outlined />
-                    <Button label='ยืนยัน' />
-
-                </div>
-            </Dialog>
         </div>
 
 

@@ -60,6 +60,17 @@ function ShopListProduct({ partner_id }) {
         return sortedData;
     };
 
+    const addCart = (product) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            showWarningToast();
+            window.location.href = 'https://service.tossaguns.com/'
+        } else {
+            addToCart(product)
+            showSuccessToast();
+        }
+    };
+    
     return (
         <div>
             <ul className="section-sortbar-2 bg-white flex list-none m-0 px-3 py-0 gap-5 border-bottom-1 surface-border">

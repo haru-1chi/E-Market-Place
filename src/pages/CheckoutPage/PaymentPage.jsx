@@ -35,6 +35,30 @@ function PaymentPage() {
                         </div>
                     </Link>
                     <Link to="/QRPage" className="no-underline text-900" >
+                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('บัญชีธนาคาร')}>
+                            <div className="flex align-items-center">
+                                <i className="pi pi-mobile text-2xl mr-3"></i>
+                                <div>
+                                    <p className='m-0 font-bold'>ชำระผ่าน QR พร้อมเพย์</p>
+                                    <p className='m-0 text-sm'>บันทึกรูปภาพและนำไปสแกนจ่ายในแอปพลิเคชันธนาคารที่ต้องการ</p>
+                                </div>
+                            </div>
+                            <i className="pi pi-angle-right text-2xl text-right"></i>
+                        </div>
+                    </Link>
+                    <Link to="/QRPage" className="no-underline text-900" >
+                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('บัญชีธนาคาร')}>
+                            <div className="flex align-items-center">
+                                <i className="pi pi-mobile text-2xl mr-3"></i>
+                                <div>
+                                    <p className='m-0 font-bold'>เก็บเงินปลายทาง</p>
+                                    <p className='m-0 text-sm'>ชำระเงินสดสำหรับค่าสินค้า ค่าพัสดุ ขณะรับสินค้าที่สั่งซื้อได้ทันที </p>
+                                </div>
+                            </div>
+                            <i className="pi pi-angle-right text-2xl text-right"></i>
+                        </div>
+                    </Link>
+                    <Link to="/QRPage" className="no-underline text-900" >
                         <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('E-wallet')}>
                             <div className="flex align-items-center">
                                 <i className="pi pi-wallet text-2xl mr-3"></i>

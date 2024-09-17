@@ -1,28 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-function HelpCenterPage() {
-    const [activeTab, setActiveTab] = useState('privacyPolicyMembers');
-    const [htmlContent, setHtmlContent] = useState('');
-    const location = useLocation();
-    
-    const tabs = [
-        { id: 'privacyPolicyMembers', label: 'นโยบายความเป็นส่วนตัวสำหรับสมาชิก' },
-        { id: 'privacyPolicyCustomers', label: 'นโยบายความเป็นส่วนตัวสำหรับลูกค้า' },
-        { id: 'cookiePolicy', label: 'นโยบายเกี่ยวกับการใช้งาน Cookies' },
-        { id: 'companyPolicy', label: 'นโยบายบริษัท' },
-        // { id: 'pdpaLegalTeam', label: 'ทีมกฎหมาย PDPA Form' },
-        { id: 'legalRightsPrivacy', label: 'ข้อกฎหมายและสิทธิส่วนบุคคล' },
-    ];
+import { useLocation, useNavigate } from "react-router-dom";
+import line_contact from '../../assets/line_contact.jpg';
 
-    const loadHtmlContent = async (tabId) => {
-        try {
-            const response = await fetch(`/privacy/${tabId}.html`);
-            const text = await response.text();
-            setHtmlContent(text);
-        } catch (error) {
-            console.error("Error loading HTML content:", error);
-        }
-    };
+function HelpCenterPage() {
+    const [activeTab, setActiveTab] = useState('SellerCenter');
+    const location = useLocation();
+
+    const tabs = [
+        { id: 'SellerCenter', label: 'Seller Center' },
+        { id: 'contactChannel', label: 'ช่องทางการติดต่อ' },
+        { id: 'contactUs', label: 'ติดตามเรา' }
+    ];
 
     useEffect(() => {
         if (location.state?.activeTab) {
@@ -30,34 +18,140 @@ function HelpCenterPage() {
         }
     }, [location.state]);
 
-    useEffect(() => {
-        loadHtmlContent(activeTab);
-    }, [activeTab]);
+    const SellerCenter = () => (
+        <>
+            <div className='w-full pt-5 flex justify-content-center'>
+                <div className='w-fit bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center'>
+                    <h2 className="m-0 p-0 font-semibold text-center">วิธีการสมัคร Partner</h2>
+                    
+                </div>
+
+            </div>
+        </>
+    );
+
+    const ContactChannel = () => (
+        <>
+            <div className='w-full pt-5 flex justify-content-center'>
+                <div className='w-fit bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center'>
+                    <h2 className="m-0 p-0 font-semibold text-center">ช่องทางการติดต่อ</h2>
+                    <div className="justify-content-center my-3">
+                        <p>บริษัททศกัณฐ์ ดิจิตอล นิว เจนเนอเรชั่น จำกัด(สำนักงานใหญ่)</p>
+                        <p>103 หมู่ 4 ถนนรอบเมืองเชียงใหม่ ตำบลสุเทพ อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50200</p>
+                    </div>
+                    <div className="grid">
+                        <div className="col-4">
+                            <div className="flex align-items-center">
+                                <i className="pi pi-phone"></i><p className="ml-2 m-0">เบอร์โทรศัพท์:</p>
+                            </div>
+
+                        </div>
+                        <div className="col-8 align-self-center" >
+                            <p className="m-0">052083288</p>
+                        </div>
+                    </div>
+                    <div className="grid">
+                        <div className="col-4">
+                            <div className="flex align-items-center">
+                                <i className="pi pi-facebook"></i><p className="text-center mx-2">Facebook:</p>
+                            </div>
+                        </div>
+                        <div className="col-8 align-self-center" >
+                            <a href="https://www.facebook.com/people/Tossagun-One-Stop-Shop/61555941742281/" target="_blank">Tossagun One Stop Shop </a>
+                        </div>
+                    </div>
+                    <div className="grid">
+                        <div className="col-4">
+                            <p className="ml-4 m-0">Website:</p>
+                        </div>
+                        <div className="col-8 align-self-center" >
+                            <a href="https://tossaguns.com" target="_blank">https://tossaguns.com</a>
+                        </div>
+                    </div>
+                    <div className="hidden sm:block">
+                        <div className="grid">
+                            <div className="col-4 align-self-center">
+                                <p className="ml-4 m-0">E-mail:</p>
+                            </div>
+                            <div className="col-8 align-self-center" >
+                                <p className="white-space-normal">tossagundigitalnewgeneration@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="block sm:hidden mb-0">E-mail: tossagundigitalnewgeneration@gmail.com</p>
+                </div>
+
+            </div>
+        </>
+    );
+
+    const ContactUs = () => (
+        <>
+            <div className='w-full pt-5 flex justify-content-center'>
+                <div className='w-fit bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center'>
+                    <h2 className="m-0 p-0 font-semibold text-center">ติดตามเรา</h2>
+                    <div className="flex justify-content-center">
+                        <img
+                            src={line_contact}
+                            alt=""
+                            className="w-12rem"
+                        />
+                    </div>
+                    <div className="flex align-items-center justify-content-center">
+                        <i className="pi pi-mobile"></i><p className="text-center">Line: @tossagun</p>
+                    </div>
+                    <div className="flex align-items-center justify-content-center">
+                        Tel. 052083288
+                    </div>
+                    <div className="grid">
+                        <div className="col-4">
+                            <div className="flex align-items-center">
+                                <i className="pi pi-facebook"></i><p className="text-center mx-2">Facebook:</p>
+                            </div>
+                        </div>
+                        <div className="col-8 align-self-center" >
+                            <a href="https://www.facebook.com/people/Tossagun-One-Stop-Shop/61555941742281/" target="_blank">Tossagun One Stop Shop </a>
+                        </div>
+                    </div>
+                    <div className="grid">
+                        <div className="col-4">
+                            <p className="ml-4 m-0">Website:</p>
+                        </div>
+                        <div className="col-8 align-self-center" >
+                            <a href="https://tossaguns.com" target="_blank">https://tossaguns.com</a>
+                        </div>
+                    </div>
+                    {/* <div className="grid">
+                        <div className="col-4 align-self-center">
+                            <p className="ml-4 m-0">E-mail:</p>
+                        </div>
+                        <div className="col-8 align-self-center" >
+                            <p>tossagundigitalnewgeneration@gmail.com</p>
+                        </div>
+                    </div> */}
+                    <p className="mb-0">tossagundigitalnewgeneration@gmail.com</p>
+                </div>
+
+            </div>
+        </>
+    );
+
+    const renderActiveComponent = () => {
+        switch (activeTab) {
+            case 'SellerCenter':
+                return <SellerCenter />;
+            case 'contactChannel':
+                return <ContactChannel />;
+            case 'contactUs':
+                return <ContactUs />;
+            default:
+                return <SellerCenter />;
+        }
+    };
+
     return (
         <div className="mx-2 sm:px-2 md:px-4 lg:px-6 xl:px-8 mb-5">
-            <h1 className='flex justify-content-center font-semibold m-0 p-0 py-3'>นโยบายของ E-Market</h1>
-            <div className='w-full gap-4 lg:flex justify-content-between'>
-                <div className='mt-2 lg:mt-0 w-full lg:w-3 h-fit flex flex-column border-1 surface-border border-round p-3 bg-white border-round-mb mb-2'>
-                    <ul className='m-0 p-0 font-semibold'>
-                        {tabs.map((tab) => (
-                            <li
-                                key={tab.id}
-                                className={`list-none cursor-pointer py-3 border-bottom-1 surface-border ${activeTab === tab.id ? 'text-yellow-500' : ''}`}
-                                onClick={() => {
-                                    setActiveTab(tab.id);
-                                }}
-                            >
-                                {tab.label}
-
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                <div className='w-full lg:w-full flex flex-column gap-2 p-4 bg-white border-1 surface-border border-round'>
-                    <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                </div>
-            </div >
+            {renderActiveComponent()}
         </div>
     )
 }

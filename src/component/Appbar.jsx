@@ -150,12 +150,29 @@ function Appbar() {
 
   const groupedCart = groupByPartner(cart);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   const getUserProfile = async () => {
+  //     try {
+  //       const res = localStorage.getItem("user");
+  //       setUser(JSON.parse(res));
+  //     } catch (err) {
+  //       console.error(
+  //         "Error fetching user data",
+  //         err.response?.data || err.message
+  //       );
+  //     }
+  //   };
+  //   getUserProfile();
+  // }, []);
 
+  useEffect(() => {
     const getUserProfile = async () => {
       try {
-        const res = localStorage.getItem("user");
-        setUser(JSON.parse(res));
+        const token = localStorage.getItem("token");
+        const res = await axios.post(`${apiUrl}/me`, null, {
+          headers: { "auth-token": token }
+        });
+        setUser(res.data.data);
       } catch (err) {
         console.error(
           "Error fetching user data",
@@ -164,7 +181,7 @@ function Appbar() {
       }
     };
     getUserProfile();
-  }, []);
+  }, [apiUrl]);
 
   useEffect(() => {
     const fetchCategories = () => {
@@ -234,10 +251,10 @@ function Appbar() {
       <Toast ref={toast} position="top-center" />
       <div className="hidden lg:block section-appbar">
         <div className="pt-3 pr-3 pl-3">
-          <div className="flex justify-content-start gap-3">
-            <Link>Seller Center</Link>
-            <Link>ช่องทางการติดต่อ</Link>
-            <Link>ติดตามเรา</Link>
+          <div className="flex justify-content-start mb-2">
+            <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "SellerCenter" } })}>Seller Center</a>
+            <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactChannel" } })}>ช่องทางการติดต่อ</a>
+            <a className="px-2 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactUs" } })}>ติดตามเรา</a>
             {/* <LanguageSelector /> */}
           </div>
           <div className="card flex justify-content-between mb-2 border-solid align-items-center">
@@ -250,7 +267,7 @@ function Appbar() {
                   text
                 />
               </div>
-              <Link to="/" className="bg-white border-round-3xl">
+              <Link to="/">
                 <img src={Logo} alt="Logo" height={80} />
               </Link>
             </div>
@@ -302,7 +319,7 @@ function Appbar() {
                       text
                       label={
                         <div className="flex align-items-center gap-2 white-space-nowrap text-overflow-ellipsis">
-                          {user.name}
+                          {user.fristname}
                           <i className="pi pi-angle-down"></i>
                         </div>
                       }
@@ -314,13 +331,12 @@ function Appbar() {
                       <div className="flex p-0 pb-2 border-bottom-1 surface-border align-items-center">
                         <div className="flex flex-wrap justify-content-center">
                           <div className="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">
-                            U
-                            {/* {user.name.charAt(0).toUpperCase()} */}
+
+                            {user.fristname.charAt(0).toUpperCase()}
                           </div>
                         </div>
                         <h4 className="ml-3">
-                          {user._id}
-                          {/* {user.name} */}
+                          {user.fristname} {user.lastname}
                         </h4>
                       </div>
                       <div className="flex flex-column">
@@ -388,12 +404,12 @@ function Appbar() {
       {/* responsive */}
       <div className="block lg:hidden section-appbar">
         {/* <Toast ref={toast} position="top-center" /> */}
-        <div className="flex justify-content-start gap-3 p-2 pb-0">
-            <Link>Seller Center</Link>
-            <Link>ช่องทางการติดต่อ</Link>
-            <Link>ติดตามเรา</Link>
-            {/* <LanguageSelector /> */}
-          </div>
+        <div className="flex justify-content-start p-2 pb-0">
+          <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "SellerCenter" } })}>Seller Center</a>
+          <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactChannel" } })}>ช่องทางการติดต่อ</a>
+          <a className="px-2 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactUs" } })}>ติดตามเรา</a>
+          {/* <LanguageSelector /> */}
+        </div>
         <div className="p-2">
           <div className="card flex justify-content-between border-solid align-items-center">
             <div className="flex align-items-center">
@@ -406,15 +422,20 @@ function Appbar() {
                   <div>
                     {user ? (
                       <>
-                        <div className="flex p-2 align-items-start bg-primary">
-                          <div className="border-circle w-4rem h-4rem m-2 bg-cyan-500 font-bold flex align-items-center justify-content-center">
-                            U
-                            {/* {user.name.charAt(0).toUpperCase()} */}
+                        <div className="flex align-items-center p-2 align-items-start bg-primary">
+                          {/* <div>
+                            <div className="border-circle w-4rem h-4rem m-2 bg-cyan-500 font-bold flex align-items-center justify-content-center">{user.fristname.charAt(0).toUpperCase()}</div>
+                          </div> */}
+                          <div className="w-full">
+                            <h3 className="m-0 p-0 font-semibold text-900 text-center">{user.fristname} {user.lastname}</h3>
+                            <div className="w-full flex flex-column justify-content-center">
+                              <div className="flex align-items-center justify-content-center">
+                                <i className="pi pi-wallet text-900" style={{ fontSize: '1.3rem' }}></i>
+                                <h3 className="m-0 ml-2 p-0 pt-2 text-2xl font-semibold text-900 text-center">฿{Number(user.wallet).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                              </div>
+                              <p className="m-0 text-900 text-center">ยอดเงินคงเหลือ</p>
+                            </div>
                           </div>
-                          <h3 className="ml-3 font-semibold text-900">
-                            {user._id}
-                            {/* {user.name} */}
-                          </h3>
                         </div>
 
                         <div className="px-3">
@@ -428,7 +449,7 @@ function Appbar() {
                               <i className="pi pi-angle-right"></i>
                             </div>
                           </div>
-                          <ul className="flex justify-content-center gap-7 pl-0 list-none">
+                          <ul className="flex justify-content-center gap-5 pl-0 list-none">
                             <li className="flex flex-column text-center cursor-pointer"
                               onClick={() => {
                                 setVisible1(false);
@@ -452,6 +473,14 @@ function Appbar() {
                               }}>
                               <i className="pi pi-check" style={{ fontSize: '1.5rem' }}></i>
                               <p className="m-0 p-0 mt-2 text-sm">รับสินค้าแล้ว</p>
+                            </li>
+                            <li className="flex flex-column text-center cursor-pointer"
+                              onClick={() => {
+                                setVisible1(false);
+                                navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "เคลมสินค้า" } });
+                              }}>
+                              <i className="pi pi-comments" style={{ fontSize: '1.5rem' }}></i>
+                              <p className="m-0 p-0 mt-2 text-sm">เคลมสินค้า</p>
                             </li>
                           </ul>
                         </div>
@@ -491,7 +520,7 @@ function Appbar() {
                         </div>
                       </>
                     ) : (
-                      <div>
+                      <div className="px-3">
                         <div className="flex justify-content-between pt-2 pb-4">
                           <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
                           <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
@@ -645,6 +674,10 @@ function Appbar() {
                           </div>
                         ))}
                         <div>
+                          <div className="flex align-items-center border-bottom-1 surface-border justify-content-between py-2">
+                            <p className="m-0">ส่วนลดร้านค้า</p>
+                            <p className="m-0">฿0</p>
+                          </div>
                           <div className="flex align-items-center justify-content-between py-2">
                             <p className="m-0">ยอดชำระ</p>
                             <p className="m-0">฿{totalPayable.toFixed(2)}</p>
@@ -717,7 +750,7 @@ function Appbar() {
                   icon="pi pi-search"
                   onClick={handleSearchClick}
                   rounded
-                  style={{width: '2.5rem', height: '2.5rem', backgroundColor: 'black'}}
+                  style={{ width: '2.5rem', height: '2.5rem', backgroundColor: 'black' }}
                 />
               </div>
             </div>

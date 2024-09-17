@@ -32,39 +32,37 @@ function MyAccount() {
         return null;
     };
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const res = localStorage.getItem("user");
-                setUser(JSON.parse(res));
-            } catch (err) {
-                console.error("Error fetching user data", err.response?.data || err.message);
-            }
-        };
-        fetchUserData();
-    }, []);
-
     // useEffect(() => {
     //     const fetchUserData = async () => {
-
-    //         const token = localStorage.getItem("token");
-    //         const user_id = localStorage.getItem("user_id");
     //         try {
-    //             const res = await axios.get(`${apiUrl}/users/${user_id}`, {
-    //                 headers: { "token": token },
-    //             });
-    //             setUser(res.data.data);
-    //             setFormData({
-    //                 name: res.data.data.name,
-    //                 email: res.data.data.email,
-    //                 phone: res.data.data.phone
-    //             });
+    //             const res = localStorage.getItem("user");
+    //             setUser(JSON.parse(res));
     //         } catch (err) {
     //             console.error("Error fetching user data", err.response?.data || err.message);
     //         }
     //     };
     //     fetchUserData();
-    // }, [apiUrl]);
+    // }, []);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const token = localStorage.getItem("token");
+            try {
+                const res = await axios.post(`${apiUrl}/me`, null, {
+                    headers: { "auth-token": token }
+                  });
+                setUser(res.data.data);
+                // setFormData({
+                //     name: res.data.data.name,
+                //     email: res.data.data.email,
+                //     phone: res.data.data.phone
+                // });
+            } catch (err) {
+                console.error("Error fetching user data", err.response?.data || err.message);
+            }
+        };
+        fetchUserData();
+    }, [apiUrl]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -132,7 +130,7 @@ function MyAccount() {
                                         {editMode ? (
                                             <InputText name="name" value={formData.name} onChange={handleInputChange} />
                                         ) : (
-                                            <p>{user.name}</p>
+                                            <p>{user.fristname} {user.lastname}</p>
                                         )}
                                     </div>
                                 </div>
@@ -152,7 +150,7 @@ function MyAccount() {
                                         {editMode ? (
                                             <InputText name="phone" value={formData.phone} onChange={handleInputChange} keyfilter="pint" />
                                         ) : (
-                                            <p>{user.phone}</p>
+                                            <p>{user.tel}</p>
                                         )}
                                     </div>
                                 </div>

@@ -4,7 +4,7 @@ import { FloatLabel } from 'primereact/floatlabel';
 import { InputText } from "primereact/inputtext";
 import axios from "axios";
 
-export default function ProvinceSelection({ addressFormData, setAddressFormData }) {
+export default function ProvinceSelection({ addressFormData, setAddressFormData, validationErrors }) {
     const [provinces, setProvinces] = useState([]);
     const [amphures, setAmphures] = useState([]);
     const [tambons, setTambons] = useState([]);
@@ -90,7 +90,9 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                         className="w-full"
                     />
                     <label htmlFor="dd-province">เลือกจังหวัด</label>
+                    {validationErrors.customer_province && <small className="p-error">{validationErrors.customer_province}</small>}
                 </FloatLabel>
+
                 <FloatLabel className="w-full md:w-14rem mt-3 md:mt-0">
                     <Dropdown
                         filter
@@ -104,7 +106,9 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                         disabled={!addressFormData.customer_province}
                     />
                     <label htmlFor="dd-amphure">เลือกอำเภอ</label>
+                    {validationErrors.customer_amphure && <small className="p-error">{validationErrors.customer_amphure}</small>}
                 </FloatLabel>
+
             </div>
 
             <div className="block md:flex justify-content-center gap-3">
@@ -121,7 +125,9 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                         disabled={!addressFormData.customer_amphure}
                     />
                     <label htmlFor="dd-tambon">เลือกตำบล</label>
+                    {validationErrors.customer_tambon && <small className="p-error">{validationErrors.customer_tambon}</small>}
                 </FloatLabel>
+
                 <FloatLabel className="w-full md:w-14rem mt-3 md:mt-0">
                     <InputText
                         className="w-full"
@@ -130,7 +136,9 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData 
                         onChange={(e) => setAddressFormData(prevData => ({ ...prevData, customer_zipcode: e.target.value }))}
                     />
                     <label htmlFor="dd-zipcode">รหัสไปรษณีย์</label>
+                    {validationErrors.customer_zipcode && <small className="p-error">{validationErrors.customer_zipcode}</small>}
                 </FloatLabel>
+
             </div>
         </>
     );

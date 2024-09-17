@@ -71,6 +71,17 @@ function ShopCategriesSelected() {
         return sortedData;
     };
 
+    const addCart = (product) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            showWarningToast();
+            window.location.href = 'https://service.tossaguns.com/'
+        } else {
+            addToCart(product)
+            showSuccessToast();
+        }
+    };
+    
     return (
         <div className="min-h-screen flex flex-column justify-content-between">
             <div className="flex-grow">

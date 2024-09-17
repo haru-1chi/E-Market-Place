@@ -2,7 +2,7 @@ import React from 'react'
 import { useCart } from '../router/CartContext';
 import { Timeline } from 'primereact/timeline';
 import { Button } from "primereact/button";
-import { formatDate, formatLaosPhone } from '../utils/DateTimeFormat';
+import { formatDate } from '../utils/DateTimeFormat';
 
 function TimelineStatus({ order, currentStatus, user }) {
     const { statusEvents } = useCart();
@@ -67,12 +67,12 @@ function TimelineStatus({ order, currentStatus, user }) {
                 </div>
                 <div className="w-full flex flex-column pl-5 border-top-1 md:border-none surface-border">
                     <div className='md:mt-2'>
-                        <h3 className='mb-2 font-semibold'>ที่อยู่ในการจัดส่ง</h3>
-                        {user && (
+                        <h3 className='mb-2 font-semibold'>ที่อยู่สำหรับจัดส่ง</h3>
+                        {order && (
                             <>
-                                <p className='my-1 p-0'>ชื่อ {user.name}</p>
-                                <p className='my-1 p-0'>เบอร์โทร {formatLaosPhone(user.phone)}</p>
-                                <p className='my-1 p-0'>ที่อยู่</p>
+                                <p className='my-1 p-0'>ชื่อ {order?.customer_name}</p>
+                                <p className='my-1 p-0'>เบอร์โทร {order?.customer_telephone}</p>
+                                <p className='my-1 p-0'>ที่อยู่ {order?.customer_address} {order?.customer_tambon} {order?.customer_amphure} {order?.customer_province} {order?.customer_zipcode}</p>
                             </>
                         )}
                     </div>

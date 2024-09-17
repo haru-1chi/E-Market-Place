@@ -132,7 +132,7 @@ function Navbar() {
           visible={visible}
           onHide={() => setVisible(false)}
         >
-          <div>
+          <div className="px-3">
             <div className="flex justify-content-between pt-2 pb-4">
               <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
               <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />

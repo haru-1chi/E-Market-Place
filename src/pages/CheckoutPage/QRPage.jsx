@@ -112,7 +112,7 @@ function QRPage() {
                 return;
             }
             for (let partner_id in selectedItemsCart) {
-                const partner = selectedItemsCart[partner_id]; // This is each partner's data
+                const partner = selectedItemsCart[partner_id];
                 const productsToPurchase = partner.products.map(product => ({
                     product_id: product.product_id,
                     product_image: product.product_image ? product.product_image : product.product_subimage1 ? product.product_subimage1 : product.product_subimage2 ? product.product_subimage2 : product.product_subimage3,
@@ -126,6 +126,13 @@ function QRPage() {
                     partner_id: partner.partner_id,
                     product: productsToPurchase,
                     customer_id: cartDetails.customer_id, // Use actual customer details from cartDetails
+                    customer_name: cartDetails.customer_name,
+                    customer_telephone: cartDetails.customer_telephone,
+                    customer_address: cartDetails.customer_address,
+                    customer_tambon: cartDetails.customer_tambon,
+                    customer_amphure: cartDetails.customer_amphure,
+                    customer_province: cartDetails.customer_province,
+                    customer_zipcode: cartDetails.customer_zipcode,
                     totalproduct: productsToPurchase.reduce((total, item) => {
                         const product = partner.products.find(p => p.product_id === item.product_id);
                         return total + product.product_price * item.product_qty;
@@ -135,6 +142,7 @@ function QRPage() {
                         const product = partner.products.find(p => p.product_id === item.product_id);
                         return total + product.product_price * item.product_qty;
                     }, 0),
+                    
                     payment: cartDetails.payment, // Assuming you get this from cartDetails
                 };
 
@@ -262,7 +270,7 @@ function QRPage() {
             <Toast ref={toast} position="top-center" />
             <div className='w-full lg:px-8 pt-5 flex justify-content-center'>
                 <div className='flex flex-column border-1 surface-border border-round py-5 px-3 bg-white border-round-mb '>
-                    <div className=" align-self-center">
+                    <div className="align-self-center">
                         <img src={Logo} alt="" className="w-16rem" />
                     </div>
 

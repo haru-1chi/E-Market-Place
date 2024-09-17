@@ -73,9 +73,13 @@ function HomePage() {
     },
   ];
 
-  const [data, setData] = useState([]);
+
   const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
+
+  const [data, setData] = useState([]);
+  const [coopData, setCoopData] = useState([]); //อย่าลืมเอาไปใส่ใน <product>
+
   const shuffleArray = (array) => {
     return array.sort(() => 0.5 - Math.random());
   };
@@ -83,14 +87,21 @@ function HomePage() {
   const fetchData = () => {
     axios({
       method: "get",
-      url: `${apiProductUrl}/product`
+      url: `${apiProductUrl}/product`,
     })
       .then((response) => {
-        const shuffledData = shuffleArray(response.data.data);
+        const allData = response.data.data;
+        const shuffledData = shuffleArray(allData);
         setData(shuffledData);
+        
+        const coopFilteredData = allData.filter(
+          (item) => item.product_provider === 'coop'
+        );
+        const shuffledCoopData = shuffleArray(coopFilteredData);
+        setCoopData(shuffledCoopData);
       })
       .catch((error) => {
-        console.log(error);
+        console.error("Error fetching data:", error);
       });
   };
 
@@ -98,12 +109,10 @@ function HomePage() {
     fetchData();
   }, []);
 
-
-
   const handleCategorySelect = (categoryName) => {
     navigate('/List-Product', { state: { categoryName } });
   };
-  
+
   return (
     <>
       <div>
@@ -171,7 +180,7 @@ function HomePage() {
           <div className="flex category-scrllo w-full mt-4 justify-items-center">
             <div className="flex justify-content-between sm:col-12 gap-3 section-all-brand">
               {newBrabd.map((item) => (
-                <Brand data={item} key={item.id}/>
+                <Brand data={item} key={item.id} />
               ))}
             </div>
           </div>

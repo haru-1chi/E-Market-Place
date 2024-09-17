@@ -25,20 +25,20 @@ function StatusShippingPage({ orderId }) {
     const isReceived = !!getStatusDate("รับสินค้าสำเร็จ");
     const isCancelled = !!getStatusDate("ยกเลิกออเดอร์");
 
-    useEffect(() => {
-        const getUserProfile = async () => {
-            try {
-                const res = localStorage.getItem("user");
-                setUser(JSON.parse(res));
-            } catch (err) {
-                console.error(
-                    "Error fetching user data",
-                    err.response?.data || err.message
-                );
-            }
-        };
-        getUserProfile();
-    }, []);
+    // useEffect(() => {
+    //     const getUserProfile = async () => {
+    //         try {
+    //             const res = localStorage.getItem("user");
+    //             setUser(JSON.parse(res));
+    //         } catch (err) {
+    //             console.error(
+    //                 "Error fetching user data",
+    //                 err.response?.data || err.message
+    //             );
+    //         }
+    //     };
+    //     getUserProfile();
+    // }, []);
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -113,7 +113,7 @@ function StatusShippingPage({ orderId }) {
                     user={user}
                 />
 
-                {order?.payment === "บัญชีธนาคาร" ? "" : <SlipPayment />}
+                {/* {order?.payment === "บัญชีธนาคาร" ? "" : <SlipPayment />} */}
                 <div className="bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center">
                     <div className="xl:flex lg:flex">
                         <div className="w-full mb-1">
