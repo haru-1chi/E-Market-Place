@@ -38,10 +38,10 @@ function App() {
     function getTokenFromURL() {
       // const urlParams = new URLSearchParams(window.location.search);
       // return urlParams.get('token');
-       return'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjIwOGE4NTc0MzEzNjJkMmZlZDhmOWYiLCJyb3ciOiJtZW1iZXIiLCJ0ZWwiOiIwOTA5NTAwNzA5IiwiaWF0IjoxNzI2NTY0NjU2LCJleHAiOjE3MjY1ODYyNTZ9.bI2CtA_e2N4EKgSVa1MXNAD88RZFxH_YoH9P60SrE68'
+      return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjIwOGE4NTc0MzEzNjJkMmZlZDhmOWYiLCJyb3ciOiJtZW1iZXIiLCJ0ZWwiOiIwOTA5NTAwNzA5IiwiaWF0IjoxNzI2NjUzNDg2LCJleHAiOjE3MjY2NzUwODZ9.OpAOunL5BY1qWFsGzxuYWx_qrzLZ-B6n59b9Vm6gfo8'
     }
 
-  
+
     function handleTokenExpiry(decodedToken) {
       if (decodedToken && decodedToken.exp) {
         const now = Math.floor(Date.now() / 1000);

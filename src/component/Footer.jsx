@@ -26,7 +26,7 @@ function Footer() {
           </li>
         </ul>
       </div>
-      <div className="border-solid align-self-center"><p>© Copyright 2024. บริษัท ทศกัณฐ์ ดิจิตอล นิว เจเนเรชั่น จำกัด.</p></div>
+      <div className="border-solid align-self-center"><p>© Copyright 2024. บริษัท ทศกัณฐ์ ดิจิตอล นิว เจนเนอเรชั่น จำกัด.</p></div>
     </div>
   );
 }

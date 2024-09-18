@@ -142,6 +142,14 @@ function CheckoutPage() {
         return result;
     }, {});
 
+    const [selectedPackageOptions, setSelectedPackageOptions] = useState({});
+
+    const handlePackageChange = (productId, packageOption) => {
+        setSelectedPackageOptions(prevState => ({
+            ...prevState,
+            [productId]: packageOption
+        }));
+    };
     const handleConfirmPayment = () => {
         const orderDetails = {
             partner_id: selectedItemsCart.partner_id,
@@ -208,14 +216,14 @@ function CheckoutPage() {
                         {Object.keys(groupByPartner).map((partner_name, index) => {
                             const items = groupByPartner[partner_name];
                             const totalItems = items.reduce((acc, product) => acc + product.product_qty, 0);
-                            const totalPrice = (items.reduce((acc, product) => acc + product.product_price * product.product_qty, 0));
-                            const totalPriceBeforeVat = totalPrice * 100 / 107;
+                            const totalPrice = items.reduce((acc, product) => acc + product.product_price * product.product_qty, 0);
+                            const totalPriceBeforeVat = (totalPrice * 100) / 107;
                             const discount = 0;
-                            const vat = totalPrice * 7 / 107;
+                            const vat = (totalPrice * 7) / 107;
                             const summaryPrice = totalPriceBeforeVat - discount + vat;
                             const deliveryPrice = 50;
                             const netTotalPrice = totalPrice + deliveryPrice;
-                            //
+
                             return (
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                     <div className='w-full'>
@@ -226,7 +234,7 @@ function CheckoutPage() {
                                             </div>
                                         </Link>
                                         {items.map((product, idx) => (
-                                            <div key={idx} className="cart-items flex align-items-center py-2">
+                                            <div key={idx} className="cart-items align-items-center py-2">
                                                 <div className="w-full flex align-items-center">
                                                     <img
                                                         src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
@@ -243,6 +251,44 @@ function CheckoutPage() {
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                {/* Product package options */}
+                                                {product.product_package_options && (
+                                                    <div className="border-top-1 surface-border pt-3">
+                                                        <p className="p-0 m-0">กรุณาเลือกขนาดกล่องพัสดุของทางร้าน</p>
+                                                        <div className="grid grid-nogutter gap-2 ml-5 mr-2 mt-3">
+                                                            <label className="col text-xs font-medium text-gray-700 text-center">จำนวนสินค้าสูงสุดต่อกล่อง(ชิ้น)</label>
+                                                            <label className="col text-xs font-medium text-gray-700 text-center">น้ำหนักสินค้า(กรัม)</label>
+                                                            <label className="col text-xs font-medium text-gray-700 text-center">ความกว้างของกล่อง(ซม.)</label>
+                                                            <label className="col text-xs font-medium text-gray-700 text-center">ความยาวของกล่อง(ซม.)</label>
+                                                            <label className="col text-xs font-medium text-gray-700 text-center">ความสูงของกล่อง(ซม.)</label>
+                                                        </div>
+                                                        {product.product_package_options.map((packageOption) => (
+                                                                <div key={packageOption._id} className="flex align-items-center p-2 border-1 surface-border border-round mb-2">
+                                                                    <RadioButton
+                                                                        inputId={packageOption._id}
+                                                                        name={`package_options_${product.product_id}`}
+                                                                        value={packageOption}
+                                                                        onChange={() => handlePackageChange(product.product_id, packageOption)}
+                                                                        checked={selectedPackageOptions[product.product_id]?._id === packageOption._id}
+                                                                    />
+                                                                    <div htmlFor={packageOption._id} className="w-full grid grid-nogutter gap-2">
+                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_qty}</label>
+                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_weight}</label>
+                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_width}</label>
+                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_length}</label>
+                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_height}</label>
+                                                                    </div>
+                                                                </div>
+                                                        ))}
+                                                        {
+                                                            selectedPackageOptions && (<div className="flex justify-content-end">
+                                                                <Button label="คำนวณค่าส่ง" className="py-2" />
+                                                            </div>
+                                                            )
+                                                        }
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                         <div className="border-top-1 surface-border pt-3">
@@ -254,13 +300,10 @@ function CheckoutPage() {
                                                 <p className="p-0 m-0">ส่วนลดร้านค้า:</p>
                                                 <p className="p-0 m-0 font-semibold">-฿{discount}</p>
                                             </div>
-
-
                                             <div className="flex justify-content-between">
                                                 <p className="p-0 m-0">vat 7%:</p>
                                                 <p className="p-0 m-0 font-semibold">฿{vat.toLocaleString('en-US')}</p>
                                             </div>
-
                                             <div className="flex justify-content-between">
                                                 <p className="p-0 m-0">รวม:</p>
                                                 <p className="p-0 m-0 font-semibold">฿{summaryPrice.toLocaleString('en-US')}</p>
@@ -334,7 +377,7 @@ function CheckoutPage() {
                             <label htmlFor="customer_name">ชื่อ-นามสกุล</label>
                             {validationErrors.customer_name && <small className="p-error">{validationErrors.customer_name}</small>}
                         </FloatLabel>
-                        
+
 
                         <FloatLabel className='w-full mt-4 md:mt-0'>
                             <InputText id="customer_telephone" value={addressFormData.customer_telephone}
@@ -344,7 +387,7 @@ function CheckoutPage() {
                             <label htmlFor="customer_telephone">หมายเลขโทรศัพท์</label>
                             {validationErrors.customer_telephone && <small className="p-error">{validationErrors.customer_telephone}</small>}
                         </FloatLabel>
-                        
+
                     </div>
                     <div>
                         <InputText id="customer_address" value={addressFormData.customer_address} onChange={handleAddressInputChange} className="w-full" placeholder='บ้านเลขที่, ซอย, หมู่, ถนน' />

@@ -74,7 +74,7 @@ export const CartProvider = ({ children }) => {
   }, [orders, user]);
 
   const addToCart = (product) => {
-    const { product_partner_id, product_name, product_price, product_image, product_subimage1, product_subimage2, product_subimage3, _id } = product;
+    const { product_partner_id, product_name, product_price, product_image, product_subimage1, product_subimage2, product_subimage3, product_package_options, _id } = product;
 
     setCart(prevCart => {
       const partner_id = product_partner_id._id;
@@ -93,7 +93,7 @@ export const CartProvider = ({ children }) => {
             ? { ...item, product_qty: item.product_qty + 1, price: product_price }
             : item
         )
-        : [...existingPartner.products, { product_id: _id, product_name, product_qty: 1, product_price, product_image, product_subimage1, product_subimage2, product_subimage3 }];
+        : [...existingPartner.products, { product_id: _id, product_name, product_qty: 1, product_price, product_image, product_subimage1, product_subimage2, product_subimage3, product_package_options }];
 
       return {
         ...prevCart,
