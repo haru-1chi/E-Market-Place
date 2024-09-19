@@ -95,8 +95,8 @@ function Products({ data, startIndex }) {
 
     return (
         <>
+         <Toast ref={toast} position="top-center" />
             <div className="block md:hidden products-carousel-wrapper">
-                <Toast ref={toast} position="top-center" />
                 <div className="products-carousel" ref={carouselRef}>
                     {data.map((product, index) => (
                         <div key={index} className="product-item">

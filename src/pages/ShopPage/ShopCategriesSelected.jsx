@@ -1,19 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { useCart } from '../../router/CartContext';
+import { Toast } from 'primereact/toast';
 import axios from "axios";
 import img_placeholder from '../../assets/img_placeholder.png';
 import Footer from "../../component/Footer";
 
 function ShopCategriesSelected() {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
+    const { addToCart } = useCart();
+    const toast = useRef(null);
     const { partner_id } = useParams();
     const location = useLocation();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('');
     const [priceSortOrder, setPriceSortOrder] = useState(null);
+
+    const showSuccessToast = () => {
+        toast.current.show({
+            severity: 'success', summary: 'เพิ่มในตะกร้าแล้ว', life: 2000
+        });
+    };
+
+    const showWarningToast = () => {
+        toast.current.show({
+            severity: 'error', summary: 'เข้าสู่ระบบเพื่อเพิ่มสินค้าใส่ตะกร้า', life: 2000
+        });
+    };
 
     const filterProducts = (products, categoryName) => {
         return products.filter((product) => {
@@ -84,6 +100,7 @@ function ShopCategriesSelected() {
     
     return (
         <div className="min-h-screen flex flex-column justify-content-between">
+            <Toast ref={toast} position="top-center" />
             <div className="flex-grow">
             <ul className='section-sortbar bg-white flex justify-content-between list-none m-0 px-5 py-0 gap-5 border-bottom-1 surface-border'>
                 <li className={`py-2 list-none cursor-pointer ${activeTab === 'popular' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}

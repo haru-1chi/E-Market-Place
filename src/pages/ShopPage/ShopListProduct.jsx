@@ -1,16 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
 import { Link } from "react-router-dom";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { useCart } from '../../router/CartContext';
+import { Toast } from 'primereact/toast';
 import axios from "axios";
 import img_placeholder from '../../assets/img_placeholder.png';
 
 function ShopListProduct({ partner_id }) {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
+    const { addToCart } = useCart();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("");
     const [priceSortOrder, setPriceSortOrder] = useState(null);
+    const toast = useRef(null);
+
+    const showSuccessToast = () => {
+        toast.current.show({
+            severity: 'success', summary: 'เพิ่มในตะกร้าแล้ว', life: 2000
+        });
+    };
+
+    const showWarningToast = () => {
+        toast.current.show({
+            severity: 'error', summary: 'เข้าสู่ระบบเพื่อเพิ่มสินค้าใส่ตะกร้า', life: 2000
+        });
+    };
 
     const fetchData = () => {
         setLoading(true);
@@ -73,6 +89,7 @@ function ShopListProduct({ partner_id }) {
     
     return (
         <div>
+            <Toast ref={toast} position="top-center" />
             <ul className="section-sortbar-2 bg-white flex list-none m-0 px-3 py-0 gap-5 border-bottom-1 surface-border">
                 <li
                     className={`py-2 list-none cursor-pointer ${activeTab === "popular"

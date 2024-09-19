@@ -133,6 +133,13 @@ function QRPage() {
                     customer_amphure: cartDetails.customer_amphure,
                     customer_province: cartDetails.customer_province,
                     customer_zipcode: cartDetails.customer_zipcode,
+                    delivery_company: 'Flash',
+                    package_qty: cartDetails.package_qty,
+                    package_weight: cartDetails.package_weight,
+                    package_width: cartDetails.package_width,
+                    package_length: cartDetails.package_length,
+                    package_height: cartDetails.package_height,
+                    delivery_cost: 50,
                     totalproduct: productsToPurchase.reduce((total, item) => {
                         const product = partner.products.find(p => p.product_id === item.product_id);
                         return total + product.product_price * item.product_qty;
@@ -140,9 +147,9 @@ function QRPage() {
                     totaldiscount: 0, // Assuming no discount for now
                     alltotal: productsToPurchase.reduce((total, item) => {
                         const product = partner.products.find(p => p.product_id === item.product_id);
-                        return total + product.product_price * item.product_qty;
+                        return total + delivery_cost + (product.product_price * item.product_qty);
                     }, 0),
-                    
+
                     payment: cartDetails.payment, // Assuming you get this from cartDetails
                 };
 
@@ -158,29 +165,6 @@ function QRPage() {
                     break; // If one fails, you may want to stop further submissions
                 }
             }
-
-            // const newOrder = {
-            //     _items: cart,
-            //     line_items: cart,
-            //     ...cartDetails,
-            //     status: cartDetails.paymentChannel === "bankCounter" ? 1 : 2,
-            // };
-
-            // console.log(newOrder)
-            // const response = await axios.post(`${apiUrl}/orders`,
-            //     newOrder,
-            //     {
-            //         headers: { "token": token }
-            //     })
-            // if (response.data && response.data.status) {
-            //     console.log("Order successful", response.data);
-            //     clearCart();
-            //     clearCartDetails();
-            //     navigate("/PaymentSuccessfully");
-            // } else {
-            //     setError(response.data.message || "Order failed");
-            // }
-
             clearCart(cart, selectedItemsCart);
             clearCartDetails();
             clearSelectedItemsCart();
