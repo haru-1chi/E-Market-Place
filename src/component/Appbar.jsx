@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
 import { Checkbox } from 'primereact/checkbox';
@@ -9,7 +10,7 @@ import { InputText } from "primereact/inputtext";
 import { OverlayPanel } from "primereact/overlaypanel";
 import { Badge } from "primereact/badge";
 import { Menu } from "primereact/menu";
-import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+
 //
 import LanguageSelector from "./LanguageSelector";
 import { useTranslation } from "react-i18next";
@@ -22,9 +23,9 @@ import Logo from "../assets/tossaganLogo.png";
 import img_placeholder from '../assets/img_placeholder.png';
 //
 function Appbar() {
-  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchTerm, setSearchTerm] = useState("");
   const op = useRef(null);
   const [isContactUsVisible, setContactUsVisible] = useState(false);
   const itemsMenu = [
@@ -55,7 +56,7 @@ function Appbar() {
   const [visible3, setVisible3] = useState(false);
   const [visible4, setVisible4] = useState(false);
 
-  const { cart, removeFromCart, updateQuantity, resetCart, selectedItemsCart, setSelectedItemsCart } = useCart();
+  const { cart, updateQuantity , removeFromCart, resetCart, selectedItemsCart, setSelectedItemsCart } = useCart();
   const toast = useRef(null);
   const showToast = () => {
     toast.current.show({
@@ -86,6 +87,23 @@ function Appbar() {
   };
   const [selectedItems, setSelectedItems] = useState({});
 
+  useEffect(() => {
+    setSelectedItems(prevSelectedItems => {
+      const updatedItems = Object.keys(prevSelectedItems).reduce((acc, partner_id) => {
+        if (cart[partner_id]) {
+          const selectedPartner = prevSelectedItems[partner_id];
+          const updatedProducts = selectedPartner.products.map(selectedProduct => {
+            const cartProduct = cart[partner_id]?.products?.find(item => item.product_id === selectedProduct.product_id);
+            return cartProduct ? { ...selectedProduct, product_qty: cartProduct.product_qty } : selectedProduct;
+          });
+          acc[partner_id] = { ...selectedPartner, products: updatedProducts };
+        }
+        return acc;
+      }, {});
+      return updatedItems;
+    });
+  }, [cart]);
+
   const handleSelectItem = (partner_id, product, partner_name) => {
     setSelectedItems(prevSelectedItems => {
       const selectedPartner = prevSelectedItems[partner_id] || { partner_id, partner_name, products: [] };
@@ -95,7 +113,8 @@ function Appbar() {
       if (existingProduct) {
         updatedProducts = selectedPartner.products.filter(item => item.product_id !== product.product_id);
       } else {
-        updatedProducts = [...selectedPartner.products, product];
+        const cartProduct = cart[partner_id]?.products?.find(item => item.product_id === product.product_id);
+        updatedProducts = [...selectedPartner.products, { ...product, product_qty: cartProduct?.product_qty || product.product_qty }];
       }
 
       if (updatedProducts.length === 0) {
@@ -149,21 +168,6 @@ function Appbar() {
   }, 0);
 
   const groupedCart = groupByPartner(cart);
-
-  // useEffect(() => {
-  //   const getUserProfile = async () => {
-  //     try {
-  //       const res = localStorage.getItem("user");
-  //       setUser(JSON.parse(res));
-  //     } catch (err) {
-  //       console.error(
-  //         "Error fetching user data",
-  //         err.response?.data || err.message
-  //       );
-  //     }
-  //   };
-  //   getUserProfile();
-  // }, []);
 
   useEffect(() => {
     const getUserProfile = async () => {
