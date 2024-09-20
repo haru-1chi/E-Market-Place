@@ -94,6 +94,18 @@ function CheckoutPage() {
     };
     //^ที่อยู่จัดส่ง
 
+    //vตัวเลือกขนาดพัสดุ checkPoint1
+    const [selectedPackageOptions, setSelectedPackageOptions] = useState({});
+    const [selectedDeliveryCompany, setSelectedDeliveryCompany] = useState({});
+    const [deliverCompany, setDeliverCompany] = useState([]);
+    const columns = [
+        { field: 'courier_image', header: 'รูปขนส่ง' },
+        { field: 'courier_name', header: 'ชื่อขนส่ง' },
+        { field: 'estimate_time', header: 'รายละเอียด' },
+        { field: 'price', header: 'ราคา (บาท)' }
+    ];
+    //^ตัวเลือกขนาดพัสดุ checkPoint1
+
     //v map สินค้า และคำนวณสินค้า
     const [totalProductPrice, setTotalProductPrice] = useState(0);
     const [totalDiscount, setTotalDiscount] = useState(0);
@@ -138,139 +150,180 @@ function CheckoutPage() {
 
     const groupByPartner = Object.keys(selectedItemsCart).reduce((result, key) => {
         const partner = selectedItemsCart[key];
+        const partner_id = partner.partner_id;
         const partner_name = partner.partner_name;
 
-        if (!result[partner_name]) {
-            result[partner_name] = [];
+        if (!result[partner_id]) {
+            result[partner_id] = {
+                partner_name: partner_name,
+                products: []
+            };
         }
 
         partner.products.forEach(product => {
-            result[partner_name].push(product);
+            const product_id = product.product_id;
+            const packageOptions = selectedPackageOptions?.[partner_id]?.[product_id]?.product_package_options || [];
+            const deliveryCompanies = deliverCompany?.[partner_id]?.[product_id]?.options || [];
+            const selectedCompany = selectedDeliveryCompany?.[partner_id]?.[product_id]?.delivery_detail || {};
+
+            result[partner_id].products.push({
+                ...product,
+                packageOptions,
+                deliveryCompanies,
+                selectedCompany
+            });
         });
 
         return result;
     }, {});
     //^ map สินค้า
 
-    //vตัวเลือกขนาดพัสดุ
-    const [selectedPackageOptions, setSelectedPackageOptions] = useState({});
-    const [selectedDeliveryCompany, setSelectedDeliveryCompany] = useState({});
-    const [partnerData, setPartnerData] = useState(null);
-    const [deliverCompany, setDeliverCompany] = useState([]);
-    const columns = [
-        { field: 'courier_image', header: 'รูปขนส่ง' },
-        { field: 'courier_name', header: 'ชื่อขนส่ง' },
-        { field: 'estimate_time', header: 'รายละเอียด' },
-        { field: 'price', header: 'ราคา (บาท)' }
-    ];
+    //vตัวเลือกขนาดพัสดุ checkPoint2
+    // useEffect(() => {
+    //     Object.keys(deliverCompany).forEach(partnerId => {
+    //         Object.keys(deliverCompany[partnerId]).forEach(productId => {
+    //             const deliveryOptions = deliverCompany[partnerId][productId].options || [];
 
-    useEffect(() => {
-        if (deliverCompany.length > 0 && !selectedDeliveryCompany) {
-            setSelectedDeliveryCompany(deliverCompany[0]);
-        } setSelectedDeliveryCompany
-    }, [deliverCompany]); //always set default value is first option
+    //             // Set the first available delivery company as default if none is selected
+    //             if (deliveryOptions.length > 0 && !selectedDeliveryCompany?.[partnerId]?.[productId]) {
+    //                 setSelectedDeliveryCompany(prevState => ({
+    //                     ...prevState,
+    //                     [partnerId]: {
+    //                         ...prevState[partnerId],
+    //                         [productId]: {
+    //                             delivery_detail: deliveryOptions[0]
+    //                         }
+    //                     }
+    //                 }));
+    //             }
+    //         });
+    //     });
+    // }, [deliverCompany]); //always set default value is first option
 
-    useEffect(() => {
-        const allProducts = Object.values(groupByPartner).flat();
-        allProducts.forEach((product) => {
-            if (
-                product.product_package_options &&
-                product.product_package_options.length > 0 &&
-                !selectedPackageOptions[product.product_id]
-            ) {
-                setSelectedPackageOptions((prevState) => ({
-                    ...prevState,
-                    [product.product_id]: product.product_package_options[0],
-                }));
-            }
-        });
-    }, [groupByPartner]); //always set default value is first option
+    // useEffect(() => {
+    //     const allPartners = Object.keys(groupByPartner);
 
-    useEffect(() => {
-        const fetchPartnerData = async () => {
-            const partner_id = '6693a16ab0d008d51318beaa';
-            try {
-                const res = await axios.get(`${apiProductUrl}/partner/byid/${partner_id}`);
-                setPartnerData(res.data.data)
-            } catch (err) {
-                console.error("Error fetching user data", err.response?.data || err.message);
-            }
-        };
-        fetchPartnerData();
-    }, [apiUrl]);
+    //     allPartners.forEach((partnerId) => {
+    //         const partner = groupByPartner[partnerId]; // Get the partner object
+    //         const products = partner.products; // Access the products array from the partner object
 
-    const handlePackageChange = (productId, packageOption) => {
+    //         products.forEach((product) => { // Now products is an array
+    //             const productId = product.product_id;
+    //             const packageOptions = product.product_package_options || [];
+
+    //             // If package options exist and none is selected yet for the product
+    //             if (packageOptions.length > 0 && !selectedPackageOptions?.[partnerId]?.[productId]) {
+    //                 setSelectedPackageOptions(prevState => ({
+    //                     ...prevState,
+    //                     [partnerId]: {
+    //                         ...prevState[partnerId],
+    //                         [productId]: {
+    //                             product_package_options: packageOptions[0] // Default to first package option
+    //                         }
+    //                     }
+    //                 }));
+    //             }
+    //         });
+    //     });
+    // }, [groupByPartner]);//always set default value is first option
+
+    const handlePackageChange = (partnerId, productId, packageOption) => {
         setSelectedPackageOptions(prevState => ({
             ...prevState,
-            [productId]: packageOption
+            [partnerId]: {
+                ...prevState[partnerId],
+                [productId]: {
+                    product_package_options: packageOption
+                }
+            }
         }));
     };
 
 
-    const handleCheckDeliveryCost = async (productId) => {
+    const handleCheckDeliveryCost = async (partner_id, productId) => {
         try {
-            const packageDetail = {
+            const res = await axios.get(`${apiProductUrl}/partner/byid/${partner_id}`);
+            const partner = res.data.data;
+
+            if (!partner) {
+                throw new Error("Partner data not found");
+            }
+
+            const packageDetails = {
                 from: {
-                    name: partnerData?.partner_name,
-                    address: partnerData?.partner_address,
-                    district: partnerData?.partner_district,
-                    state: partnerData?.partner_amphure,
-                    province: partnerData?.partner_province,
-                    postcode: partnerData?.partner_postcode,
-                    tel: partnerData?.partner_phone,
-                    lat: "13.7615902",
-                    lng: "100.534519"
+                    name: partner.partner_name,
+                    address: partner.partner_address,
+                    district: partner.partner_district,
+                    state: partner.partner_amphure,
+                    province: partner.partner_province,
+                    postcode: partner.partner_postcode,
+                    tel: partner.partner_phone,
                 },
                 to: {
-                    name: address?.customer_name || user?.fristname + " " + user?.lastname,
+                    name: address?.customer_name || `${user?.fristname} ${user?.lastname}`,
                     address: address?.customer_address || address?.address,
                     district: address?.customer_tambon?.name_th || address?.subdistrict,
                     state: address?.customer_amphure?.name_th || address?.district,
                     province: address?.customer_province?.name_th || address?.province,
                     postcode: address?.customer_zipcode || address?.postcode,
                     tel: address?.customer_telephone || user.tel,
-                    lat: "13.7615902",
-                    lng: "100.534519"
                 },
                 parcel: {
-                    name: "สินค้าชิ้นที่ 1",
-                    weight: selectedPackageOptions[productId]?.package_weight,
-                    width: selectedPackageOptions[productId]?.package_width,
-                    length: selectedPackageOptions[productId]?.package_length,
-                    height: selectedPackageOptions[productId]?.package_height,
+                    name: `สินค้าชิ้นที่ ${productId}`,
+                    weight: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_weight,
+                    width: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_width,
+                    length: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_length,
+                    height: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_height,
                 },
             };
+            console.log(packageDetails)
+            
             const token = localStorage.getItem("token");
-            const response = await axios.post(`${apiUrl}/e-market/express/price`, packageDetail, {
+            const response = await axios.post(`${apiUrl}/e-market/express/price`, packageDetails, {
                 headers: { "auth-token": token }
             });
 
             if (response.data && response.data.status) {
-                console.log(response.data.new)
-                setDeliverCompany(response.data.new)
-                console.log("calculate shipping cost successful:", partnerData.partner_name, response.data);
+                const deliveryOptions = response.data.new;
+
+                setDeliverCompany(prevState => ({
+                    ...prevState,
+                    [partner_id]: {
+                        ...prevState[partner_id],
+                        [productId]: { options: deliveryOptions }
+                    }
+                }));
+
                 setSelectedDeliveryCompany(prevState => ({
                     ...prevState,
-                    [productId]: response.data.new[0]
+                    [partner_id]: {
+                        ...prevState[partner_id],
+                        [productId]: deliveryOptions[0]  // Select the first option by default
+                    }
                 }));
             } else {
                 setError(response.data.message || "Order failed");
             }
         } catch (error) {
-            console.error("Error checking delivery cost:", error.response.data.message);
-            setError(error.response.data.message || "An unexpected error occurred");
+            console.error("Error checking delivery cost:", error.response?.data?.message || error.message);
+            setError(error.response?.data?.message || "An unexpected error occurred");
         }
     };
 
-    const radioButtonTemplate = (productId, rowData) => {
+    const radioButtonTemplate = (partnerId, productId, rowData) => {
         return (
             <RadioButton
                 value={rowData}
                 onChange={(e) => setSelectedDeliveryCompany(prevState => ({
                     ...prevState,
-                    [productId]: e.value
+                    [partnerId]: {
+                        ...prevState[partnerId],
+                        [productId]: {
+                            delivery_detail: e.value
+                        }
+                    }
                 }))}
-                checked={selectedDeliveryCompany[productId]?.courier_name === rowData.courier_name}
+                checked={selectedDeliveryCompany?.[partnerId]?.[productId]?.delivery_detail?.courier_name === rowData.courier_name}
             />
         );
     };
@@ -297,6 +350,7 @@ function CheckoutPage() {
             customer_province: address?.customer_province?.name_th || address?.province,
             customer_zipcode: address?.customer_zipcode || address?.postcode,
             customer_telephone: address?.customer_telephone || user.tel,
+
             delivery_company: selectedDeliveryCompany?.courier_name || "",
             package_qty: selectedPackageOptions[key]?.package_qty || "",
             package_weight: selectedPackageOptions[key]?.package_weight || "",
@@ -304,6 +358,7 @@ function CheckoutPage() {
             package_length: selectedPackageOptions[key]?.package_length || "",
             package_height: selectedPackageOptions[key]?.package_height || "",
             delivery_cost: selectedDeliveryCompany?.price || ""
+            
         };
 
         placeCartDetail(orderDetails);
@@ -343,17 +398,23 @@ function CheckoutPage() {
                         </div>
 
                         {/* map สินค้า และตัวเลือกขนาดพัสดุ */}
-                        {Object.keys(groupByPartner).map((partner_name, index) => {
-                            const items = groupByPartner[partner_name];
-                            const totalItems = items.reduce((acc, product) => acc + product.product_qty, 0);
-                            const totalPrice = items.reduce((acc, product) => acc + product.product_price * product.product_qty, 0);
+                        {Object.keys(groupByPartner).map((partner_id, index) => {
+                            const partner = groupByPartner[partner_id];
+                            const { partner_name, products } = partner;
+                            const totalItems = products.reduce((acc, product) => acc + product.product_qty, 0);
+                            const totalPrice = products.reduce((acc, product) => acc + product.product_price * product.product_qty, 0);
                             const totalPriceBeforeVat = (totalPrice * 100) / 107;
                             const discount = 0;
                             const vat = (totalPrice * 7) / 107;
                             const summaryPrice = totalPriceBeforeVat - discount + vat;
-                            const deliveryPrice = selectedDeliveryCompany?.price || 0;
-                            const netTotalPrice = totalPrice + deliveryPrice;
 
+                            const totalDeliveryPrice = products.reduce((acc, product) => {
+                                const deliveryDetail = selectedDeliveryCompany?.[partner_id]?.[product.product_id]?.delivery_detail;
+                                return acc + (deliveryDetail ? deliveryDetail.price : 0);
+                            }, 0);
+
+                            const netTotalPrice = totalPrice + totalDeliveryPrice;
+                            console.log(selectedDeliveryCompany)
                             return (
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                     <div className='w-full'>
@@ -363,7 +424,7 @@ function CheckoutPage() {
                                                 <h4 className='m-0 font-semibold'>ผู้ขาย {partner_name}</h4>
                                             </div>
                                         </Link>
-                                        {items.map((product, idx) => (
+                                        {products.map((product, idx) => (
                                             <div key={idx} className="cart-items align-items-center py-2">
                                                 <div className="w-full flex align-items-center">
                                                     <img
@@ -394,32 +455,33 @@ function CheckoutPage() {
                                                                 <label className="col text-xs font-medium text-gray-700 text-center">ความยาวของกล่อง(ซม.)</label>
                                                                 <label className="col text-xs font-medium text-gray-700 text-center">ความสูงของกล่อง(ซม.)</label>
                                                             </div>
-                                                            {product.product_package_options
-                                                                .filter((packageOption) =>
-                                                                    product.product_qty === packageOption.package_qty ||
-                                                                    product.product_package_options.every((po) => product.product_qty !== po.package_qty)
-                                                                )
-                                                                .map((packageOption) => (
-                                                                    <div key={packageOption._id} className="flex align-items-center p-2 border-1 surface-border border-round mb-2">
+                                                            {product.product_package_options.filter((option) =>
+                                                                product.product_qty === option.package_qty ||
+                                                                product.product_package_options
+                                                                    .every((po) => product.product_qty !== po.package_qty)
+                                                            )
+                                                                .map((option) => (
+                                                                    <div key={option._id} className="flex align-items-center p-2 border-1 surface-border border-round mb-2">
                                                                         <RadioButton
-                                                                            inputId={packageOption._id}
+                                                                            inputId={option._id}
                                                                             name={`package_options_${product.product_id}`}
-                                                                            value={packageOption}
-                                                                            onChange={() => handlePackageChange(product.product_id, packageOption)}
-                                                                            checked={selectedPackageOptions[product.product_id]?._id === packageOption._id}
+                                                                            value={option}
+                                                                            onChange={() => handlePackageChange(partner_id, product.product_id, option)}
+                                                                            checked={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options
+                                                                                ._id === option._id}
                                                                         />
-                                                                        <div htmlFor={packageOption._id} className="w-full grid grid-nogutter gap-2">
-                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_qty}</label>
-                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_weight}</label>
-                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_width}</label>
-                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_length}</label>
-                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_height}</label>
+                                                                        <div htmlFor={option._id} className="w-full grid grid-nogutter gap-2">
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{option.package_qty}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{option.package_weight}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{option.package_width}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{option.package_length}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{option.package_height}</label>
                                                                         </div>
                                                                     </div>
                                                                 ))}
                                                             {
                                                                 selectedPackageOptions && (<div className="flex justify-content-end">
-                                                                    <Button label="คำนวณค่าส่ง" className="py-2" onClick={() => handleCheckDeliveryCost(product.product_id)} />
+                                                                    <Button label="คำนวณค่าส่ง" className="py-2" onClick={() => handleCheckDeliveryCost(partner_id, product.product_id)} />
                                                                 </div>
                                                                 )
                                                             }
@@ -427,8 +489,8 @@ function CheckoutPage() {
 
                                                         <div>
                                                             <p className="p-0 m-0">กรุณาเลือกขนส่ง</p>
-                                                            <DataTable value={deliverCompany} tableStyle={{ minWidth: '50rem' }}>
-                                                                <Column body={(rowData) => radioButtonTemplate(product.product_id, rowData)} header="Select" style={{ width: '3rem' }} />
+                                                            <DataTable value={deliverCompany?.[partner_id]?.[product.product_id]?.options} tableStyle={{ minWidth: '50rem' }}>
+                                                                <Column body={(rowData) => radioButtonTemplate(partner_id, product.product_id, rowData)} header="ตัวเลือก" style={{ width: '3rem' }} />
                                                                 {columns.map((col, i) => (
                                                                     <Column key={col.field} field={col.field} header={col.header} />
                                                                 ))}
@@ -459,7 +521,7 @@ function CheckoutPage() {
                                             </div>
                                             <div className="flex justify-content-between">
                                                 <p className="p-0 m-0">ค่าขนส่ง:</p>
-                                                <p className="p-0 m-0 font-semibold">฿{deliveryPrice}</p>
+                                                <p className="p-0 m-0 font-semibold">฿{totalDeliveryPrice}</p>
                                             </div>
                                             <div className="flex justify-content-between">
                                                 <p className="p-0 m-0">ราคาสุทธิ:</p>
