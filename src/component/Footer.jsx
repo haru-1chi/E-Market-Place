@@ -4,7 +4,7 @@ function Footer() {
   const navigate = useNavigate();
   return (
     <div className="flex flex-column bg-white py-2">
-      <div className="border-solid ml-5 align-self-start">
+      <div className="border-solid ml-5 align-self-start sm:align-self-center">
         <ul className="block md:flex gap-4 list-none mb-0 pl-0">
           <li className="cursor-pointer mb-2 md:mb-0" onClick={() => navigate("/PrivacyPage", { state: { activeTab: "privacyPolicyMembers" } })}>
             นโยบายความเป็นส่วนตัวสำหรับสมาชิก

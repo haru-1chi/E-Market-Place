@@ -39,7 +39,17 @@ function Products({ data, startIndex }) {
 
     const productTemplate = (product) => {
         return product ? (
-            <div className="carousel-product-item h-full border-1 surface-border mx-1 bg-white flex flex-column">
+            <div className="carousel-product-item h-full border-1 surface-border mx-1 bg-white flex flex-column" style={{
+                position: "relative", display: "inline-block",
+                top: "0",
+                right: "0",
+            }}>
+                <p className={`w-fit border-noround-top border-noround-right mt-2 px-2 border-round-md font-normal ${product.product_provider === 'coop' ? 'bg-green-600 text-white' : 'bg-primary-400 text-900'}`} style={{
+                    position: "absolute",
+                    top: "-0.5rem",
+                    right: "0rem",
+                    zIndex: "5"
+                }}>{product.product_provider === 'coop' ? 'สินค้าสหกรณ์' : 'สินค้าทั่วไป'}</p>
                 <div className="align-items-center justify-content-center">
                     <Link to={`/List-Product/product/${product._id}`} state={{ product }}>
                         <div className="carousel-square-image">
@@ -95,7 +105,7 @@ function Products({ data, startIndex }) {
 
     return (
         <>
-         <Toast ref={toast} position="top-center" />
+            <Toast ref={toast} position="top-center" />
             <div className="block md:hidden products-carousel-wrapper">
                 <div className="products-carousel" ref={carouselRef}>
                     {data.map((product, index) => (
@@ -108,13 +118,13 @@ function Products({ data, startIndex }) {
 
             <div className="hidden md:block">
                 <Carousel
-                value={data}
-                numVisible={5}
-                numScroll={3}
-                showIndicators={false}
-              
-                responsiveOptions={responsiveOptions}
-                itemTemplate={productTemplate} />
+                    value={data}
+                    numVisible={5}
+                    numScroll={3}
+                    showIndicators={false}
+
+                    responsiveOptions={responsiveOptions}
+                    itemTemplate={productTemplate} />
             </div>
         </>
     );

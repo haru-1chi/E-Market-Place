@@ -14,7 +14,7 @@ export const CartProvider = ({ children }) => {
     Cancelled: { key: 0, value: 'ยกเลิกออเดอร์', icon: 'pi pi-times', color: '#FF5252', tagCSS: 'text-red-500' }
   };
 
-  const [user, setUser] = useState(() => getLocalStorageItem('user', null));
+  const [user, setUser] = useState({});
   const [cart, setCart] = useState({});
   const [cartDetails, setCartDetails] = useState({});
   const [orders, setOrders] = useState([]);
@@ -31,7 +31,7 @@ export const CartProvider = ({ children }) => {
       const storedCartDetails = getLocalStorageItem(`cartDetails_${user._id}`, {});
       const storedOrders = getLocalStorageItem(`orders_${user._id}`, []);
       const storedSelectedItemsCart = getLocalStorageItem(`selectedCart_${user._id}`, {});
-      
+
       setCart(storedCart);
       setCartDetails(storedCartDetails);
       setOrders(Array.isArray(storedOrders) ? storedOrders : []);
@@ -64,9 +64,20 @@ export const CartProvider = ({ children }) => {
   }, [orders, user]);
 
   const addToCart = (product) => {
-    const { product_partner_id, product_name, product_price, product_image, product_subimage1, product_subimage2, product_subimage3, product_package_options, _id } = product;
+    const {
+      product_partner_id,
+      product_name,
+      product_price,
+      product_stock,
+      product_image,
+      product_subimage1,
+      product_subimage2,
+      product_subimage3,
+      product_package_options,
+      _id
+    } = product;
 
-    setCart(prevCart => {
+    setCart((prevCart) => {
       const partner_id = product_partner_id._id;
 
       const existingPartner = prevCart[partner_id] || {
@@ -75,15 +86,37 @@ export const CartProvider = ({ children }) => {
         products: []
       };
 
-      const existingProduct = existingPartner.products.find(item => item.product_id === _id);
+      const existingProduct = existingPartner.products.find((item) => item.product_id === _id);
+
+      if (existingProduct) {
+        const newQuantity = existingProduct.product_qty + 1;
+        if (newQuantity > product_stock) {
+          alert('สินค้าถูกเพิ่มถึงจำนวนสูงสุดแล้ว');
+          return prevCart;
+        }
+      }
 
       const updatedProducts = existingProduct
-        ? existingPartner.products.map(item =>
+        ? existingPartner.products.map((item) =>
           item.product_id === _id
-            ? { ...item, product_qty: item.product_qty + 1, price: product_price }
+            ? { ...item, product_qty: item.product_qty + 1, product_price: product_price }
             : item
         )
-        : [...existingPartner.products, { product_id: _id, product_name, product_qty: 1, product_price, product_image, product_subimage1, product_subimage2, product_subimage3, product_package_options }];
+        : [
+          ...existingPartner.products,
+          {
+            product_id: _id,
+            product_name,
+            product_qty: 1,
+            product_price,
+            product_stock,
+            product_image,
+            product_subimage1,
+            product_subimage2,
+            product_subimage3,
+            product_package_options
+          }
+        ];
 
       return {
         ...prevCart,
@@ -112,17 +145,29 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateQuantity = (partner_id, product_id, product_qty) => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      [partner_id]: {
-        ...prevCart[partner_id],
-        products: prevCart[partner_id].products.map((product) =>
-          product.product_id === product_id
-            ? { ...product, product_qty: Math.max(1, product_qty) }
-            : product
-        )
+    setCart((prevCart) => {
+      const partner = prevCart[partner_id];
+      const product = partner.products.find(p => p.product_id === product_id);
+      if (product) {
+        const maxQuantity = Math.min(product_qty, product.product_stock);
+        if (product_qty > product.product_stock) {
+          alert('สินค้าถูกเพิ่มถึงจำนวนสูงสุดแล้ว');
+        }
+        return {
+          ...prevCart,
+          [partner_id]: {
+            ...partner,
+            products: partner.products.map(p =>
+              p.product_id === product_id
+                ? { ...p, product_qty: Math.max(1, maxQuantity) }
+                : p
+            )
+          }
+        };
       }
-    }));
+
+      return prevCart;
+    });
   };
 
   const placeCartDetail = (details) => {

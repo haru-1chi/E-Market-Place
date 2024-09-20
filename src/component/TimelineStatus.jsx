@@ -1,19 +1,27 @@
-import React from 'react'
+import React, { useState, useEffect, useRef } from "react";
+import axios from 'axios';
 import { useCart } from '../router/CartContext';
 import { Timeline } from 'primereact/timeline';
 import { Button } from "primereact/button";
 import { formatDate } from '../utils/DateTimeFormat';
 
 function TimelineStatus({ order, currentStatus, user }) {
+    const apiUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const { statusEvents } = useCart();
+
+    const [statusDetails, setStatusDetails] = useState([]);
+
+    useEffect(() => {
+        if (order?.statusdetail) {
+            setStatusDetails(order.statusdetail);
+        }
+    }, [order?.statusdetail]);
 
     const isCancelled = order?.statusdetail.some(status => status.status === statusEvents.Cancelled.value);
 
     const events = isCancelled
         ? [statusEvents.Cancelled]
         : [statusEvents.Packaged, statusEvents.Delivering, statusEvents.Received];
-
-    const statusDetails = order?.statusdetail || [];
 
     const isStatusCompleted = (event) => {
         return statusDetails.some(status => status.status === event);
@@ -48,10 +56,36 @@ function TimelineStatus({ order, currentStatus, user }) {
         );
     };
 
-    const latestStatus = order?.statusdetail
-    .slice()
-    .sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.status || "Unknown Status";
+    const latestStatus = statusDetails
+        .slice()
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.status || "Unknown Status";
+
+        const handleReceived = async () => {
+            try {
+                if (!order || !order._id) {
+                    console.error("Order ID is missing");
+                    return;
+                }
+                console.log(`Order ID: ${order._id}`);
     
+                const response = await axios.put(`${apiUrl}/orderproduct/receive/${order._id}`);
+                if (response.status === 200 && response.data && response.data.status) {
+                    console.log("Order received successfully:", response.data);
+    
+                    const updatedStatusDetail = [
+                        ...statusDetails,
+                        { status: statusEvents.Received.value, date: new Date().toISOString() }
+                    ];
+                    
+                    setStatusDetails(updatedStatusDetail);
+                } else {
+                    console.log(response.data.message || "Failed to receive the order");
+                }
+            } catch (error) {
+                console.error("Error while receiving the order:", error?.response?.data?.message || error.message);
+            }
+        };
+
     return (
         <div className='bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center'>
             <div className='border-round px-3 py-2 bg-primary-400'>
@@ -82,8 +116,8 @@ function TimelineStatus({ order, currentStatus, user }) {
                 <Button className="mt-3 w-fit align-self-center" label="ยกเลิกคำสั่งซื้อ" rounded />
             ) : null}
             <div className='w-full flex justify-content-end'>
-                        {latestStatus === 'จัดส่งแล้ว' ? <Button label='ยืนยันการรับสินค้า' /> : ("")}
-                    </div>
+                {latestStatus === 'จัดส่งแล้ว' ? <Button label='ฉันได้รับสินค้าแล้ว' onClick={handleReceived} /> : ("")}
+            </div>
         </div>
 
     )

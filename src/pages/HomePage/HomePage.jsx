@@ -91,9 +91,15 @@ function HomePage() {
     })
       .then((response) => {
         const allData = response.data.data;
-        const shuffledData = shuffleArray(allData);
-        setData(shuffledData);
-        
+
+        // Filter for 'normal' products
+        const normalFilteredData = allData.filter(
+          (item) => item.product_provider === 'normal'
+        );
+        const shuffledNormalData = shuffleArray(normalFilteredData);
+        setData(shuffledNormalData);
+
+        // Filter for 'coop' products
         const coopFilteredData = allData.filter(
           (item) => item.product_provider === 'coop'
         );
@@ -150,6 +156,7 @@ function HomePage() {
               alt=""
             />
           </div>
+          <h2 className="my-2 ml-3 md:ml-6">สินค้าทั่วไป</h2>
           <Products data={data} startIndex={0} />
         </div>
 
@@ -160,7 +167,7 @@ function HomePage() {
             </span>
             <Link to="/List-Product" className="no-underline text-900">ดูเพิ่มเติม <i className="pi pi-angle-right"></i></Link>
           </div>
-          <Products data={data} startIndex={5} />
+          <Products data={data} startIndex={0} />
         </div>
 
         <div className="m-0 lg:m-2">
@@ -171,7 +178,8 @@ function HomePage() {
               alt=""
             />
           </div>
-          <Products data={data} startIndex={5} />
+          <h2 className="my-2 ml-3 md:ml-6">สินค้าสหกรณ์</h2>
+          <Products data={coopData} startIndex={5} />
         </div>
         <div className="hidden mt-4 pl-3 pr-3">
           <span>

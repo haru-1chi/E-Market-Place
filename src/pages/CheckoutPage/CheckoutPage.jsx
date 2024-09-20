@@ -122,7 +122,11 @@ function CheckoutPage() {
                 totalPayable += totalPartnerPrice + partnerDeliveryPrice;
                 totalDiscount += partnerDiscount;
                 totalVat += partnerVat;
-                totalDeliveryPrice += partnerDeliveryPrice;
+
+                partner.products.forEach(product => {
+                    totalDeliveryPrice += selectedDeliveryCompany[product.product_id]?.price || 0;
+                });
+                // totalDeliveryPrice += partnerDeliveryPrice;
             });
             setTotalProductPrice(totalProductPrice);
             setTotalPayable(totalPayable);
@@ -150,7 +154,7 @@ function CheckoutPage() {
 
     //vตัวเลือกขนาดพัสดุ
     const [selectedPackageOptions, setSelectedPackageOptions] = useState({});
-    const [selectedDeliverCompany, setSelectedDeliverCompany] = useState(null);
+    const [selectedDeliveryCompany, setSelectedDeliveryCompany] = useState({});
     const [partnerData, setPartnerData] = useState(null);
     const [deliverCompany, setDeliverCompany] = useState([]);
     const columns = [
@@ -159,6 +163,28 @@ function CheckoutPage() {
         { field: 'estimate_time', header: 'รายละเอียด' },
         { field: 'price', header: 'ราคา (บาท)' }
     ];
+
+    useEffect(() => {
+        if (deliverCompany.length > 0 && !selectedDeliveryCompany) {
+            setSelectedDeliveryCompany(deliverCompany[0]);
+        } setSelectedDeliveryCompany
+    }, [deliverCompany]); //always set default value is first option
+
+    useEffect(() => {
+        const allProducts = Object.values(groupByPartner).flat();
+        allProducts.forEach((product) => {
+            if (
+                product.product_package_options &&
+                product.product_package_options.length > 0 &&
+                !selectedPackageOptions[product.product_id]
+            ) {
+                setSelectedPackageOptions((prevState) => ({
+                    ...prevState,
+                    [product.product_id]: product.product_package_options[0],
+                }));
+            }
+        });
+    }, [groupByPartner]); //always set default value is first option
 
     useEffect(() => {
         const fetchPartnerData = async () => {
@@ -181,9 +207,8 @@ function CheckoutPage() {
     };
 
 
-    const handleCheckDeliveryCost = async () => {
+    const handleCheckDeliveryCost = async (productId) => {
         try {
-            const key = "66eaa18b79536ea0a4ea36e4"
             const packageDetail = {
                 from: {
                     name: partnerData?.partner_name,
@@ -209,10 +234,10 @@ function CheckoutPage() {
                 },
                 parcel: {
                     name: "สินค้าชิ้นที่ 1",
-                    weight: selectedPackageOptions[key]?.package_weight,
-                    width: selectedPackageOptions[key]?.package_width,
-                    length: selectedPackageOptions[key]?.package_length,
-                    height: selectedPackageOptions[key]?.package_height,
+                    weight: selectedPackageOptions[productId]?.package_weight,
+                    width: selectedPackageOptions[productId]?.package_width,
+                    length: selectedPackageOptions[productId]?.package_length,
+                    height: selectedPackageOptions[productId]?.package_height,
                 },
             };
             const token = localStorage.getItem("token");
@@ -223,7 +248,11 @@ function CheckoutPage() {
             if (response.data && response.data.status) {
                 console.log(response.data.new)
                 setDeliverCompany(response.data.new)
-                console.log("Order successful for partner:", partnerData.partner_name, response.data);
+                console.log("calculate shipping cost successful:", partnerData.partner_name, response.data);
+                setSelectedDeliveryCompany(prevState => ({
+                    ...prevState,
+                    [productId]: response.data.new[0]
+                }));
             } else {
                 setError(response.data.message || "Order failed");
             }
@@ -233,12 +262,15 @@ function CheckoutPage() {
         }
     };
 
-    const radioButtonTemplate = (rowData) => {
+    const radioButtonTemplate = (productId, rowData) => {
         return (
             <RadioButton
                 value={rowData}
-                onChange={(e) => setSelectedDeliverCompany(e.value)}
-                checked={selectedDeliverCompany?.courier_name === rowData.courier_name}
+                onChange={(e) => setSelectedDeliveryCompany(prevState => ({
+                    ...prevState,
+                    [productId]: e.value
+                }))}
+                checked={selectedDeliveryCompany[productId]?.courier_name === rowData.courier_name}
             />
         );
     };
@@ -248,6 +280,12 @@ function CheckoutPage() {
     //ConfirmPayment
     const handleConfirmPayment = () => {
         const key = "66eaa18b79536ea0a4ea36e4" //product_id
+
+        // if (!selectedPackageOptions || !selectedDeliveryCompany) {
+        //     alert('กรุณาคำนวณค่าส่งก่อนชำระสินค้า');
+        //     return;
+        // }
+
         const orderDetails = {
             partner_id: selectedItemsCart.partner_id,
             amountPayment: totalPayable,
@@ -259,16 +297,15 @@ function CheckoutPage() {
             customer_province: address?.customer_province?.name_th || address?.province,
             customer_zipcode: address?.customer_zipcode || address?.postcode,
             customer_telephone: address?.customer_telephone || user.tel,
-            delivery_company: selectedDeliverCompany.courier_name,
-            package_qty: selectedPackageOptions[key]?.package_qty,
-            package_weight: selectedPackageOptions[key]?.package_weight,
-            package_width: selectedPackageOptions[key]?.package_width,
-            package_length: selectedPackageOptions[key]?.package_length,
-            package_height: selectedPackageOptions[key]?.package_height,
-            delivery_cost: selectedDeliverCompany.price
+            delivery_company: selectedDeliveryCompany?.courier_name || "",
+            package_qty: selectedPackageOptions[key]?.package_qty || "",
+            package_weight: selectedPackageOptions[key]?.package_weight || "",
+            package_width: selectedPackageOptions[key]?.package_width || "",
+            package_length: selectedPackageOptions[key]?.package_length || "",
+            package_height: selectedPackageOptions[key]?.package_height || "",
+            delivery_cost: selectedDeliveryCompany?.price || ""
         };
 
-        console.log(orderDetails)
         placeCartDetail(orderDetails);
         navigate("/PaymentPage");
     };
@@ -314,7 +351,7 @@ function CheckoutPage() {
                             const discount = 0;
                             const vat = (totalPrice * 7) / 107;
                             const summaryPrice = totalPriceBeforeVat - discount + vat;
-                            const deliveryPrice = 50;
+                            const deliveryPrice = selectedDeliveryCompany?.price || 0;
                             const netTotalPrice = totalPrice + deliveryPrice;
 
                             return (
@@ -346,57 +383,61 @@ function CheckoutPage() {
                                                 </div>
 
                                                 {/* ตัวเลือกขนาดพัสดุ */}
-                                                {product.product_package_options && (
-                                                    <div className="border-top-1 surface-border pt-3">
-                                                        <p className="p-0 m-0">กรุณาเลือกขนาดกล่องพัสดุของทางร้าน</p>
-                                                        <div className="grid grid-nogutter gap-2 ml-5 mr-2 mt-3">
-                                                            <label className="col text-xs font-medium text-gray-700 text-center">จำนวนสินค้าสูงสุดต่อกล่อง(ชิ้น)</label>
-                                                            <label className="col text-xs font-medium text-gray-700 text-center">น้ำหนักสินค้า(กรัม)</label>
-                                                            <label className="col text-xs font-medium text-gray-700 text-center">ความกว้างของกล่อง(ซม.)</label>
-                                                            <label className="col text-xs font-medium text-gray-700 text-center">ความยาวของกล่อง(ซม.)</label>
-                                                            <label className="col text-xs font-medium text-gray-700 text-center">ความสูงของกล่อง(ซม.)</label>
-                                                        </div>
-                                                        {product.product_package_options
-                                                            .filter((packageOption) =>
-                                                                product.product_qty === packageOption.package_qty ||
-                                                                product.product_package_options.every((po) => product.product_qty !== po.package_qty)
-                                                            )
-                                                            .map((packageOption) => (
-                                                                <div key={packageOption._id} className="flex align-items-center p-2 border-1 surface-border border-round mb-2">
-                                                                    <RadioButton
-                                                                        inputId={packageOption._id}
-                                                                        name={`package_options_${product.product_id}`}
-                                                                        value={packageOption}
-                                                                        onChange={() => handlePackageChange(product.product_id, packageOption)}
-                                                                        checked={selectedPackageOptions[product.product_id]?._id === packageOption._id}
-                                                                    />
-                                                                    <div htmlFor={packageOption._id} className="w-full grid grid-nogutter gap-2">
-                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_qty}</label>
-                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_weight}</label>
-                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_width}</label>
-                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_length}</label>
-                                                                        <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_height}</label>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        {
-                                                            selectedPackageOptions && (<div className="flex justify-content-end">
-                                                                <Button label="คำนวณค่าส่ง" className="py-2" onClick={handleCheckDeliveryCost} />
+                                                {product.product_package_options.length > 0 && (
+                                                    <>
+                                                        <div className="border-top-1 surface-border pt-3">
+                                                            <p className="p-0 m-0">กรุณาเลือกขนาดกล่องพัสดุของทางร้าน</p>
+                                                            <div className="grid grid-nogutter gap-2 ml-5 mr-2 mt-3">
+                                                                <label className="col text-xs font-medium text-gray-700 text-center">จำนวนสินค้าสูงสุดต่อกล่อง(ชิ้น)</label>
+                                                                <label className="col text-xs font-medium text-gray-700 text-center">น้ำหนักสินค้า(กรัม)</label>
+                                                                <label className="col text-xs font-medium text-gray-700 text-center">ความกว้างของกล่อง(ซม.)</label>
+                                                                <label className="col text-xs font-medium text-gray-700 text-center">ความยาวของกล่อง(ซม.)</label>
+                                                                <label className="col text-xs font-medium text-gray-700 text-center">ความสูงของกล่อง(ซม.)</label>
                                                             </div>
-                                                            )
-                                                        }
-                                                    </div>
+                                                            {product.product_package_options
+                                                                .filter((packageOption) =>
+                                                                    product.product_qty === packageOption.package_qty ||
+                                                                    product.product_package_options.every((po) => product.product_qty !== po.package_qty)
+                                                                )
+                                                                .map((packageOption) => (
+                                                                    <div key={packageOption._id} className="flex align-items-center p-2 border-1 surface-border border-round mb-2">
+                                                                        <RadioButton
+                                                                            inputId={packageOption._id}
+                                                                            name={`package_options_${product.product_id}`}
+                                                                            value={packageOption}
+                                                                            onChange={() => handlePackageChange(product.product_id, packageOption)}
+                                                                            checked={selectedPackageOptions[product.product_id]?._id === packageOption._id}
+                                                                        />
+                                                                        <div htmlFor={packageOption._id} className="w-full grid grid-nogutter gap-2">
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_qty}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_weight}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_width}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_length}</label>
+                                                                            <label className="col text-md font-medium text-gray-700 text-center">{packageOption.package_height}</label>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            {
+                                                                selectedPackageOptions && (<div className="flex justify-content-end">
+                                                                    <Button label="คำนวณค่าส่ง" className="py-2" onClick={() => handleCheckDeliveryCost(product.product_id)} />
+                                                                </div>
+                                                                )
+                                                            }
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="p-0 m-0">กรุณาเลือกขนส่ง</p>
+                                                            <DataTable value={deliverCompany} tableStyle={{ minWidth: '50rem' }}>
+                                                                <Column body={(rowData) => radioButtonTemplate(product.product_id, rowData)} header="Select" style={{ width: '3rem' }} />
+                                                                {columns.map((col, i) => (
+                                                                    <Column key={col.field} field={col.field} header={col.header} />
+                                                                ))}
+                                                            </DataTable>
+                                                        </div>
+                                                    </>
                                                 )}
 
-                                                <div>
-                                                    <p className="p-0 m-0">กรุณาเลือกขนส่ง</p>
-                                                    <DataTable value={deliverCompany} tableStyle={{ minWidth: '50rem' }}>
-                                                        <Column body={radioButtonTemplate} header="Select" style={{ width: '3rem' }} />
-                                                        {columns.map((col, i) => (
-                                                            <Column key={col.field} field={col.field} header={col.header} />
-                                                        ))}
-                                                    </DataTable>
-                                                </div>
+
                                             </div>
                                         ))}
                                         <div className="border-top-1 surface-border pt-3">

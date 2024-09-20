@@ -200,8 +200,9 @@ function ProductPage() {
               <div className="">
                 <div className="flex justify-content-between align-items-center">
                   <h2 className="m-0 p-0 font-semibold text-900">฿{Number(product.product_price).toLocaleString('en-US')}</h2>
-                  <p className="m-0 p-0 font-semibold text-900">มีในสต๊อก : {product.product_stock}</p>
+                  <p className="m-0 p-0 font-semibold text-900">คลัง : {product.product_stock}</p>
                 </div>
+                <p className="mt-2 p-0 font-semibold text-900">ประเภทสินค้า : {product.product_provider === 'coop' ? 'สินค้าสหกรณ์' : 'สินค้าทั่วไป'}</p>
                 <p className="mt-2 p-0 font-semibold text-900">หมวดหมู่ : {product.product_category}</p>
                 <h3 className="font-semibold pb-2 border-bottom-1 surface-border">{product.product_name}</h3>
                 <p dangerouslySetInnerHTML={{ __html: product.product_detail }}></p>

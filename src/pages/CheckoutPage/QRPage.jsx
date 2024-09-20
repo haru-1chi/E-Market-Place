@@ -26,82 +26,82 @@ function QRPage() {
     const totalPayable = cartDetails.amountPayment;
     const paymentUUID = "BCELBANK";
 
-    useEffect(() => {
-        let pollingInterval;
-        let expirationTimeout;
+    // useEffect(() => {
+    //     let pollingInterval;
+    //     let expirationTimeout;
 
-        async function fetchQrCode() {
-            try {
-                setLoading(true);
-                const response = await axios.post(`${apiUrl}/payment/qrcode`, {
-                    amount: totalPayable,
-                    description: 'user123',
-                });
-                const result = response.data;
-                setQrCodeUrl(result.qrCodeUrl);
-                setPaymentCode(result.data.transactionid);
+    //     async function fetchQrCode() {
+    //         try {
+    //             setLoading(true);
+    //             const response = await axios.post(`${apiUrl}/payment/qrcode`, {
+    //                 amount: totalPayable,
+    //                 description: 'user123',
+    //             });
+    //             const result = response.data;
+    //             setQrCodeUrl(result.qrCodeUrl);
+    //             setPaymentCode(result.data.transactionid);
 
-                const newExpireTime = result.data.expiretime || EXPIRE_TIME;
-                setExpireTime(newExpireTime);
-                setRemainingTime(newExpireTime);
+    //             const newExpireTime = result.data.expiretime || EXPIRE_TIME;
+    //             setExpireTime(newExpireTime);
+    //             setRemainingTime(newExpireTime);
 
-                startPolling();
+    //             startPolling();
 
-                expirationTimeout = setTimeout(() => {
-                    fetchQrCode();
-                }, expireTime * 1000);
+    //             expirationTimeout = setTimeout(() => {
+    //                 fetchQrCode();
+    //             }, expireTime * 1000);
 
-            } catch (error) {
-                console.error('Error generating QR code:', error);
-                setError('Failed to generate QR code. Please try again.');
-            } finally {
-                setLoading(false);
-            }
-        }
+    //         } catch (error) {
+    //             console.error('Error generating QR code:', error);
+    //             setError('Failed to generate QR code. Please try again.');
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
 
-        function startPolling() {
-            if (pollingInterval) clearInterval(pollingInterval);
+    //     function startPolling() {
+    //         if (pollingInterval) clearInterval(pollingInterval);
 
-            pollingInterval = setInterval(async () => {
-                try {
-                    const response = await axios.post(`${apiUrl}/payment/subscription`, {
-                        uuid: paymentUUID,
-                        tid: "001",
-                        shopcode: "12345678"
-                    });
+    //         pollingInterval = setInterval(async () => {
+    //             try {
+    //                 const response = await axios.post(`${apiUrl}/payment/subscription`, {
+    //                     uuid: paymentUUID,
+    //                     tid: "001",
+    //                     shopcode: "12345678"
+    //                 });
 
-                    const data = response.data;
-                    if (response.status === 200 && data.message === 'SUCCESS') {
-                        setPaymentStatus(data.message);
-                        handleCreateOrder();
-                        clearInterval(pollingInterval);
-                        clearTimeout(expirationTimeout);
-                    } else {
-                        console.log(data.message);
-                    }
-                } catch (error) {
-                    console.error('Error checking payment status:', error);
-                }
-            }, 5000);
-        }
+    //                 const data = response.data;
+    //                 if (response.status === 200 && data.message === 'SUCCESS') {
+    //                     setPaymentStatus(data.message);
+    //                     handleCreateOrder();
+    //                     clearInterval(pollingInterval);
+    //                     clearTimeout(expirationTimeout);
+    //                 } else {
+    //                     console.log(data.message);
+    //                 }
+    //             } catch (error) {
+    //                 console.error('Error checking payment status:', error);
+    //             }
+    //         }, 5000);
+    //     }
 
-        fetchQrCode();
+    //     fetchQrCode();
 
-        return () => {
-            clearInterval(pollingInterval);
-            clearTimeout(expirationTimeout);
-        };
-    }, [totalPayable, apiUrl]);
+    //     return () => {
+    //         clearInterval(pollingInterval);
+    //         clearTimeout(expirationTimeout);
+    //     };
+    // }, [totalPayable, apiUrl]);
 
-    useEffect(() => {
-        if (remainingTime > 0) {
-            const timerId = setInterval(() => {
-                setRemainingTime(prevTime => prevTime - 1);
-            }, 1000);
+    // useEffect(() => {
+    //     if (remainingTime > 0) {
+    //         const timerId = setInterval(() => {
+    //             setRemainingTime(prevTime => prevTime - 1);
+    //         }, 1000);
 
-            return () => clearInterval(timerId);
-        }
-    }, [remainingTime]);
+    //         return () => clearInterval(timerId);
+    //     }
+    // }, [remainingTime]);
 
     const handleCreateOrder = async () => {
         setLoading(true);
@@ -177,40 +177,40 @@ function QRPage() {
         }
     };
 
-    const renderPaymentDetails = () => (
-        <>
-            <div className="flex justify-content-center">
-                {qrCodeUrl && (
-                    <div>
-                        <p className="m-0 p-0 text-center">Qr Code</p>
-                        <img
-                            src={qrCodeUrl}
-                            alt="QR Code for payment"
-                            width={150}
-                            height={150}
-                        />
-                    </div>
-                )}
-            </div>
-            <div className="flex">
-                <div className="flex-grow-1 flex flex-column text-center">
-                    <p className="m-0">Amount (LAK)</p>
-                    {totalPayable && (
-                        <p className="my-3 text-2xl font-bold">
-                            {Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
-                        </p>
-                    )}
-                    <p className="m-0">เลขที่รายการ {paymentCode}</p>
-                    {qrCodeUrl && (
-                        <div className="p-0 my-2 surface-200 border-round flex justify-content-center align-content-center">
-                            <p className="my-3">ชำระเงินภายใน {remainingTime} seconds</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-            <p className="text-center">*กรุณาเปิดหน้านี้ไว้ จนกว่าชำระเงินนี้สำเร็จ</p>
-        </>
-    )
+    // const renderPaymentDetails = () => (
+    //     <>
+    //         <div className="flex justify-content-center">
+    //             {qrCodeUrl && (
+    //                 <div>
+    //                     <p className="m-0 p-0 text-center">Qr Code</p>
+    //                     <img
+    //                         src={qrCodeUrl}
+    //                         alt="QR Code for payment"
+    //                         width={150}
+    //                         height={150}
+    //                     />
+    //                 </div>
+    //             )}
+    //         </div>
+    //         <div className="flex">
+    //             <div className="flex-grow-1 flex flex-column text-center">
+    //                 <p className="m-0">Amount (LAK)</p>
+    //                 {totalPayable && (
+    //                     <p className="my-3 text-2xl font-bold">
+    //                         {Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
+    //                     </p>
+    //                 )}
+    //                 <p className="m-0">เลขที่รายการ {paymentCode}</p>
+    //                 {qrCodeUrl && (
+    //                     <div className="p-0 my-2 surface-200 border-round flex justify-content-center align-content-center">
+    //                         <p className="my-3">ชำระเงินภายใน {remainingTime} seconds</p>
+    //                     </div>
+    //                 )}
+    //             </div>
+    //         </div>
+    //         <p className="text-center">*กรุณาเปิดหน้านี้ไว้ จนกว่าชำระเงินนี้สำเร็จ</p>
+    //     </>
+    // )
 
     const renderBankDetails = () => (
         <>

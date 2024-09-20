@@ -56,7 +56,7 @@ function Appbar() {
   const [visible3, setVisible3] = useState(false);
   const [visible4, setVisible4] = useState(false);
 
-  const { cart, updateQuantity , removeFromCart, resetCart, selectedItemsCart, setSelectedItemsCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, resetCart, selectedItemsCart, setSelectedItemsCart } = useCart();
   const toast = useRef(null);
   const showToast = () => {
     toast.current.show({
@@ -255,7 +255,7 @@ function Appbar() {
       <Toast ref={toast} position="top-center" />
       <div className="hidden lg:block section-appbar">
         <div className="pt-3 pr-3 pl-3">
-          <div className="flex justify-content-start mb-2">
+          <div className="flex justify-content-end mb-2">
             <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "SellerCenter" } })}>Seller Center</a>
             <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactChannel" } })}>ช่องทางการติดต่อ</a>
             <a className="px-2 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactUs" } })}>ติดตามเรา</a>
@@ -292,11 +292,15 @@ function Appbar() {
               <Button
                 icon={
                   <span
-                    style={{ position: "relative", display: "inline-block" }}
+                    style={{
+                      position: "relative", display: "inline-block",
+                      top: "0.3rem",
+                      right: "0.2rem",
+                    }}
                   >
                     <i
                       className="pi pi-shopping-cart"
-                      style={{ fontSize: "1.4rem" }}
+                      style={{ fontSize: "1.7rem" }}
                     ></i>
                     <Badge
                       value={totalItems}
@@ -310,6 +314,7 @@ function Appbar() {
                     />
                   </span>
                 }
+                rounded
                 text
                 onClick={() => setVisible2(true)}
               />
@@ -408,7 +413,7 @@ function Appbar() {
       {/* responsive */}
       <div className="block lg:hidden section-appbar">
         {/* <Toast ref={toast} position="top-center" /> */}
-        <div className="flex justify-content-start p-2 pb-0">
+        <div className="flex justify-content-end p-2 pb-0">
           <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "SellerCenter" } })}>Seller Center</a>
           <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactChannel" } })}>ช่องทางการติดต่อ</a>
           <a className="px-2 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactUs" } })}>ติดตามเรา</a>
@@ -431,13 +436,22 @@ function Appbar() {
                             <div className="border-circle w-4rem h-4rem m-2 bg-cyan-500 font-bold flex align-items-center justify-content-center">{user.fristname.charAt(0).toUpperCase()}</div>
                           </div> */}
                           <div className="w-full">
-                            <h3 className="m-0 p-0 font-semibold text-900 text-center">{user.fristname} {user.lastname}</h3>
-                            <div className="w-full flex flex-column justify-content-center">
-                              <div className="flex align-items-center justify-content-center">
-                                <i className="pi pi-wallet text-900" style={{ fontSize: '1.3rem' }}></i>
-                                <h3 className="m-0 ml-2 p-0 pt-2 text-2xl font-semibold text-900 text-center">฿{Number(user.wallet).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                            <h3 className="m-0 mt-1 mb-2 p-0 font-semibold text-900 text-center">{user.fristname} {user.lastname}</h3>
+                            <div className="w-full flex justify-content-between px-3 align-items-center ">
+                              <div className="flex flex-column justify-content-center align-items-center pr-4 border-right-1 border-500">
+                                <div className="flex align-items-center justify-content-center">
+                                  <i className="pi pi-wallet text-900" style={{ fontSize: '1.3rem' }}></i>
+                                  <h3 className="m-0 ml-2 p-0 text-2xl font-semibold text-900 text-center">฿{Number(user.wallet).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                                </div>
+                                <p className="m-0 text-900 text-center">ยอดเงินคงเหลือ</p>
                               </div>
-                              <p className="m-0 text-900 text-center">ยอดเงินคงเหลือ</p>
+                              <div className="flex flex-column justify-content-center align-items-center cursor-pointer">
+                                <div className="text-center">
+                                  <svg fill="#000000" width="1.6rem" height="1.6rem" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4,5A1,1,0,0,0,5,6H21a1,1,0,0,1,1,1V21a1,1,0,0,1-1,1H16a1,1,0,0,1,0-2h4V8H5a2.966,2.966,0,0,1-1-.184V19a1,1,0,0,0,1,1h5a1,1,0,0,0,1-1V14.414L9.707,15.707a1,1,0,0,1-1.414-1.414l3-3a.99.99,0,0,1,.326-.217,1,1,0,0,1,.764,0,.99.99,0,0,1,.326.217l3,3a1,1,0,0,1-1.414,1.414L13,14.414V19a3,3,0,0,1-3,3H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2H21a1,1,0,0,1,0,2H5A1,1,0,0,0,4,5Z" /></svg>
+                                </div>
+                                <p className="m-0 text-900 text-center">เติมเงินเข้า E-wallet</p>
+                              </div>
+
                             </div>
                           </div>
                         </div>
@@ -764,11 +778,17 @@ function Appbar() {
                 <Button
                   icon={
                     <span
-                      style={{ position: "relative", display: "inline-block" }}
+                      style={{
+                        position: "relative", display: "inline-block",
+                        top: "0.3rem",
+                        right: "0.2rem",
+                      }}
                     >
                       <i
                         className="pi pi-shopping-cart"
-                        style={{ fontSize: "1.3rem" }}
+                        style={{
+                          fontSize: "1.7rem"
+                        }}
                       ></i>
                       <Badge
                         value={totalItems}
@@ -781,7 +801,9 @@ function Appbar() {
                       />
                     </span>
                   }
+                  size="large"
                   text
+                  rounded
                   onClick={() => setVisible2(true)}
                 />
               </div>

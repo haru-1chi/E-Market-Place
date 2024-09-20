@@ -289,10 +289,21 @@ function ListProductsPage() {
                                 src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                 alt={product.product_name}
                                 className="w-12 border-1 surface-border"
-                              /></div>
+                              />
+                              <p className={`w-fit border-noround-top border-noround-right mt-2 px-2 border-round-md font-normal ${product.product_provider === 'coop' ? 'bg-green-600 text-white' : 'bg-primary-400 text-900'}`} style={{
+                                position: "absolute",
+                                top: "-0.5rem",
+                                right: "0rem"
+                              }}>{product.product_provider === 'coop' ? 'สินค้าสหกรณ์' : 'สินค้าทั่วไป'}</p>
+                            </div>
                           </Link>
                           <div className="h-full p-2 flex flex-column justify-content-between">
-                            <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
+                            <div>
+                              <p className="m-0 p-0 text-xs font-normal text-right">คลัง : {product.product_stock}</p>
+                              <h4 className="m-0 p-0 font-normal two-lines-ellipsis">{product.product_name}</h4>
+
+                            </div>
+
                             <div className="flex align-items-center justify-content-between">
                               <div className="font-bold">฿{Number(product.product_price).toLocaleString('en-US')}</div>
                               <Button
