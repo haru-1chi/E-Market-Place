@@ -61,12 +61,19 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
     };
 
     const generateFiltersFromData = (products) => {
+        const uniqueProviders = [
+            ...new Set(products.map(product => product.product_provider))
+        ];
+
         const uniqueCategories = [
             ...new Set(products.map(product => product.product_category))
         ];
-     
 
         return {
+            providerOptions: uniqueProviders.map(providerName => ({
+                key: providerName,
+                value: providerName === 'coop' ? 'สินค้าสหกรณ์' : providerName === 'normal' ? 'สินค้าทั่วไป' : providerName,
+            })),
             categoryOptions: uniqueCategories.map(categoryName => ({
                 key: categoryName,
                 value: categoryName
@@ -75,11 +82,12 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
     };
 
     const priceRanges = generatePriceRanges(products);
-    const { categoryOptions } = generateFiltersFromData(products);
-
+    const { providerOptions, categoryOptions } = generateFiltersFromData(products);
     const [filters, setFilters] = useState(initialFilters || {
         priceRanges: { key: 'allRange', value: `${all}` },
+        selectedProviders: [],
         selectedCategories: []
+
     });
 
     useEffect(() => {
@@ -89,7 +97,9 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
     const clearFilters = () => {
         const clearedFilters = {
             priceRanges: { key: 'allRange', value: `${all}` },
+            selectedProviders: [],
             selectedCategories: []
+
         };
         setFilters(clearedFilters);
         onFilterChange(clearedFilters);
@@ -106,23 +116,26 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
         const updatedList = checked
             ? [...filters[key], value]
             : filters[key].filter(item => item !== value);
-    
+
         const updatedFilters = { ...filters, [key]: updatedList };
         setFilters(updatedFilters);
         onFilterChange(updatedFilters);
-        
+
         if (!checked && value === categoriesLocation) {
             navigate(location.pathname, { replace: true });
         }
     };
 
     const sectionLabels = {
-        priceRanges: `${priceRange}`,
-        selectedCategories: `${product_category}`
+        priceRanges: 'ช่วงราคา',
+        selectedProviders: 'ประเภทสินค้า',
+        selectedCategories: 'หมวดหมู่'
+
     };
 
     const [expandedSections, setExpandedSections] = useState({
         priceRanges: true,
+        selectedProviders: true,
         selectedCategories: true
     });
 
@@ -155,26 +168,32 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
                                 <p>{sectionLabels[section]}</p>
                                 <p><i className={`pi ${expanded ? 'pi-minus' : 'pi-plus'}`}></i></p>
                             </div>
-                            {expanded && (section === 'priceRanges' ? priceRanges : categoryOptions).map((option) => (
-                                <div className="mb-2" key={option.key}>
-                                    {section === 'priceRanges' ? (
-                                        <RadioButton
-                                            inputId={option.key}
-                                            value={option}
-                                            name={section}
-                                            checked={filters[section].key === option.key}
-                                            onChange={(e) => handleFilterChange(section, e.value)}
-                                        />
-                                    ) : (
-                                        <Checkbox
-                                            inputId={option.key}
-                                            value={option.key}
-                                            onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
-                                            checked={filters[section].includes(option.key)} />
-                                    )}
-                                    <label htmlFor={option.key} className="ml-2">{option.value}</label>
-                                </div>
-                            ))}
+                            {expanded && (section === 'priceRanges'
+                                ? priceRanges
+                                : section === 'selectedProviders'
+                                    ? providerOptions
+                                    : section === 'selectedCategories'
+                                        ? categoryOptions
+                                        : []).map((option) => (
+                                            <div className="mb-2" key={option.key}>
+                                                {section === 'priceRanges' ? (
+                                                    <RadioButton
+                                                        inputId={option.key}
+                                                        value={option}
+                                                        name={section}
+                                                        checked={filters[section].key === option.key}
+                                                        onChange={(e) => handleFilterChange(section, e.value)}
+                                                    />
+                                                ) : (
+                                                    <Checkbox
+                                                        inputId={option.key}
+                                                        value={option.key}
+                                                        onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
+                                                        checked={filters[section].includes(option.key)} />
+                                                )}
+                                                <label htmlFor={option.key} className="ml-2">{option.value}</label>
+                                            </div>
+                                        ))}
                         </div>
                     ))}
                     <div className="filter-card-group w-full bg-white flex flex-column">
@@ -214,25 +233,31 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
                             <p>{sectionLabels[section] || section}</p>
                             <p><i className={`pi ${expanded ? 'pi-minus' : 'pi-plus'}`}></i></p>
                         </div>
-                        {expanded && (section === 'priceRanges' ? priceRanges : categoryOptions).map((option) => (
-                            <div className="mb-2" key={option.key}>
-                                {section === 'priceRanges' ? (
-                                    <RadioButton
-                                        inputId={option.key}
-                                        value={option}
-                                        checked={filters[section].key === option.key}
-                                        onChange={(e) => handleFilterChange(section, e.value)}
-                                    />
-                                ) : (
-                                    <Checkbox
-                                        inputId={option.key}
-                                        value={option.key}
-                                        onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
-                                        checked={filters[section].includes(option.key)} />
-                                )}
-                                <label htmlFor={option.key} className="ml-2">{option.value}</label>
-                            </div>
-                        ))}
+                        {expanded && (section === 'priceRanges'
+                            ? priceRanges
+                            : section === 'selectedProviders'
+                                ? providerOptions
+                                : section === 'selectedCategories'
+                                    ? categoryOptions
+                                    : []).map((option) => (
+                                        <div className="mb-2" key={option.key}>
+                                            {section === 'priceRanges' ? (
+                                                <RadioButton
+                                                    inputId={option.key}
+                                                    value={option}
+                                                    checked={filters[section].key === option.key}
+                                                    onChange={(e) => handleFilterChange(section, e.value)}
+                                                />
+                                            ) : (
+                                                <Checkbox
+                                                    inputId={option.key}
+                                                    value={option.key}
+                                                    onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
+                                                    checked={filters[section].includes(option.key)} />
+                                            )}
+                                            <label htmlFor={option.key} className="ml-2">{option.value}</label>
+                                        </div>
+                                    ))}
                     </div>
                 ))}
 

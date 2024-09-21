@@ -128,25 +128,28 @@ function CheckoutPage() {
 
                 const partnerDiscount = 0;
                 const partnerVat = totalPartnerPrice * 7 / 107;
-                const partnerDeliveryPrice = 50;
 
                 totalProductPrice += totalPartnerPrice
-                totalPayable += totalPartnerPrice + partnerDeliveryPrice;
+                totalPayable += totalPartnerPrice;
                 totalDiscount += partnerDiscount;
                 totalVat += partnerVat;
-
-                partner.products.forEach(product => {
-                    totalDeliveryPrice += selectedDeliveryCompany[product.product_id]?.price || 0;
-                });
-                // totalDeliveryPrice += partnerDeliveryPrice;
             });
+
+            if (selectedDeliveryCompany && Object.keys(selectedDeliveryCompany).length > 0) {
+                totalDeliveryPrice = Object.values(selectedDeliveryCompany).reduce((sum, partner) => {
+                    return sum + Object.values(partner).reduce((innerSum, product) => {
+                        return innerSum + (product.delivery_detail?.price || 0);
+                    }, 0);
+                }, 0);
+            }
+            totalPayable += totalDeliveryPrice
             setTotalProductPrice(totalProductPrice);
             setTotalPayable(totalPayable);
             setTotalDiscount(totalDiscount);
             setTotalVat(totalVat);
             setTotalDeliveryPrice(totalDeliveryPrice);
         }
-    }, [selectedItemsCart]);
+    }, [selectedItemsCart, selectedDeliveryCompany]);
 
     const groupByPartner = Object.keys(selectedItemsCart).reduce((result, key) => {
         const partner = selectedItemsCart[key];
@@ -277,7 +280,7 @@ function CheckoutPage() {
                 },
             };
             console.log(packageDetails)
-            
+
             const token = localStorage.getItem("token");
             const response = await axios.post(`${apiUrl}/e-market/express/price`, packageDetails, {
                 headers: { "auth-token": token }
@@ -332,16 +335,46 @@ function CheckoutPage() {
 
     //ConfirmPayment
     const handleConfirmPayment = () => {
-        const key = "66eaa18b79536ea0a4ea36e4" //product_id
+        // Restructure delivery_detail from selectedItemsCart
+        const groupByPartner = Object.keys(selectedItemsCart).reduce((result, key) => {
+            const partner = selectedItemsCart[key];
+            const partner_id = partner.partner_id;
+            const partner_name = partner.partner_name;
 
-        // if (!selectedPackageOptions || !selectedDeliveryCompany) {
-        //     alert('กรุณาคำนวณค่าส่งก่อนชำระสินค้า');
-        //     return;
-        // }
+            // Initialize if this partner doesn't exist in the result
+            if (!result[partner_id]) {
+                result[partner_id] = {
+                    partner_name: partner_name,
+                    products: []
+                };
+            }
 
+            // Iterate over each product for the current partner
+            partner.products.forEach(product => {
+                const product_id = product.product_id;
+                const packageOptions = selectedPackageOptions?.[partner_id]?.[product_id]?.product_package_options || [];
+                const selectedCompany = selectedDeliveryCompany?.[partner_id]?.[product_id]?.delivery_detail || "";
+
+                result[partner_id].products.push({
+                    product_id: product_id,
+                    product_name: product.product_name,
+                    package_qty: packageOptions.package_qty || product.product_qty,
+                    package_weight: packageOptions.package_weight || "",
+                    package_width: packageOptions.package_width || "",
+                    package_length: packageOptions.package_length || "",
+                    package_height: packageOptions.package_height || "",
+                    delivery_company: selectedCompany.courier_name || "",
+                    delivery_price: selectedCompany.price || ""
+                });
+            });
+
+            return result;
+        }, {});
+
+        // Now construct orderDetails using groupByPartner
         const orderDetails = {
-            partner_id: selectedItemsCart.partner_id,
-            amountPayment: totalPayable,
+            // partner_id: selectedItemsCart,
+            amountPayment: totalPayable, // Total payable for all bills
             customer_id: user._id,
             customer_name: address?.customer_name || user?.fristname + " " + user?.lastname,
             customer_address: address?.customer_address || address?.address,
@@ -351,19 +384,32 @@ function CheckoutPage() {
             customer_zipcode: address?.customer_zipcode || address?.postcode,
             customer_telephone: address?.customer_telephone || user.tel,
 
-            delivery_company: selectedDeliveryCompany?.courier_name || "",
-            package_qty: selectedPackageOptions[key]?.package_qty || "",
-            package_weight: selectedPackageOptions[key]?.package_weight || "",
-            package_width: selectedPackageOptions[key]?.package_width || "",
-            package_length: selectedPackageOptions[key]?.package_length || "",
-            package_height: selectedPackageOptions[key]?.package_height || "",
-            delivery_cost: selectedDeliveryCompany?.price || ""
-            
+            // Add delivery_detail structured by partner and their respective products
+            delivery_detail: Object.entries(groupByPartner).map(([partnerId, partnerData]) => ({
+                partner_id: partnerId,
+                partner_name: partnerData.partner_name,
+                byproducts_detail: partnerData.products.map(product => ({
+                    product_id: product.product_id,
+                    delivery_company: product.delivery_company,
+                    package_qty: product.package_qty,
+                    package_weight: product.package_weight,
+                    package_width: product.package_width,
+                    package_length: product.package_length,
+                    package_height: product.package_height,
+                    delivery_price: product.delivery_price
+                }))
+            }))
         };
 
+        // Log to check the structure of delivery_detail
+        console.log(orderDetails);
+
+        // Place cart details and navigate
         placeCartDetail(orderDetails);
         navigate("/PaymentPage");
     };
+
+
 
     return (
 
@@ -414,7 +460,6 @@ function CheckoutPage() {
                             }, 0);
 
                             const netTotalPrice = totalPrice + totalDeliveryPrice;
-                            console.log(selectedDeliveryCompany)
                             return (
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                     <div className='w-full'>

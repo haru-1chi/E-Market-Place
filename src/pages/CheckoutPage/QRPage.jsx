@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from 'axios';
 import { Button } from "primereact/button";
 import { Toast } from 'primereact/toast';
+import { FileUpload } from 'primereact/fileupload';
+import { Image } from 'primereact/image';
 import { useCart } from '../../router/CartContext';
 import { useNavigate } from "react-router-dom";
-import { convertTHBtoLAK } from '../../utils/DateTimeFormat';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import Logo from '../../assets/tossaganLogo.png';
 import KBANK from '../../assets/KPULS1_0_0.png';
@@ -16,6 +17,10 @@ function QRPage() {
     const { cart, cartDetails, selectedItemsCart, clearCart, clearCartDetails, clearSelectedItemsCart } = useCart();
     const navigate = useNavigate();
 
+    const [productSubImage1, setProductSubImage1] = useState(null);
+    const [productSubImage1Preview, setProductSubImage1Preview] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
     const [qrCodeUrl, setQrCodeUrl] = useState('');
     const [paymentCode, setPaymentCode] = useState('');
     const [expireTime, setExpireTime] = useState(EXPIRE_TIME);
@@ -26,82 +31,35 @@ function QRPage() {
     const totalPayable = cartDetails.amountPayment;
     const paymentUUID = "BCELBANK";
 
-    // useEffect(() => {
-    //     let pollingInterval;
-    //     let expirationTimeout;
+    const handleFileUpload = ({ files }) => {
+        const [file] = files;
+        setProductSubImage1(file);
+        setProductSubImage1Preview(URL.createObjectURL(file));  // Set image preview
+    };
 
-    //     async function fetchQrCode() {
-    //         try {
-    //             setLoading(true);
-    //             const response = await axios.post(`${apiUrl}/payment/qrcode`, {
-    //                 amount: totalPayable,
-    //                 description: 'user123',
-    //             });
-    //             const result = response.data;
-    //             setQrCodeUrl(result.qrCodeUrl);
-    //             setPaymentCode(result.data.transactionid);
+    const handleSubmit = async () => {
+        if (!productSubImage1) {
+            console.error("Please upload an image before submitting.");
+            return;
+        }
 
-    //             const newExpireTime = result.data.expiretime || EXPIRE_TIME;
-    //             setExpireTime(newExpireTime);
-    //             setRemainingTime(newExpireTime);
+        let formData = new FormData();
+        formData.append('image', productSubImage1);  // Append selected image
 
-    //             startPolling();
-
-    //             expirationTimeout = setTimeout(() => {
-    //                 fetchQrCode();
-    //             }, expireTime * 1000);
-
-    //         } catch (error) {
-    //             console.error('Error generating QR code:', error);
-    //             setError('Failed to generate QR code. Please try again.');
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     }
-
-    //     function startPolling() {
-    //         if (pollingInterval) clearInterval(pollingInterval);
-
-    //         pollingInterval = setInterval(async () => {
-    //             try {
-    //                 const response = await axios.post(`${apiUrl}/payment/subscription`, {
-    //                     uuid: paymentUUID,
-    //                     tid: "001",
-    //                     shopcode: "12345678"
-    //                 });
-
-    //                 const data = response.data;
-    //                 if (response.status === 200 && data.message === 'SUCCESS') {
-    //                     setPaymentStatus(data.message);
-    //                     handleCreateOrder();
-    //                     clearInterval(pollingInterval);
-    //                     clearTimeout(expirationTimeout);
-    //                 } else {
-    //                     console.log(data.message);
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Error checking payment status:', error);
-    //             }
-    //         }, 5000);
-    //     }
-
-    //     fetchQrCode();
-
-    //     return () => {
-    //         clearInterval(pollingInterval);
-    //         clearTimeout(expirationTimeout);
-    //     };
-    // }, [totalPayable, apiUrl]);
-
-    // useEffect(() => {
-    //     if (remainingTime > 0) {
-    //         const timerId = setInterval(() => {
-    //             setRemainingTime(prevTime => prevTime - 1);
-    //         }, 1000);
-
-    //         return () => clearInterval(timerId);
-    //     }
-    // }, [remainingTime]);
+        try {
+            setIsLoading(true);
+            const response = await axios.put(`${apiUrl}/orderproduct/addslippayment/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log('Upload successful:', response.data);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleCreateOrder = async () => {
         setLoading(true);
@@ -113,18 +71,39 @@ function QRPage() {
             }
             for (let partner_id in selectedItemsCart) {
                 const partner = selectedItemsCart[partner_id];
+
                 const productsToPurchase = partner.products.map(product => ({
                     product_id: product.product_id,
-                    product_image: product.product_image ? product.product_image : product.product_subimage1 ? product.product_subimage1 : product.product_subimage2 ? product.product_subimage2 : product.product_subimage3,
                     product_name: product.product_name,
+                    product_image: product.product_image ? product.product_image : product.product_subimage1 ? product.product_subimage1 : product.product_subimage2 ? product.product_subimage2 : product.product_subimage3,
+                    product_subimage1: product.product_subimage1 ? product.product_subimage1 : product.product_subimage2 ? product.product_subimage2 : product.product_subimage3,
+                    product_subimage2: product.product_subimage2 ? product.product_subimage2 : product.product_subimage3,
+                    product_subimage3: product.product_subimage3 ? product.product_subimage3 : "",
                     product_price: product.product_price,
                     product_qty: product.product_qty,
                 }));
+
+                const deliveryToPurchase = cartDetails.delivery_detail
+                    .filter(delivery => delivery.partner_id === partner.partner_id)
+                    .flatMap(delivery => delivery.byproducts_detail.map(byproduct => ({
+                        product_id: byproduct.product_id,
+                        delivery_company: byproduct.delivery_company,
+                        package_qty: byproduct.package_qty,
+                        package_weight: byproduct.package_weight,
+                        package_width: byproduct.package_width,
+                        package_length: byproduct.package_length,
+                        package_height: byproduct.package_height,
+                        delivery_price: byproduct.delivery_price,
+                    })));
+
+                const totaldeliveryPrice = deliveryToPurchase.reduce((total, delivery) => total + delivery.delivery_price, 0);
+
 
                 // Construct order data for each partner
                 const newOrder = {
                     partner_id: partner.partner_id,
                     product: productsToPurchase,
+                    delivery_detail: deliveryToPurchase,
                     customer_id: cartDetails.customer_id, // Use actual customer details from cartDetails
                     customer_name: cartDetails.customer_name,
                     customer_telephone: cartDetails.customer_telephone,
@@ -133,35 +112,51 @@ function QRPage() {
                     customer_amphure: cartDetails.customer_amphure,
                     customer_province: cartDetails.customer_province,
                     customer_zipcode: cartDetails.customer_zipcode,
-                    delivery_company: 'Flash',
-                    package_qty: cartDetails.package_qty,
-                    package_weight: cartDetails.package_weight,
-                    package_width: cartDetails.package_width,
-                    package_length: cartDetails.package_length,
-                    package_height: cartDetails.package_height,
-                    delivery_cost: 50,
                     totalproduct: productsToPurchase.reduce((total, item) => {
                         const product = partner.products.find(p => p.product_id === item.product_id);
                         return total + product.product_price * item.product_qty;
                     }, 0),
+                    totaldeliveryPrice,
+
                     totaldiscount: 0, // Assuming no discount for now
                     alltotal: productsToPurchase.reduce((total, item) => {
                         const product = partner.products.find(p => p.product_id === item.product_id);
-                        return total + delivery_cost + (product.product_price * item.product_qty);
-                    }, 0),
+                        return total + (product.product_price * item.product_qty);
+                    }, totaldeliveryPrice),
 
                     payment: cartDetails.payment, // Assuming you get this from cartDetails
                 };
-
-                console.log(newOrder);
+                console.log(newOrder)
 
                 // Send POST request for each partner
-                const response = await axios.post(`${apiUrl}/orderproduct`, newOrder);
+                const orderResponse = await axios.post(`${apiUrl}/orderproduct`, newOrder);
 
-                if (response.data && response.data.status) {
-                    console.log("Order successful for partner:", partner.partner_name, response.data);
+                if (orderResponse.data && orderResponse.data.status) {
+                    console.log("Order successful for partner:", partner.partner_name, orderResponse.data);
+
+                    if (!productSubImage1) {
+                        console.error("Please upload an image before submitting.");
+                        return;
+                    }
+
+                    let formData = new FormData();
+                    formData.append('image', productSubImage1); // Append selected image
+
+                    try {
+                        setIsLoading(true);
+                        const uploadResponse = await axios.put(`${apiUrl}/orderproduct/addslippayment/${orderResponse.data.data._id}`, formData, {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        });
+                        console.log('Upload successful:', uploadResponse.data);
+                    } catch (error) {
+                        console.error('Error uploading file:', error);
+                    } finally {
+                        setIsLoading(false);
+                    }
                 } else {
-                    setError(response.data.message || "Order failed");
+                    setError(orderResponse.data.message || "Order failed");
                     break; // If one fails, you may want to stop further submissions
                 }
             }
@@ -232,9 +227,27 @@ function QRPage() {
                     )}
                 </div>
             </div>
-            <div className="my-5">
-                <p className="text-center m-0">กรุณาแจ้งการโอนเงินภายใน 2 วัน</p>
-                <p className="text-center m-0">เพื่อยืนยันคำสั่งซื้อของคุณ</p>
+
+            <div className="flex flex-column justify-content-center mb-3 mt-5">
+
+                {productSubImage1Preview && (
+
+                    <div className="text-center mb-2">
+                        <Image src={productSubImage1Preview} alt="Product Sub Image 1 Preview" width="350" preview />
+                    </div>
+                )}
+                <FileUpload
+                    mode="basic"
+                    name="product_subimage1"
+                    chooseLabel="กรุณาแนบสลิปที่นี่"
+                    auto
+                    customUpload
+                    accept="image/png, image/jpeg"
+                    maxFileSize={2000000}  // 2MB
+                    onSelect={handleFileUpload}
+                    className="align-self-center"
+                    invalidFileSizeMessageDetail="The file is too large. Maximum size allowed is 2MB."
+                />
             </div>
         </>
     )
@@ -268,10 +281,10 @@ function QRPage() {
                         )
                     ) : (
                         renderBankDetails()
+
                     )}
 
                     <div className="flex align-items-center justify-content-center">
-
                         <Button label="Return to Merchant" size="small" rounded onClick={handleCreateOrder} />
                     </div>
                 </div>

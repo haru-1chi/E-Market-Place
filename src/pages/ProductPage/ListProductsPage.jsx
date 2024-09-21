@@ -33,6 +33,7 @@ function ListProductsPage() {
   const categoriesLocation = location.state?.categoryName ? location.state.categoryName : [];
   const defaultFilters = {
     priceRanges: { key: 'allRange', value: 'All' },
+    selectedProviders: [],
     selectedCategories: []
   };
   const [filters, setFilters] = useState(defaultFilters);
@@ -96,6 +97,10 @@ function ListProductsPage() {
 
     if (filters.priceRanges.key !== 'allRange') {
       filtered = filtered.filter(product => product.product_price >= filters.priceRanges.min && product.product_price <= filters.priceRanges.max);
+    }
+
+    if (filters.selectedProviders.length > 0) {
+      filtered = filtered.filter(product => filters.selectedProviders.includes(product.product_provider));
     }
 
     if (filters.selectedCategories.length > 0) {
