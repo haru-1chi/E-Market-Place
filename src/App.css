@@ -135,6 +135,7 @@ body {
   z-index: 1;
 }
 
+
 .arrow-left {
   left: 0;
 }
@@ -144,6 +145,7 @@ body {
 }
 
 @media (max-width: 575px) {
+
   .arrow-left,
   .arrow-right {
     display: none;
@@ -524,6 +526,22 @@ body {
 .carousel-product-items {
   height: 95%;
 }
+
+/* .p-carousel .p-carousel-item {
+  flex: 0 0 20% !important;
+} */
+
+/* @media (max-width: 1199px) {
+  .p-carousel .p-carousel-item {
+      flex: 0 0 25% !important;
+  }
+}
+
+@media (max-width: 1400px) {
+  .p-carousel .p-carousel-item {
+      flex: 0 0 25% !important;
+  }
+} */
 
 .filter-card {
   width: 16rem;

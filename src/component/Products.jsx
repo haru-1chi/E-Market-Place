@@ -9,8 +9,27 @@ import img_placeholder from '../assets/img_placeholder.png';
 function Products({ data, startIndex }) {
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const { addToCart } = useCart();
+    const [itemFlex, setItemFlex] = useState('0 0 20%');
     const toast = useRef(null);
     const carouselRef = useRef(null);
+
+    useEffect(() => {
+        const updateFlex = () => {
+          const width = window.innerWidth;
+          if (width <= 1199) {
+            setItemFlex('0 0 25%');
+          } else if (width <= 1400) {
+            setItemFlex('0 0 25%');
+          } else {
+            setItemFlex('0 0 20%');
+          }
+        };
+    
+        window.addEventListener('resize', updateFlex);
+        updateFlex();
+    
+        return () => window.removeEventListener('resize', updateFlex);
+      }, []);
 
     const showSuccessToast = () => {
         toast.current.show({
@@ -87,19 +106,23 @@ function Products({ data, startIndex }) {
     const responsiveOptions = [
         {
             breakpoint: '1400px',
-            numVisible: 5
+            numVisible: 5,
+            numScroll: 2
         },
         {
             breakpoint: '1199px',
-            numVisible: 5
+            numVisible: 4,
+            numScroll: 2
         },
         {
             breakpoint: '767px',
-            numVisible: 3
+            numVisible: 3,
+            numScroll: 2
         },
         {
             breakpoint: '575px',
-            numVisible: 2
+            numVisible: 2,
+            numScroll: 2
         }
     ];
 
@@ -118,13 +141,18 @@ function Products({ data, startIndex }) {
 
             <div className="hidden md:block">
                 <Carousel
+                    ref={carouselRef}
                     value={data}
                     numVisible={5}
                     numScroll={3}
                     showIndicators={false}
-
                     responsiveOptions={responsiveOptions}
-                    itemTemplate={productTemplate} />
+                    itemTemplate={productTemplate}
+                    pt={{
+                        item: { style: { flex: itemFlex } },
+                      }}
+                />
+
             </div>
         </>
     );
