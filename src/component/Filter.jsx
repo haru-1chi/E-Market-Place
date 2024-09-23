@@ -9,7 +9,7 @@ import axios from 'axios';
 import { useTranslation } from "react-i18next";
 //
 
-function Filter({ onFilterChange, products, visible, setVisible, initialFilters, categoriesLocation }) {
+function Filter({ onFilterChange, products, visible, setVisible, initialFilters, categoriesLocation, providersLocation }) {
     const navigate = useNavigate();
     const { t } = useTranslation()
     const { filter, clearFilter, priceRange, all, stock, instock, product_category, promotion, onSale, show } = t("Filter")
@@ -122,6 +122,10 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
         onFilterChange(updatedFilters);
 
         if (!checked && value === categoriesLocation) {
+            navigate(location.pathname, { replace: true });
+        }
+
+        if (!checked && value === providersLocation) {
             navigate(location.pathname, { replace: true });
         }
     };

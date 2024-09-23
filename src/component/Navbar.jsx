@@ -3,7 +3,7 @@ import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
-import LogoMakro from "../assets/macro-laos1.png";
+import Logo from "../assets/tossaganLogo.png";
 import CategoriesIcon from "./CategoriesIcon";
 import axios from "axios";
 
@@ -25,7 +25,7 @@ function Navbar() {
   const customHeader = (
     <div className="flex align-items-center gap-2">
       <a href="/" className="font-bold">
-        <img src={LogoMakro} alt="Logo" height={35} />
+        <img src={Logo} alt="Logo" height={35} />
       </a>
     </div>
   );
@@ -33,7 +33,7 @@ function Navbar() {
   const customHeader4 = (
     <div className="flex align-items-center gap-2">
       <a href="/">
-        <img src={LogoMakro} alt="Logo" className="w-7 p-0 m-0" />
+        <img src={Logo} alt="Logo" className="w-7 p-0 m-0" />
       </a>
     </div>
   );

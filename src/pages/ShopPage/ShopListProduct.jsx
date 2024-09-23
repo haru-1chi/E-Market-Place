@@ -197,11 +197,11 @@ function ShopListProduct({ partner_id }) {
                                 <div className="w-full flex justify-content-center">
                                     <div className="flex flex-column justify-content-center align-items-center">
                                         <div className="flex justify-content-center">
-                                            <img
+                                            {/* <img
                                                 src="https://www.makro.pro/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpage-not-found.7cd1edd1.png&w=1920&q=75"
                                                 alt=""
                                                 className="w-16rem"
-                                            />
+                                            /> */}
                                         </div>
                                         <h2 className="font-semibold mt-0 mb-2">ขออภัย</h2>
                                         <p className="mt-0">ไม่พบข้อมูลจากการค้นหา</p>

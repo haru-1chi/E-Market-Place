@@ -156,7 +156,13 @@ function HomePage() {
               alt=""
             />
           </div>
-          <h2 className="my-2 ml-3 md:ml-6">สินค้าทั่วไป</h2>
+          <div className="my-2 mx-3 md:mx-6 flex justify-content-between">
+            <h2 className="m-0">สินค้าทั่วไป</h2>
+            <div className="flex align-items-center cursor-pointer" onClick={() => navigate("/List-Product", { state: { providerName: 'normal' } })}>
+              <p className="m-0">ดูเพิ่มเติม</p><i className="pi pi-chevron-right"></i>
+            </div>
+          </div>
+
           <Products data={data} startIndex={0} />
         </div>
 
@@ -178,7 +184,13 @@ function HomePage() {
               alt=""
             />
           </div>
-          <h2 className="my-2 ml-3 md:ml-6">สินค้าสหกรณ์</h2>
+          <div className="my-2 mx-3 md:mx-6 flex justify-content-between">
+            <h2 className="m-0">สินค้าสหกรณ์</h2>
+            <div className="flex align-items-center cursor-pointer" onClick={() => navigate("/List-Product", { state: { providerName: 'coop' } })}>
+              <p className="m-0">ดูเพิ่มเติม</p><i className="pi pi-chevron-right"></i>
+            </div>
+          </div>
+
           <Products data={coopData} startIndex={5} />
         </div>
         <div className="hidden mt-4 pl-3 pr-3">

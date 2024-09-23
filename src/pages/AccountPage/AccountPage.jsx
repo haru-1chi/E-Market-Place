@@ -161,7 +161,7 @@ function AccountPage() {
                     <StatusBar />
                 </div>
                 <div className='h-full text-center align-content-center'>
-                    <img src="https://www.makro.pro/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FemptyOrders.b84ad154.png&w=300&q=75" alt="" />
+                    {/* <img src="https://www.makro.pro/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FemptyOrders.b84ad154.png&w=300&q=75" alt="" /> */}
                     <p className='m-0'>ยังไม่มีการสั่งซื้อ</p>
                 </div>
             </div>

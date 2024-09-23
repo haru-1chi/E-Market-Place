@@ -85,6 +85,11 @@ function Appbar() {
       navigate(`/List-Product?search=${searchTerm}`);
     }
   };
+
+  const handleCategorySelect = (categoryName) => {
+    navigate("/List-Product", { state: { categoryName } });
+  };
+
   const [selectedItems, setSelectedItems] = useState({});
 
   useEffect(() => {
@@ -256,7 +261,7 @@ function Appbar() {
       <div className="hidden lg:block section-appbar">
         <div className="pt-3 pr-3 pl-3">
           <div className="flex justify-content-end mb-2">
-            <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "SellerCenter" } })}>Seller Center</a>
+            <a className="px-2 border-right-1 cursor-pointer" onClick={() => window.open('https://partner.ddscservices.com/', '_blank')}>Seller Center</a>
             <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactChannel" } })}>ช่องทางการติดต่อ</a>
             <a className="px-2 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactUs" } })}>ติดตามเรา</a>
             {/* <LanguageSelector /> */}
@@ -379,11 +384,11 @@ function Appbar() {
               />
             </div>
             <div className="hidden align-items-center">
-              <img
+              {/* <img
                 src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FMakro_PRO_Points_GIF_fe64aa9600.gif&w=32&q=75"
                 width={20}
                 height={20}
-              />
+              /> */}
               <Link to="/Pagepoint" className="ml-2">
                 {makroProPoint}
               </Link>
@@ -393,13 +398,13 @@ function Appbar() {
                 className="text-l ml-2 hidden"
                 label={
                   <span>
-                    <img
+                    {/* <img
                       src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2Fmakromail_9348ebf95a.png&w=16&q=75"
                       width={20}
                       height={20}
                       alt="Makromail"
                       style={{ marginRight: "8px", verticalAlign: "middle" }}
-                    />
+                    /> */}
                     makromail
                   </span>
                 }
@@ -414,7 +419,7 @@ function Appbar() {
       <div className="block lg:hidden section-appbar">
         {/* <Toast ref={toast} position="top-center" /> */}
         <div className="flex justify-content-end p-2 pb-0">
-          <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "SellerCenter" } })}>Seller Center</a>
+          <a className="px-2 border-right-1 cursor-pointer" onClick={() => window.open('https://partner.ddscservices.com/', '_blank')}>Seller Center</a>
           <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactChannel" } })}>ช่องทางการติดต่อ</a>
           <a className="px-2 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactUs" } })}>ติดตามเรา</a>
           {/* <LanguageSelector /> */}
@@ -731,10 +736,10 @@ function Appbar() {
                     </>
                   ) : (
                     <>
-                      <img
+                      {/* <img
                         src="https://www.makro.pro/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fempty-basket.76c5ec1f.png&w=1200&q=75"
                         alt=""
-                      />
+                      /> */}
                       <h2 className="m-1">ไม่มีสินค้าในตะกร้า</h2>
                       <span className="mb-3">เริ่มเลือกสินค้าเลย!</span>
                       <a href="/">

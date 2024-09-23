@@ -13,13 +13,15 @@ import ProvinceSelection from "../../component/ProvinceSelection";
 import img_placeholder from '../../assets/img_placeholder.png';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 function CheckoutPage() {
     const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
     const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const [user, setUser] = useState(null);
+    const [address, setAddress] = useState(null);
     const navigate = useNavigate();
-
+    const [loading, setLoading] = useState(false);
     const [visible1, setVisible1] = useState(false);
     const [visible2, setVisible2] = useState(false);
     const { selectedItemsCart, placeCartDetail } = useCart();
@@ -36,6 +38,8 @@ function CheckoutPage() {
                 setAddress(res.data.data.current_address);
             } catch (err) {
                 console.error("Error fetching user data", err.response?.data || err.message);
+            } finally {
+                setLoading(false);
             }
         };
         fetchUserData();
@@ -44,7 +48,7 @@ function CheckoutPage() {
 
 
     //vที่อยู่จัดส่ง
-    const [address, setAddress] = useState(null);
+
     const [addressFormData, setAddressFormData] = useState({
         label: '',
         customer_name: '',
@@ -182,55 +186,58 @@ function CheckoutPage() {
     //^ map สินค้า
 
     //vตัวเลือกขนาดพัสดุ checkPoint2
-    // useEffect(() => {
-    //     Object.keys(deliverCompany).forEach(partnerId => {
-    //         Object.keys(deliverCompany[partnerId]).forEach(productId => {
-    //             const deliveryOptions = deliverCompany[partnerId][productId].options || [];
+    useEffect(() => {
+        const allPartners = Object.keys(groupByPartner);
 
-    //             // Set the first available delivery company as default if none is selected
-    //             if (deliveryOptions.length > 0 && !selectedDeliveryCompany?.[partnerId]?.[productId]) {
-    //                 setSelectedDeliveryCompany(prevState => ({
-    //                     ...prevState,
-    //                     [partnerId]: {
-    //                         ...prevState[partnerId],
-    //                         [productId]: {
-    //                             delivery_detail: deliveryOptions[0]
-    //                         }
-    //                     }
-    //                 }));
-    //             }
-    //         });
-    //     });
-    // }, [deliverCompany]); //always set default value is first option
+        allPartners.forEach((partnerId) => {
+            const partner = groupByPartner[partnerId]; // Get the partner object
+            const products = partner.products; // Access the products array from the partner object
 
-    // useEffect(() => {
-    //     const allPartners = Object.keys(groupByPartner);
+            products.forEach((product) => { // Now products is an array
+                const productId = product.product_id;
+                const packageOptions = product.product_package_options || [];
 
-    //     allPartners.forEach((partnerId) => {
-    //         const partner = groupByPartner[partnerId]; // Get the partner object
-    //         const products = partner.products; // Access the products array from the partner object
+                const filteredOptions = packageOptions.filter((option) => {
+                    // If there's only one package option, show it
+                    if (packageOptions.length === 1) {
+                        return true;
+                    }
+                    // Otherwise, filter based on product_qty match
+                    return (
+                        product.product_qty === option.package_qty ||
+                        packageOptions.every((po) => product.product_qty !== po.package_qty)
+                    );
+                });
 
-    //         products.forEach((product) => { // Now products is an array
-    //             const productId = product.product_id;
-    //             const packageOptions = product.product_package_options || [];
+                // If package options exist and none is selected yet for the product
+                if (packageOptions.length > 0 && !selectedPackageOptions?.[partnerId]?.[productId]) {
+                    setSelectedPackageOptions(prevState => ({
+                        ...prevState,
+                        [partnerId]: {
+                            ...prevState[partnerId],
+                            [productId]: {
+                                // Select the first filtered option, or fallback to the first overall option
+                                product_package_options: filteredOptions.length > 0 ? filteredOptions[0] : packageOptions[0]
+                            }
+                        }
+                    }));
+                }
+            });
+        });
+    }, [groupByPartner]);//always set default value is first option
 
-    //             // If package options exist and none is selected yet for the product
-    //             if (packageOptions.length > 0 && !selectedPackageOptions?.[partnerId]?.[productId]) {
-    //                 setSelectedPackageOptions(prevState => ({
-    //                     ...prevState,
-    //                     [partnerId]: {
-    //                         ...prevState[partnerId],
-    //                         [productId]: {
-    //                             product_package_options: packageOptions[0] // Default to first package option
-    //                         }
-    //                     }
-    //                 }));
-    //             }
-    //         });
-    //     });
-    // }, [groupByPartner]);//always set default value is first option
 
     const handlePackageChange = (partnerId, productId, packageOption) => {
+        setDeliverCompany(prevState => ({
+            ...prevState,
+            [partnerId]: {
+                ...prevState[partnerId],
+                [productId]: {
+                    options: []
+                }
+            }
+        }));
+
         setSelectedPackageOptions(prevState => ({
             ...prevState,
             [partnerId]: {
@@ -242,14 +249,49 @@ function CheckoutPage() {
         }));
     };
 
+    useEffect(() => {
+        // If loading is true or user/address is missing, don't trigger the API calls
+        if (loading || !user || !address) return;
+
+        // If selectedPackageOptions has changed, make the necessary API calls
+        let activeRequests = 0;
+        const selectedPartners = Object.keys(selectedPackageOptions);
+
+        if (selectedPartners.length === 0) return; // If no packages are selected, skip
+
+        setLoading(true); // Start loading when making the API calls
+        selectedPartners.forEach(partnerId => {
+            const selectedProducts = Object.keys(selectedPackageOptions[partnerId]);
+            selectedProducts.forEach(async productId => {
+                const packageOption = selectedPackageOptions[partnerId][productId]?.product_package_options;
+                if (packageOption) {
+                    activeRequests++;
+                    try {
+                        await handleCheckDeliveryCost(partnerId, productId);
+                    } finally {
+                        activeRequests--;
+                        if (activeRequests === 0) {
+                            setLoading(false); // Stop loading when all requests complete
+                        }
+                    }
+                }
+            });
+        });
+    }, [selectedPackageOptions, user, address]);
 
     const handleCheckDeliveryCost = async (partner_id, productId) => {
         try {
+            setLoading(true);
             const res = await axios.get(`${apiProductUrl}/partner/byid/${partner_id}`);
             const partner = res.data.data;
 
             if (!partner) {
                 throw new Error("Partner data not found");
+            }
+
+            if (!user || !address) {
+                console.error("User or address data is not yet available.");
+                return;
             }
 
             const packageDetails = {
@@ -269,7 +311,7 @@ function CheckoutPage() {
                     state: address?.customer_amphure?.name_th || address?.district,
                     province: address?.customer_province?.name_th || address?.province,
                     postcode: address?.customer_zipcode || address?.postcode,
-                    tel: address?.customer_telephone || user.tel,
+                    tel: address?.customer_telephone || user?.tel
                 },
                 parcel: {
                     name: `สินค้าชิ้นที่ ${productId}`,
@@ -279,8 +321,6 @@ function CheckoutPage() {
                     height: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_height,
                 },
             };
-            console.log(packageDetails)
-
             const token = localStorage.getItem("token");
             const response = await axios.post(`${apiUrl}/e-market/express/price`, packageDetails, {
                 headers: { "auth-token": token }
@@ -288,7 +328,6 @@ function CheckoutPage() {
 
             if (response.data && response.data.status) {
                 const deliveryOptions = response.data.new;
-
                 setDeliverCompany(prevState => ({
                     ...prevState,
                     [partner_id]: {
@@ -297,19 +336,37 @@ function CheckoutPage() {
                     }
                 }));
 
-                setSelectedDeliveryCompany(prevState => ({
-                    ...prevState,
-                    [partner_id]: {
-                        ...prevState[partner_id],
-                        [productId]: deliveryOptions[0]  // Select the first option by default
-                    }
-                }));
+                if (deliveryOptions.length > 0) {
+                    setSelectedDeliveryCompany(prevState => ({
+                        ...prevState,
+                        [partner_id]: {
+                            ...prevState[partner_id],
+                            [productId]: {
+                                delivery_detail: deliveryOptions[0]
+                            }
+                        }
+                    }));
+                }
+                setError(null);
             } else {
                 setError(response.data.message || "Order failed");
             }
         } catch (error) {
-            console.error("Error checking delivery cost:", error.response?.data?.message || error.message);
-            setError(error.response?.data?.message || "An unexpected error occurred");
+            if (error.code === 'ECONNABORTED') {
+                console.error("Request timeout:", error.message);
+                setError("Request timeout. Please try again.");
+            } else if (error.response) {
+                console.error("Error checking delivery cost:", error.response.data.message || error.message);
+                setError(error.response.data.message || "An unexpected error occurred");
+            } else if (error.request) {
+                console.error("No response received from the server:", error.message);
+                setError("No response from server. Please check your connection.");
+            } else {
+                console.error("Error setting up the request:", error.message);
+                setError("An unexpected error occurred. Please try again.");
+            }
+        } finally {
+            setLoading(false); // Stop loading when the request is finished
         }
     };
 
@@ -470,7 +527,7 @@ function CheckoutPage() {
                                             </div>
                                         </Link>
                                         {products.map((product, idx) => (
-                                            <div key={idx} className="cart-items align-items-center py-2">
+                                            <div key={idx} className="cart-items align-items-center py-2 border-bottom-2 border-yellow-400">
                                                 <div className="w-full flex align-items-center">
                                                     <img
                                                         src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
@@ -491,7 +548,7 @@ function CheckoutPage() {
                                                 {/* ตัวเลือกขนาดพัสดุ */}
                                                 {product.product_package_options.length > 0 && (
                                                     <>
-                                                        <div className="border-top-1 surface-border pt-3">
+                                                        <div className=" pt-3">
                                                             <p className="p-0 m-0">กรุณาเลือกขนาดกล่องพัสดุของทางร้าน</p>
                                                             <div className="grid grid-nogutter gap-2 ml-5 mr-2 mt-3">
                                                                 <label className="col text-xs font-medium text-gray-700 text-center">จำนวนสินค้าสูงสุดต่อกล่อง(ชิ้น)</label>
@@ -500,11 +557,16 @@ function CheckoutPage() {
                                                                 <label className="col text-xs font-medium text-gray-700 text-center">ความยาวของกล่อง(ซม.)</label>
                                                                 <label className="col text-xs font-medium text-gray-700 text-center">ความสูงของกล่อง(ซม.)</label>
                                                             </div>
-                                                            {product.product_package_options.filter((option) =>
-                                                                product.product_qty === option.package_qty ||
-                                                                product.product_package_options
-                                                                    .every((po) => product.product_qty !== po.package_qty)
-                                                            )
+                                                            {product.product_package_options
+                                                                .filter((option) => {
+                                                                    if (product.product_package_options.length === 1) {
+                                                                        return true;
+                                                                    }
+                                                                    return (
+                                                                        product.product_qty === option.package_qty ||
+                                                                        product.product_package_options.every((po) => product.product_qty !== po.package_qty)
+                                                                    );
+                                                                })
                                                                 .map((option) => (
                                                                     <div key={option._id} className="flex align-items-center p-2 border-1 surface-border border-round mb-2">
                                                                         <RadioButton
@@ -512,8 +574,7 @@ function CheckoutPage() {
                                                                             name={`package_options_${product.product_id}`}
                                                                             value={option}
                                                                             onChange={() => handlePackageChange(partner_id, product.product_id, option)}
-                                                                            checked={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options
-                                                                                ._id === option._id}
+                                                                            checked={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id === option._id}
                                                                         />
                                                                         <div htmlFor={option._id} className="w-full grid grid-nogutter gap-2">
                                                                             <label className="col text-md font-medium text-gray-700 text-center">{option.package_qty}</label>
@@ -534,17 +595,26 @@ function CheckoutPage() {
 
                                                         <div>
                                                             <p className="p-0 m-0">กรุณาเลือกขนส่ง</p>
-                                                            <DataTable value={deliverCompany?.[partner_id]?.[product.product_id]?.options} tableStyle={{ minWidth: '50rem' }}>
-                                                                <Column body={(rowData) => radioButtonTemplate(partner_id, product.product_id, rowData)} header="ตัวเลือก" style={{ width: '3rem' }} />
-                                                                {columns.map((col, i) => (
-                                                                    <Column key={col.field} field={col.field} header={col.header} />
-                                                                ))}
-                                                            </DataTable>
+                                                            {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+                                                            {loading ? (
+                                                                <div className="flex justify-content-center ">
+                                                                    <ProgressSpinner />
+                                                                </div>
+                                                            ) : (
+                                                                deliverCompany?.[partner_id]?.[product.product_id]?.options?.length > 0 ? (
+                                                                    <DataTable value={deliverCompany?.[partner_id]?.[product.product_id]?.options} tableStyle={{ minWidth: '50rem' }}>
+                                                                        <Column body={(rowData) => radioButtonTemplate(partner_id, product.product_id, rowData)} header="ตัวเลือก" style={{ width: '3rem' }} />
+                                                                        {columns.map((col, i) => (
+                                                                            <Column key={col.field} field={col.field} header={col.header} />
+                                                                        ))}
+                                                                    </DataTable>
+                                                                ) : (
+                                                                    <div>ไม่พบขนส่ง กรุณาเลือกขนาดกล่องใหม่อีกครั้ง</div>
+                                                                )
+                                                            )}
                                                         </div>
                                                     </>
                                                 )}
-
-
                                             </div>
                                         ))}
                                         <div className="border-top-1 surface-border pt-3">

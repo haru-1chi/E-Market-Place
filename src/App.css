@@ -58,7 +58,7 @@ body {
   overflow-x: auto;
   white-space: nowrap;
   scroll-behavior: smooth;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 .products-carousel {
@@ -70,7 +70,7 @@ body {
   flex: 0 0 auto;
   width: calc(100% / 5 - 16px);
   scroll-snap-align: start;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 @media (max-width: 1400px) {
@@ -225,7 +225,7 @@ body {
 
 .section-sortbar {
   position: sticky;
-  top: 67px;
+  top: 96px;
   z-index: 1;
   background-color: #fff;
   border-bottom: 1px solid #ccc;
@@ -236,7 +236,7 @@ body {
 
 .section-sortbar-2 {
   position: sticky;
-  top: 111px;
+  top: 140px;
   z-index: 1;
   background-color: #fff;
   border-bottom: 1px solid #ccc;

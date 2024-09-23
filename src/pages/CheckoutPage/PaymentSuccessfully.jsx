@@ -14,11 +14,11 @@ function PaymentSuccessfully() {
                 <div className='bg-section-product flex flex-column border-1 surface-border border-round py-3 px-3 bg-white border-round-mb justify-content-center'>
                     <h2 className="m-0 p-0 font-semibold">ทำการสั่งซื้อ</h2>
                     <div className="flex justify-content-center">
-                        <img
+                        {/* <img
                             src="https://www.makro.pro/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fempty-basket.76c5ec1f.png&w=1200&q=75"
                             alt=""
                             className="w-7"
-                        />
+                        /> */}
                     </div>
                     <h2 className="text-center font-semibold my-2">การสั่งซื้อสำเร็จแล้ว!</h2>
                     <p className="text-center my-2">เราจะจัดเตรียมรายการสินค้าของคุณและจัดส่งอย่างตรงเวลา!</p>

@@ -31,6 +31,7 @@ function ListProductsPage() {
   const [visibleSort, setVisibleSort] = useState(false);
   const toast = useRef(null);
   const categoriesLocation = location.state?.categoryName ? location.state.categoryName : [];
+  const providersLocation = location.state?.providerName ? location.state.providerName : [];
   const defaultFilters = {
     priceRanges: { key: 'allRange', value: 'All' },
     selectedProviders: [],
@@ -53,13 +54,17 @@ function ListProductsPage() {
     });
   };
 
-  const filterProducts = (products, searchTerm, categoryName) => {
+  const filterProducts = (products, searchTerm, categoryName, providerName) => {
     return products.filter((product) => {
       if (searchTerm) {
         return product.product_name.toLowerCase().includes(searchTerm.toLowerCase());
-      } else if (categoryName) {
-        return product.product_category.includes(categoryName);
       }
+      // else if (categoryName) {
+      //   return product.product_category.includes(categoryName);
+      // }
+      // else if (providerName) {
+      //   return product.product_provider.includes(providerName);
+      // }
       return true;
     });
   };
@@ -131,7 +136,8 @@ function ListProductsPage() {
       url: `${apiProductUrl}/product`
     })
       .then((response) => {
-        const filtered = filterProducts(response.data.data, searchTerm, location.state?.categoryName);
+        // const filtered = filterProducts(response.data.data, searchTerm, location.state?.categoryName, location.state?.providerName);
+        const filtered = filterProducts(response.data.data, searchTerm);
         setData(filtered);
         setFilteredData(filtered);
         setPaginatedData(filtered.slice(first, first + rows));
@@ -146,21 +152,26 @@ function ListProductsPage() {
 
   useEffect(() => {
     fetchData();
-  }, [apiProductUrl, searchTerm, location.state?.categoryName, first, rows]);
+  // }, [apiProductUrl, searchTerm, location.state?.categoryName, location.state?.providerName, first, rows]);
+  }, [apiProductUrl, searchTerm, first, rows]);
 
   useEffect(() => {
     const categoryName = location.state?.categoryName;
+    const providerName = location.state?.providerName;
     const updatedFilters = {
       ...filters,
       selectedCategories: categoryName
         ? [...new Set([categoryName, ...filters.selectedCategories])]
         : filters.selectedCategories,
+      selectedProviders: providerName
+        ? [...new Set([providerName, ...filters.selectedProviders])]
+        : filters.selectedProviders,
     };
     if (JSON.stringify(updatedFilters) !== JSON.stringify(filters)) {
       setFilters(updatedFilters);
     }
     applyFilters(updatedFilters);
-  }, [location.state?.categoryName, applyFilters, filters]);
+  }, [location.state?.categoryName, location.state?.providerName, applyFilters, filters]);
 
   useEffect(() => {
     setPaginatedData(filteredData.slice(first, first + rows));
@@ -271,6 +282,7 @@ function ListProductsPage() {
                 setVisible={setVisible}
                 initialFilters={filters}
                 categoriesLocation={categoriesLocation}
+                providersLocation={providersLocation}
               />
             )}
           </div>
@@ -286,7 +298,7 @@ function ListProductsPage() {
                   {location.state?.categoryName && <h2 className="mt-0 text-xs">ผลการค้นหาตามหมวดหมู่ &quot;{location.state?.categoryName}&quot;</h2>}
                   <div className="product-list">
                     {sortData().map((product, index) => (
-                      <div key={index} className="relative flex h-18rem md:h-28rem">
+                      <div key={index} className="relative flex h-18rem sm:h-28rem">
                         <div className="w-full border-1 surface-border bg-white flex flex-column">
                           <Link to={`/List-Product/product/${product._id}`} state={{ product }}>
                             <div className="square-image">
@@ -330,7 +342,7 @@ function ListProductsPage() {
                   <div className="w-full flex justify-content-center">
                     <div className="flex flex-column justify-content-center align-items-center">
                       <div className='flex justify-content-center'>
-                        <img src="https://www.makro.pro/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpage-not-found.7cd1edd1.png&w=1920&q=75" alt="" className='w-16rem' />
+                        {/* <img src="https://www.makro.pro/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fpage-not-found.7cd1edd1.png&w=1920&q=75" alt="" className='w-16rem' /> */}
                       </div>
                       <h2 className="font-semibold mt-0 mb-2">ขออภัย</h2>
                       <p className="mt-0">ไม่พบข้อมูลจากการค้นหา</p>
