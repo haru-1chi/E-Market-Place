@@ -49,8 +49,6 @@ function ShopCategriesSelected() {
             .then((response) => {
                 const filtered = filterProducts(response.data.data, location.state?.categoryName);
                 setData(filtered);
-
-                setData(response.data.data);
             })
             .catch((error) => {
                 console.log(error);

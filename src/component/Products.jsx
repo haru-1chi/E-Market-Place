@@ -67,7 +67,7 @@ function Products({ data, startIndex }) {
                     position: "absolute",
                     top: "-0.5rem",
                     right: "0rem",
-                    zIndex: "5"
+                    zIndex: "3"
                 }}>{product.product_provider === 'coop' ? 'สินค้าสหกรณ์' : 'สินค้าทั่วไป'}</p>
                 <div className="align-items-center justify-content-center">
                     <Link to={`/List-Product/product/${product._id}`} state={{ product }}>

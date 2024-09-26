@@ -37,32 +37,12 @@ function QRPage() {
         setProductSubImage1Preview(URL.createObjectURL(file));  // Set image preview
     };
 
-    const handleSubmit = async () => {
+    const handleCreateOrder = async () => {
+        setLoading(true);
         if (!productSubImage1) {
             console.error("Please upload an image before submitting.");
             return;
         }
-
-        let formData = new FormData();
-        formData.append('image', productSubImage1);  // Append selected image
-
-        try {
-            setIsLoading(true);
-            const response = await axios.put(`${apiUrl}/orderproduct/addslippayment/${id}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            console.log('Upload successful:', response.data);
-        } catch (error) {
-            console.error('Error uploading file:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleCreateOrder = async () => {
-        setLoading(true);
         try {
             const token = localStorage.getItem("token");
             if (!token) {
@@ -98,13 +78,11 @@ function QRPage() {
 
                 const totaldeliveryPrice = deliveryToPurchase.reduce((total, delivery) => total + delivery.delivery_price, 0);
 
-
-                // Construct order data for each partner
                 const newOrder = {
                     partner_id: partner.partner_id,
                     product: productsToPurchase,
                     delivery_detail: deliveryToPurchase,
-                    customer_id: cartDetails.customer_id, // Use actual customer details from cartDetails
+                    customer_id: cartDetails.customer_id,
                     customer_name: cartDetails.customer_name,
                     customer_telephone: cartDetails.customer_telephone,
                     customer_address: cartDetails.customer_address,
@@ -118,29 +96,23 @@ function QRPage() {
                     }, 0),
                     totaldeliveryPrice,
 
-                    totaldiscount: 0, // Assuming no discount for now
+                    totaldiscount: 0,
                     alltotal: productsToPurchase.reduce((total, item) => {
                         const product = partner.products.find(p => p.product_id === item.product_id);
                         return total + (product.product_price * item.product_qty);
                     }, totaldeliveryPrice),
 
-                    payment: cartDetails.payment, // Assuming you get this from cartDetails
+                    payment: cartDetails.payment,
                 };
                 console.log(newOrder)
 
-                // Send POST request for each partner
                 const orderResponse = await axios.post(`${apiUrl}/orderproduct`, newOrder);
 
                 if (orderResponse.data && orderResponse.data.status) {
                     console.log("Order successful for partner:", partner.partner_name, orderResponse.data);
 
-                    if (!productSubImage1) {
-                        console.error("Please upload an image before submitting.");
-                        return;
-                    }
-
                     let formData = new FormData();
-                    formData.append('image', productSubImage1); // Append selected image
+                    formData.append('image', productSubImage1);
 
                     try {
                         setIsLoading(true);
@@ -157,7 +129,7 @@ function QRPage() {
                     }
                 } else {
                     setError(orderResponse.data.message || "Order failed");
-                    break; // If one fails, you may want to stop further submissions
+                    break;
                 }
             }
             clearCart(cart, selectedItemsCart);

@@ -109,6 +109,9 @@ function ProductPage() {
     if (product) {
       const productImages = [
         {
+          imgURL: `${product?.product_image ? apiProductUrl + product?.product_image : product?.product_subimage1 ? apiProductUrl + product.product_subimage1 : product?.product_subimage2 ? apiProductUrl + product.product_subimage2 : product?.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`,
+        },
+        {
           imgURL: `${product?.product_subimage1 ? apiProductUrl + product.product_subimage1 : product?.product_subimage2 ? apiProductUrl + product.product_subimage2 : product?.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`,
         },
         {

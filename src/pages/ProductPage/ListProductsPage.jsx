@@ -35,7 +35,8 @@ function ListProductsPage() {
   const defaultFilters = {
     priceRanges: { key: 'allRange', value: 'All' },
     selectedProviders: [],
-    selectedCategories: []
+    selectedCategories: [],
+    selectedSubcategories: []
   };
   const [filters, setFilters] = useState(defaultFilters);
   const [sortOption, setSortOption] = useState('default');
@@ -59,12 +60,12 @@ function ListProductsPage() {
       if (searchTerm) {
         return product.product_name.toLowerCase().includes(searchTerm.toLowerCase());
       }
-      // else if (categoryName) {
-      //   return product.product_category.includes(categoryName);
-      // }
-      // else if (providerName) {
-      //   return product.product_provider.includes(providerName);
-      // }
+      else if (categoryName) {
+        return product.product_category.includes(categoryName);
+      }
+      else if (providerName) {
+        return product.product_provider.includes(providerName);
+      }
       return true;
     });
   };
@@ -98,7 +99,13 @@ function ListProductsPage() {
 
 
   const applyFilters = useCallback((filters) => {
-    let filtered = data;
+    let filtered;
+
+    if (searchTerm){
+      filtered = filteredData;
+    }else{
+      filtered = data;
+    }
 
     if (filters.priceRanges.key !== 'allRange') {
       filtered = filtered.filter(product => product.product_price >= filters.priceRanges.min && product.product_price <= filters.priceRanges.max);
@@ -110,6 +117,10 @@ function ListProductsPage() {
 
     if (filters.selectedCategories.length > 0) {
       filtered = filtered.filter(product => filters.selectedCategories.includes(product.product_category));
+    }
+
+    if (filters.selectedSubcategories.length > 0) {
+      filtered = filtered.filter(product => filters.selectedSubcategories.includes(product.product_subcategory));
     }
 
     filtered = sortProducts(filtered, sortOption);
@@ -136,9 +147,9 @@ function ListProductsPage() {
       url: `${apiProductUrl}/product`
     })
       .then((response) => {
-        // const filtered = filterProducts(response.data.data, searchTerm, location.state?.categoryName, location.state?.providerName);
-        const filtered = filterProducts(response.data.data, searchTerm);
-        setData(filtered);
+        const filtered = filterProducts(response.data.data, searchTerm, location.state?.categoryName, location.state?.providerName);
+        // const filtered = filterProducts(response.data.data, searchTerm);
+        setData(response.data.data);
         setFilteredData(filtered);
         setPaginatedData(filtered.slice(first, first + rows));
       })
@@ -292,7 +303,7 @@ function ListProductsPage() {
             </div>
           ) : (
             <>
-              {data.length ? (
+              {paginatedData.length ? (
                 <div className="w-full">
                   {/* {searchTerm && <h2 className="mt-0 font-semibold">ผลการค้นหา &quot;{searchTerm}&quot;</h2>} */}
                   {location.state?.categoryName && <h2 className="mt-0 text-xs">ผลการค้นหาตามหมวดหมู่ &quot;{location.state?.categoryName}&quot;</h2>}

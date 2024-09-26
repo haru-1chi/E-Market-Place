@@ -22,6 +22,7 @@ function CheckoutPage() {
     const [address, setAddress] = useState(null);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [loadingState, setLoadingState] = useState({});
     const [visible1, setVisible1] = useState(false);
     const [visible2, setVisible2] = useState(false);
     const { selectedItemsCart, placeCartDetail } = useCart();
@@ -238,6 +239,14 @@ function CheckoutPage() {
             }
         }));
 
+        setLoadingState(prevState => ({
+            ...prevState,
+            [partnerId]: {
+                ...prevState[partnerId],
+                [productId]: true
+            }
+        }));
+
         setSelectedPackageOptions(prevState => ({
             ...prevState,
             [partnerId]: {
@@ -281,7 +290,14 @@ function CheckoutPage() {
 
     const handleCheckDeliveryCost = async (partner_id, productId) => {
         try {
-            setLoading(true);
+            setLoadingState(prevState => ({
+                ...prevState,
+                [partner_id]: {
+                    ...prevState[partner_id],
+                    [productId]: true
+                }
+            }));
+
             const res = await axios.get(`${apiProductUrl}/partner/byid/${partner_id}`);
             const partner = res.data.data;
 
@@ -366,7 +382,13 @@ function CheckoutPage() {
                 setError("An unexpected error occurred. Please try again.");
             }
         } finally {
-            setLoading(false); // Stop loading when the request is finished
+            setLoadingState(prevState => ({
+                ...prevState,
+                [partner_id]: {
+                    ...prevState[partner_id],
+                    [productId]: false
+                }
+            }));
         }
     };
 
@@ -585,18 +607,18 @@ function CheckoutPage() {
                                                                         </div>
                                                                     </div>
                                                                 ))}
-                                                            {
+                                                            {/* {
                                                                 selectedPackageOptions && (<div className="flex justify-content-end">
                                                                     <Button label="คำนวณค่าส่ง" className="py-2" onClick={() => handleCheckDeliveryCost(partner_id, product.product_id)} />
                                                                 </div>
                                                                 )
-                                                            }
+                                                            } */}
                                                         </div>
 
                                                         <div>
                                                             <p className="p-0 m-0">กรุณาเลือกขนส่ง</p>
                                                             {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-                                                            {loading ? (
+                                                            {loadingState?.[partner_id]?.[product.product_id] ? (
                                                                 <div className="flex justify-content-center ">
                                                                     <ProgressSpinner />
                                                                 </div>

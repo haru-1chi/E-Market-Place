@@ -14,6 +14,11 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
     const { t } = useTranslation()
     const { filter, clearFilter, priceRange, all, stock, instock, product_category, promotion, onSale, show } = t("Filter")
 
+    const SubcategoryMap = {
+        "เครื่องดื่ม (Drinks & Beverages)": ['น้ำผลไม้', 'เครื่องดื่มชูกำลัง', 'น้ำอัดลม', 'น้ำหวาน'],
+        "ผลิตภัณฑ์ซักผ้า และดูแลผ้า (Laundry Products)": ['ผงซักฟอก', 'น้ำยาปรับผ้านุ่ม'],
+    };
+
     const generatePriceRanges = (products) => {
         const prices = products.map(product => product.product_price);
         const maxPrice = Math.max(...prices);
@@ -61,13 +66,22 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
     };
 
     const generateFiltersFromData = (products) => {
-        const uniqueProviders = [
-            ...new Set(products.map(product => product.product_provider))
-        ];
+        const uniqueProviders = [...new Set(products.map(product => product.product_provider))];
+        const uniqueCategories = [...new Set(products.map(product => product.product_category))];
 
-        const uniqueCategories = [
-            ...new Set(products.map(product => product.product_category))
-        ];
+        const subcategoryMapFromProducts = uniqueCategories.reduce((acc, category) => {
+            const subcategories = products
+                .filter(product => product.product_category === category)
+                .flatMap(product => product.product_subcategory);
+
+            const uniqueSubcategories = [...new Set(subcategories)];
+            acc[category] = uniqueSubcategories.map(sub => ({ key: sub, value: sub }));
+
+            if (!acc[category]) {
+                acc[category] = [];
+            }
+            return acc;
+        }, {});
 
         return {
             providerOptions: uniqueProviders.map(providerName => ({
@@ -77,17 +91,18 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
             categoryOptions: uniqueCategories.map(categoryName => ({
                 key: categoryName,
                 value: categoryName
-            }))
+            })),
+            subcategoryOptions: subcategoryMapFromProducts,
         };
     };
 
     const priceRanges = generatePriceRanges(products);
-    const { providerOptions, categoryOptions } = generateFiltersFromData(products);
+    const { providerOptions, categoryOptions, subcategoryOptions } = generateFiltersFromData(products);
     const [filters, setFilters] = useState(initialFilters || {
         priceRanges: { key: 'allRange', value: `${all}` },
         selectedProviders: [],
-        selectedCategories: []
-
+        selectedCategories: [],
+        selectedSubcategories: [],
     });
 
     useEffect(() => {
@@ -98,8 +113,8 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
         const clearedFilters = {
             priceRanges: { key: 'allRange', value: `${all}` },
             selectedProviders: [],
-            selectedCategories: []
-
+            selectedCategories: [],
+            selectedSubcategories: [],
         };
         setFilters(clearedFilters);
         onFilterChange(clearedFilters);
@@ -121,33 +136,85 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
         setFilters(updatedFilters);
         onFilterChange(updatedFilters);
 
-        if (!checked && value === categoriesLocation) {
+        if (!checked && (value === categoriesLocation || value === providersLocation)) {
             navigate(location.pathname, { replace: true });
+        }
+    };
+
+    const handleCategoryChange = (category, checked) => {
+        let updatedCategories = checked
+            ? [...filters.selectedCategories, category]
+            : filters.selectedCategories.filter(item => item !== category);
+
+        const updatedSubcategories = { ...filters.selectedSubcategories };
+        if (checked) {
+            updatedSubcategories[category] = SubcategoryMap[category] || [];
+        } else {
+            delete updatedSubcategories[category];
         }
 
-        if (!checked && value === providersLocation) {
-            navigate(location.pathname, { replace: true });
+        const updatedFilters = {
+            ...filters,
+            selectedCategories: updatedCategories,
+            selectedSubcategories: updatedSubcategories
+        };
+        setFilters(updatedFilters);
+        onFilterChange(updatedFilters);
+    };
+
+    const handleSubcategoryChange = (category, subcategory, checked) => {
+        const updatedSubcategories = { ...filters.selectedSubcategories };
+        const subcategoryList = updatedSubcategories[category] || [];
+
+        if (checked) {
+            updatedSubcategories[category] = [...subcategoryList, subcategory];
+        } else {
+            updatedSubcategories[category] = subcategoryList.filter(item => item !== subcategory);
         }
+
+        if (updatedSubcategories[category].length === 0) {
+            delete updatedSubcategories[category];
+        }
+
+        const updatedFilters = {
+            ...filters,
+            selectedSubcategories: updatedSubcategories,
+        };
+        setFilters(updatedFilters);
+        onFilterChange(updatedFilters);
     };
 
     const sectionLabels = {
         priceRanges: 'ช่วงราคา',
         selectedProviders: 'ประเภทสินค้า',
-        selectedCategories: 'หมวดหมู่'
+        selectedCategories: 'หมวดหมู่',
+        selectedSubcategories: 'หมวดหมู่ย่อย',
 
     };
 
     const [expandedSections, setExpandedSections] = useState({
         priceRanges: true,
         selectedProviders: true,
-        selectedCategories: true
+        selectedCategories: true,
+        selectedSubcategories: true,
     });
+
+    const [expandedCategories, setExpandedCategories] = useState({});
 
     const toggleSection = (section) => {
         setExpandedSections(prevState => ({
             ...prevState,
             [section]: !prevState[section],
         }));
+    };
+
+    const toggleCategoryExpansion = (category) => {
+        if (subcategoryOptions[category]) {
+            setExpandedCategories(prevState => ({
+                ...prevState,
+                [category]: !prevState[category]
+            }));
+        }
     };
 
     return (
@@ -166,7 +233,7 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
                             <p className='ml-2 font-semibold text-l'>{filter}</p>
                         </div>
                     </div>
-                    {Object.entries(expandedSections).map(([section, expanded]) => (
+                    {/* {Object.entries(expandedSections).map(([section, expanded]) => (
                         <div key={section}>
                             <div className="flex justify-content-between" onClick={() => toggleSection(section)}>
                                 <p>{sectionLabels[section]}</p>
@@ -178,28 +245,30 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
                                     ? providerOptions
                                     : section === 'selectedCategories'
                                         ? categoryOptions
-                                        : []).map((option) => (
-                                            <div className="mb-2" key={option.key}>
-                                                {section === 'priceRanges' ? (
-                                                    <RadioButton
-                                                        inputId={option.key}
-                                                        value={option}
-                                                        name={section}
-                                                        checked={filters[section].key === option.key}
-                                                        onChange={(e) => handleFilterChange(section, e.value)}
-                                                    />
-                                                ) : (
-                                                    <Checkbox
-                                                        inputId={option.key}
-                                                        value={option.key}
-                                                        onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
-                                                        checked={filters[section].includes(option.key)} />
-                                                )}
-                                                <label htmlFor={option.key} className="ml-2">{option.value}</label>
-                                            </div>
-                                        ))}
+                                        : section === 'selectedSubcategories'
+                                            ? subcategoryOptions
+                                            : []).map((option) => (
+                                                <div className="mb-2" key={option.key}>
+                                                    {section === 'priceRanges' ? (
+                                                        <RadioButton
+                                                            inputId={option.key}
+                                                            value={option}
+                                                            name={section}
+                                                            checked={filters[section].key === option.key}
+                                                            onChange={(e) => handleFilterChange(section, e.value)}
+                                                        />
+                                                    ) : (
+                                                        <Checkbox
+                                                            inputId={option.key}
+                                                            value={option.key}
+                                                            onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
+                                                            checked={filters[section]?.includes(option.key)} />
+                                                    )}
+                                                    <label htmlFor={option.key} className="ml-2">{option.value}</label>
+                                                </div>
+                                            ))}
                         </div>
-                    ))}
+                    ))} */}
                     <div className="filter-card-group w-full bg-white flex flex-column">
                         <Button
                             className='p-3 mb-2'
@@ -231,7 +300,7 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
                         label={clearFilter} icon="pi pi-refresh"
                         text />
                 </div>
-                {Object.entries(expandedSections).map(([section, expanded]) => (
+                {/* {Object.entries(expandedSections).map(([section, expanded]) => (
                     <div key={section}>
                         <div className="flex justify-content-between" onClick={() => toggleSection(section)}>
                             <p>{sectionLabels[section] || section}</p>
@@ -243,28 +312,63 @@ function Filter({ onFilterChange, products, visible, setVisible, initialFilters,
                                 ? providerOptions
                                 : section === 'selectedCategories'
                                     ? categoryOptions
-                                    : []).map((option) => (
-                                        <div className="mb-2" key={option.key}>
-                                            {section === 'priceRanges' ? (
-                                                <RadioButton
-                                                    inputId={option.key}
-                                                    value={option}
-                                                    checked={filters[section].key === option.key}
-                                                    onChange={(e) => handleFilterChange(section, e.value)}
-                                                />
-                                            ) : (
-                                                <Checkbox
-                                                    inputId={option.key}
-                                                    value={option.key}
-                                                    onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
-                                                    checked={filters[section].includes(option.key)} />
-                                            )}
-                                            <label htmlFor={option.key} className="ml-2">{option.value}</label>
-                                        </div>
-                                    ))}
+                                    : section === 'selectedSubcategories'
+                                        ? subcategoryOptions
+                                        : []).map((option) => (
+                                            <div className="mb-2" key={option.key}>
+                                                {section === 'priceRanges' ? (
+                                                    <RadioButton
+                                                        inputId={option.key}
+                                                        value={option}
+                                                        checked={filters[section].key === option.key}
+                                                        onChange={(e) => handleFilterChange(section, e.value)}
+                                                    />
+                                                ) : (
+                                                    <Checkbox
+                                                        inputId={option.key}
+                                                        value={option.key}
+                                                        onChange={(e) => handleCheckboxChange(section, option.key, e.target.checked)}
+                                                        checked={filters[section]?.includes(option.key)} />
+                                                )}
+                                                <label htmlFor={option.key} className="ml-2">{option.value}</label>
+                                            </div>
+                                        ))}
+                    </div>
+                ))} */}
+                {categoryOptions.map(category => (
+                    <div key={category.key} className="mb-3">
+                        {/* Main Category Checkbox */}
+                        <div className="flex justify-content-between align-items-center">
+                            <Checkbox
+                                inputId={category.key}
+                                value={category.key}
+                                onChange={(e) => handleCategoryChange(category.key, e.checked)}
+                                checked={filters.selectedCategories.includes(category.key)}
+                            />
+                            <label htmlFor={category.key} className="ml-2">{category.value}</label>
+                            <p onClick={() => toggleCategoryExpansion(category?.key)} className="ml-2">
+                                <i className={`pi ${expandedCategories[category?.key] ? 'pi-minus' : 'pi-plus'}`}></i>
+                            </p>
+                        </div>
+
+                        {/* Subcategories for the expanded category */}
+                        {expandedCategories[category?.key] && subcategoryOptions?.[category?.key]?.length > 0 && (
+                            <div className="pl-4">
+                                {(subcategoryOptions?.[category?.key] || []).map(subcategory => (
+                                    <div key={subcategory?.key} className="mb-2">
+                                        <Checkbox
+                                            inputId={subcategory?.key}
+                                            value={subcategory?.key}
+                                            onChange={(e) => handleSubcategoryChange(category?.key, subcategory?.key, e.checked)}
+                                            checked={(filters?.selectedSubcategories?.[category?.key] || []).includes(subcategory?.key)}
+                                        />
+                                        <label htmlFor={subcategory.key} className="ml-2">{subcategory.value}</label>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ))}
-
             </div>
 
         </div>

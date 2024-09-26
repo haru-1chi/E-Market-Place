@@ -95,7 +95,6 @@ function TimelineStatus({ order, currentStatus, user }) {
                 <div className="w-full border-none md:border-right-1 surface-border pl-3 my-3">
                     <div className='flex justify-content-between'>
                         <p className='mt-0 font-semibold'>สถานะคำสั่งซื้อ</p>
-                        <p className='mt-0 mr-2 text-sm font-thin'>หมายเลขติดตามพัสดุ: {order?.tracking ? order?.tracking : "รอผู้ขายระบุ"}</p>
                     </div>
                     <Timeline value={events} align="rigth" className="customized-timeline" marker={customizedMarker} content={customizedContent} />
                 </div>

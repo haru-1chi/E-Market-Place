@@ -64,6 +64,10 @@ function StatusShippingPage({ orderId }) {
         .slice()
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || "ไม่ทราบสถานะ";
 
+    const getDeliveryDetail = (productId) => {
+        return order?.delivery_detail?.find((detail) => detail.product_id === productId);
+    };
+
     return (
         <>
             <div className="w-full p-2 flex flex-column gap-2 justify-content-center">
@@ -76,34 +80,82 @@ function StatusShippingPage({ orderId }) {
                         </div>
                     </Link>
                     <div className="flex flex-column mx-1 my-2 gap-2 border-bottom-1 md:border-none surface-border pb-2">
-                        {order?.product?.map((product, index) => (
-                            <div
-                                key={index}
-                                className="cart-items flex justify-content-between n align-items-center pb-2 border-none md:border-bottom-1 surface-border"
-                            >
-                                <div className="w-full flex">
-                                    <img
-                                        src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
-                                        alt={product.product_name}
-                                        width={90}
-                                        height={90}
-                                        className="border-round-lg border-1 surface-border"
-                                    />
-                                    <div className='w-full flex flex-column justify-content-between ml-3 white-space-nowrap overflow-hidden text-overflow-ellipsis'>
-                                        <div className="flex flex-column">
-                                            <span className="font-semibold text-sm">{product.product_name}</span>
-                                            <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.product_qty}</span>
+                        {order?.product?.map((product, index) => {
+                            const deliveryDetail = getDeliveryDetail(product.product_id);
+
+                            return (
+                                <div
+                                    key={index}
+                                    className="cart-items flex flex-column justify-content-between pb-2 border-none md:border-bottom-1 surface-border"
+                                >
+                                    <div className="w-full flex">
+                                        <img
+                                            src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
+                                            alt={product.product_name}
+                                            width={90}
+                                            height={90}
+                                            className="border-round-lg border-1 surface-border"
+                                        />
+                                        <div className='w-full flex flex-column justify-content-between ml-3 white-space-nowrap overflow-hidden text-overflow-ellipsis'>
+                                            <div className="flex flex-column">
+                                                <span className="font-semibold text-sm">{product.product_name}</span>
+                                                <span className='p-0 m-0 font-thin text-sm text-right text-400'>x{product.product_qty}</span>
+                                            </div>
+                                            <span className='text-ml text-right font-semibold'>฿{Number(product.product_price * product.product_qty).toLocaleString('en-US')}</span>
                                         </div>
-                                        <span className='text-ml text-right font-semibold'>฿{Number(product.product_price * product.product_qty).toLocaleString('en-US')}</span>
                                     </div>
+                                    <div className="cart-items flex flex-column justify-content-between">
+                                        {deliveryDetail ? (
+                                            <>
+                                                <div className="flex justify-content-between bg-primary-100 my-2">
+                                                    <p className="my-1 p-0">รายละเอียดการจัดส่ง</p>
+                                                    <p className="my-1 p-0">หมายเลขติดตามพัสดุ: {deliveryDetail.tracking}</p>
+                                                </div>
+
+                                                <div>
+                                                    <div className="flex justify-content-between">
+                                                        <p className="m-0 p-0">จัดส่งโดยขนส่ง:</p>
+                                                        <p className="m-0 p-0">{deliveryDetail.delivery_company}</p>
+                                                    </div>
+                                                    <div className="flex justify-content-between">
+                                                        <p className="m-0 p-0">ขนาดกล่องพัสดุ:</p>
+                                                        <p className="m-0 p-0">กว้าง {deliveryDetail.package_width} ซม. * ยาว {deliveryDetail.package_length} ซม. * สูง {deliveryDetail.package_height} ซม.</p>
+                                                    </div>
+                                                    <div className="flex justify-content-between">
+                                                        <p className="m-0 p-0">น้ำหนัก:</p>
+                                                        <p className="m-0 p-0">{deliveryDetail.package_weight} กรัม</p>
+                                                    </div>
+                                                    <div className="flex justify-content-between">
+                                                        <p className="m-0 p-0">ค่าส่ง:</p>
+                                                        <p className="m-0 p-0 font-semibold">฿{deliveryDetail.delivery_price}</p>
+                                                    </div>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <p className="m-0 p-0">ไม่มีข้อมูลการจัดส่ง</p>
+                                        )}
+                                    </div>
+
                                 </div>
-                            </div>
-                        ))}
+                            )
+                        })}
+                    </div>
+                    <div className="flex align-items-center justify-content-end pb-2 mt-2 md:mt-0">
+                        <p className="m-0 p-0 mr-2">รวมค่าสินค้าทั้งหมด:</p>
+                        <p className="m-0 p-0 pr-2 font-semibold text-900">
+                            ฿{order?.totalproduct?.toFixed(2)}
+                        </p>
+                    </div>
+                    <div className="flex align-items-center justify-content-end pb-2 mt-2 md:mt-0">
+                        <p className="m-0 p-0 mr-2">รวมค่าส่งทั้งหมด:</p>
+                        <p className="m-0 p-0 pr-2 font-semibold text-900">
+                            ฿{order?.totaldeliveryPrice?.toFixed(2)}
+                        </p>
                     </div>
                     <div className="flex align-items-center justify-content-end pb-2 mt-2 md:mt-0">
                         <p className="m-0 p-0 mr-2">รวมคำสั่งซื้อ:</p>
                         <p className="m-0 p-0 pr-2 font-semibold text-900">
-                            ฿{order?.totalproduct?.toFixed(2)}
+                            ฿{order?.alltotal?.toFixed(2)}
                         </p>
                     </div>
                 </div>

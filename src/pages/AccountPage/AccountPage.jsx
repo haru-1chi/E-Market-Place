@@ -217,7 +217,13 @@ function AccountPage() {
                         <p className="mt-2 p-0 text-sm"><i className='pi pi-shopping-cart mr-1'></i>วันที่สั่งซื้อ: {formatDate(order.createdAt)} น.</p>
                     </div>
                     <div className=''>
-                        <p className="m-0 p-0 text-right font-semibold text-900 text-l">รวมการสั่งซื้อ: ฿{order.totalproduct?.toLocaleString('en-US')}</p>
+                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมค่าสินค้าทั้งหมด: ฿{order.totalproduct?.toLocaleString('en-US')}</p>
+                    </div>
+                    <div className=''>
+                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมค่าส่งทั้งหมด: ฿{order.totaldeliveryPrice?.toLocaleString('en-US')}</p>
+                    </div>
+                    <div className=''>
+                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมการสั่งซื้อ: ฿{order.alltotal?.toLocaleString('en-US')}</p>
                     </div>
                     <div className='w-full flex justify-content-end'>
                         {latestStatus === 'จัดส่งแล้ว' ? <Button label='ฉันได้รับสินค้าแล้ว' /> : ("")}
@@ -242,7 +248,7 @@ function AccountPage() {
                                 <div key={index} className="cart-items flex justify-content-between align-items-center pb-1">
                                     <div className="w-full flex">
                                         <img
-                                            src={product.product_image ? apiProductUrl + product.product_image : img_placeholder}
+                                            src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                             alt={product.product_name}
                                             width={90}
                                             height={90}
@@ -261,8 +267,14 @@ function AccountPage() {
                         </div>
                     </div>
                     <div className='w-full flex justify-content-end'>
-                        <p className="m-0 p-0 text-right">สินค้ารวม {order?.product?.length} รายการ: </p>
+                        <p className="m-0 p-0 text-right font-semibold">สินค้ารวม {order?.product?.length} รายการ: </p>
                         <p className="m-0 ml-1 p-0 text-right font-semibold">฿{order.totalproduct?.toLocaleString('en-US')}</p>
+                    </div>
+                    <div className=''>
+                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมค่าส่งทั้งหมด: ฿{order.totaldeliveryPrice?.toLocaleString('en-US')}</p>
+                    </div>
+                    <div className=''>
+                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมการสั่งซื้อ: ฿{order.alltotal?.toLocaleString('en-US')}</p>
                     </div>
                     <div className='w-full flex justify-content-end'>
                         {latestStatus === 'จัดส่งแล้ว' ? <Button label='ฉันได้รับสินค้าแล้ว' /> : ("")}
