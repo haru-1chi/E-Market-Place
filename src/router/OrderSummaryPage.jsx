@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import CalculatePackage from '../component/CalculatePackage';
 
 function TemplateDemo() {
     const [storageData, setStorageData] = useState({});
@@ -28,8 +29,10 @@ function TemplateDemo() {
         console.log('LocalStorage Data:', getAllStorageData());
     }, []);
 
+
     return (
         <div>
+            <CalculatePackage/>
             <h2>Local Storage Data</h2>
             <pre>{JSON.stringify(storageData, null, 2)}</pre> {/* Pretty print JSON */}
         </div>

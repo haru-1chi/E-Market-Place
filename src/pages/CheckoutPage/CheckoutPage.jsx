@@ -10,6 +10,7 @@ import { Dialog } from "primereact/dialog";
 import { Checkbox } from 'primereact/checkbox';
 import Footer from "../../component/Footer";
 import ProvinceSelection from "../../component/ProvinceSelection";
+import CalculatePackage from "../../component/CalculatePackage";
 import img_placeholder from '../../assets/img_placeholder.png';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -489,7 +490,6 @@ function CheckoutPage() {
     };
 
 
-
     return (
 
         <div className="min-h-screen flex flex-column justify-content-between w-full">
@@ -537,7 +537,6 @@ function CheckoutPage() {
                                 const deliveryDetail = selectedDeliveryCompany?.[partner_id]?.[product.product_id]?.delivery_detail;
                                 return acc + (deliveryDetail ? deliveryDetail.price : 0);
                             }, 0);
-
                             const netTotalPrice = totalPrice + totalDeliveryPrice;
                             return (
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
@@ -624,16 +623,23 @@ function CheckoutPage() {
                                                                 </div>
                                                             ) : (
                                                                 deliverCompany?.[partner_id]?.[product.product_id]?.options?.length > 0 ? (
-                                                                    <DataTable value={deliverCompany?.[partner_id]?.[product.product_id]?.options} tableStyle={{ minWidth: '50rem' }}>
-                                                                        <Column body={(rowData) => radioButtonTemplate(partner_id, product.product_id, rowData)} header="ตัวเลือก" style={{ width: '3rem' }} />
-                                                                        {columns.map((col, i) => (
-                                                                            <Column key={col.field} field={col.field} header={col.header} />
-                                                                        ))}
-                                                                    </DataTable>
+                                                                    <>
+                                                                        <DataTable value={deliverCompany?.[partner_id]?.[product.product_id]?.options} tableStyle={{ minWidth: '50rem' }}>
+                                                                            <Column body={(rowData) => radioButtonTemplate(partner_id, product.product_id, rowData)} header="ตัวเลือก" style={{ width: '3rem' }} />
+                                                                            {columns.map((col, i) => (
+                                                                                <Column key={col.field} field={col.field} header={col.header} />
+                                                                            ))}
+                                                                        </DataTable>
+                                                                        {/* <p>ค่าส่งทั้งหมด {selectedDeliveryCompany?.[partner_id]?.[product.product_id]?.delivery_detail.price}</p> */}
+                                                                    </>
                                                                 ) : (
                                                                     <div>ไม่พบขนส่ง กรุณาเลือกขนาดกล่องใหม่อีกครั้ง</div>
                                                                 )
                                                             )}
+                                                        </div>
+                                                        <div>
+
+                                                            {/* <p>ค่าส่งทั้งหมด: ฿{calculateTotalCost(product.product_qty, selectedPackageOptions[partner_id]?.[product?.product_id]?.product_package_options)}</p> */}
                                                         </div>
                                                     </>
                                                 )}

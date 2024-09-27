@@ -216,14 +216,17 @@ function AccountPage() {
                     <div className='w-full flex justify-content-end'>
                         <p className="mt-2 p-0 text-sm"><i className='pi pi-shopping-cart mr-1'></i>วันที่สั่งซื้อ: {formatDate(order.createdAt)} น.</p>
                     </div>
-                    <div className=''>
-                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมค่าสินค้าทั้งหมด: ฿{order.totalproduct?.toLocaleString('en-US')}</p>
+                    <div className="flex align-items-center justify-content-end pb-2 mt-2 md:mt-0">
+                        <p className="m-0 p-0 mr-2">รวมค่าสินค้าทั้งหมด:</p>
+                        <p className="m-0 p-0 pr-2 font-semibold text-900">฿{order.totalproduct?.toLocaleString('en-US')}</p>
                     </div>
-                    <div className=''>
-                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมค่าส่งทั้งหมด: ฿{order.totaldeliveryPrice?.toLocaleString('en-US')}</p>
+                    <div className="flex align-items-center justify-content-end pb-2 mt-2 md:mt-0">
+                        <p className="m-0 p-0 mr-2">รวมค่าส่งทั้งหมด:</p>
+                        <p className="m-0 p-0 pr-2 font-semibold text-900">฿{order.totaldeliveryPrice?.toLocaleString('en-US')}</p>
                     </div>
-                    <div className=''>
-                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมการสั่งซื้อ: ฿{order.alltotal?.toLocaleString('en-US')}</p>
+                    <div className="flex align-items-center justify-content-end pb-2 mt-2 md:mt-0">
+                        <p className="m-0 p-0 mr-2">รวมคำสั่งซื้อ:</p>
+                        <p className="m-0 p-0 pr-2 font-semibold text-900">฿{order.alltotal?.toLocaleString('en-US')}</p>
                     </div>
                     <div className='w-full flex justify-content-end'>
                         {latestStatus === 'จัดส่งแล้ว' ? <Button label='ฉันได้รับสินค้าแล้ว' /> : ("")}
@@ -266,15 +269,17 @@ function AccountPage() {
                             ))}
                         </div>
                     </div>
-                    <div className='w-full flex justify-content-end'>
-                        <p className="m-0 p-0 text-right font-semibold">สินค้ารวม {order?.product?.length} รายการ: </p>
+                    <div className='w-full flex justify-content-end align-items-center'>
+                        <p className="m-0 p-0 text-right">สินค้ารวม {order?.product?.length} รายการ: </p>
                         <p className="m-0 ml-1 p-0 text-right font-semibold">฿{order.totalproduct?.toLocaleString('en-US')}</p>
                     </div>
-                    <div className=''>
-                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมค่าส่งทั้งหมด: ฿{order.totaldeliveryPrice?.toLocaleString('en-US')}</p>
+                    <div className='w-full flex justify-content-end align-items-center'>
+                        <p className="my-1 p-0 text-right text-900 text-l">รวมค่าส่งทั้งหมด:</p>
+                        <p className="m-0 ml-1 p-0 text-right font-semibold">฿{order.totaldeliveryPrice?.toLocaleString('en-US')}</p>
                     </div>
-                    <div className=''>
-                        <p className="my-1 p-0 text-right font-semibold text-900 text-l">รวมการสั่งซื้อ: ฿{order.alltotal?.toLocaleString('en-US')}</p>
+                    <div className='w-full flex justify-content-end align-items-center'>
+                        <p className="my-1 p-0 text-right text-900 text-l">รวมการสั่งซื้อ:</p>
+                        <p className="m-0 ml-1 p-0 text-right font-semibold">฿{order.alltotal?.toLocaleString('en-US')}</p>
                     </div>
                     <div className='w-full flex justify-content-end'>
                         {latestStatus === 'จัดส่งแล้ว' ? <Button label='ฉันได้รับสินค้าแล้ว' /> : ("")}

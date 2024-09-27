@@ -36,7 +36,7 @@ function ListProductsPage() {
     priceRanges: { key: 'allRange', value: 'All' },
     selectedProviders: [],
     selectedCategories: [],
-    selectedSubcategories: []
+    selectedSubCategories: []
   };
   const [filters, setFilters] = useState(defaultFilters);
   const [sortOption, setSortOption] = useState('default');
@@ -101,9 +101,9 @@ function ListProductsPage() {
   const applyFilters = useCallback((filters) => {
     let filtered;
 
-    if (searchTerm){
+    if (searchTerm) {
       filtered = filteredData;
-    }else{
+    } else {
       filtered = data;
     }
 
@@ -115,12 +115,14 @@ function ListProductsPage() {
       filtered = filtered.filter(product => filters.selectedProviders.includes(product.product_provider));
     }
 
-    if (filters.selectedCategories.length > 0) {
-      filtered = filtered.filter(product => filters.selectedCategories.includes(product.product_category));
-    }
-
-    if (filters.selectedSubcategories.length > 0) {
-      filtered = filtered.filter(product => filters.selectedSubcategories.includes(product.product_subcategory));
+    if (filters.selectedCategories.length > 0 || filters.selectedSubCategories.length > 0) {
+      filtered = filtered.filter(product => {
+        const categoryMatch = filters.selectedCategories.includes(product.product_category);
+        const subcategoryMatch = product.product_subcategory.some(subcategory =>
+          filters.selectedSubCategories.includes(subcategory)
+        );
+        return categoryMatch || subcategoryMatch;
+      });
     }
 
     filtered = sortProducts(filtered, sortOption);
@@ -163,7 +165,7 @@ function ListProductsPage() {
 
   useEffect(() => {
     fetchData();
-  // }, [apiProductUrl, searchTerm, location.state?.categoryName, location.state?.providerName, first, rows]);
+    // }, [apiProductUrl, searchTerm, location.state?.categoryName, location.state?.providerName, first, rows]);
   }, [apiProductUrl, searchTerm, first, rows]);
 
   useEffect(() => {
@@ -256,8 +258,8 @@ function ListProductsPage() {
         </li>
       </ul>
       <div className="p-3">
-        {/* <div className="flex justify-content-between">
-          <div className="w-full flex justify-content-between align-items-center">
+        <div className="flex justify-content-end mb-2 md:mb-0">
+          {/* <div className="w-full flex justify-content-between align-items-center">
             <h1 className="font-semibold">รายการสินค้า</h1>
             <div className="hidden lg:block">
               <div className="flex gap-2">
@@ -266,23 +268,23 @@ function ListProductsPage() {
                   setVisibleSort={setVisibleSort} />
               </div>
             </div>
-          </div>
+          </div> */}
           <div className="lg:hidden flex">
-            <Button
+            {/* <Button
               className="px-2"
               onClick={() => setVisibleSort(true)}
               label="เรียง" icon="pi pi-sort-alt"
               text
-            />
+            /> */}
             <Button
-              className="px-2"
+              className="py-1 px-2"
               onClick={() => setVisible(true)}
               label="กรอง" icon="pi pi-sliders-h"
-              text
+         
             />
           </div>
 
-        </div> */}
+        </div>
         <div className="panel w-full flex">
           <div className="hidden lg:block mr-3">
             {data.length > 0 && (
