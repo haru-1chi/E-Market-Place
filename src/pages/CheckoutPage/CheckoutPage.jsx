@@ -260,16 +260,14 @@ function CheckoutPage() {
     };
 
     useEffect(() => {
-        // If loading is true or user/address is missing, don't trigger the API calls
         if (loading || !user || !address) return;
 
-        // If selectedPackageOptions has changed, make the necessary API calls
         let activeRequests = 0;
         const selectedPartners = Object.keys(selectedPackageOptions);
 
-        if (selectedPartners.length === 0) return; // If no packages are selected, skip
+        if (selectedPartners.length === 0) return;
 
-        setLoading(true); // Start loading when making the API calls
+        setLoading(true);
         selectedPartners.forEach(partnerId => {
             const selectedProducts = Object.keys(selectedPackageOptions[partnerId]);
             selectedProducts.forEach(async productId => {
@@ -281,7 +279,7 @@ function CheckoutPage() {
                     } finally {
                         activeRequests--;
                         if (activeRequests === 0) {
-                            setLoading(false); // Stop loading when all requests complete
+                            setLoading(false);
                         }
                     }
                 }
@@ -637,9 +635,29 @@ function CheckoutPage() {
                                                                 )
                                                             )}
                                                         </div>
+                                                        <CalculatePackage productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id}/>
                                                         <div>
-
-                                                            {/* <p>ค่าส่งทั้งหมด: ฿{calculateTotalCost(product.product_qty, selectedPackageOptions[partner_id]?.[product?.product_id]?.product_package_options)}</p> */}
+                                                            <div className="mt-3">
+                                                                <div className="flex justify-content-between">
+                                                                    <p className="m-0">ใช้กล่องขนาดบรรจุ 5 ชิ้น</p>
+                                                                    <p className="m-0">x1</p>
+                                                                </div>
+                                                                <div className="flex justify-content-between">
+                                                                    <p className="m-0">จัดส่งโดย FlashExpress</p>
+                                                                    <p className="m-0 font-semibold">รวม ฿501</p>
+                                                                </div>
+                                                            </div>
+                                                            <div className="mt-3">
+                                                                <div className="flex justify-content-between">
+                                                                    <p className="m-0">ใช้กล่องขนาดบรรจุ 1 ชิ้น</p>
+                                                                    <p className="m-0">x2</p>
+                                                                </div>
+                                                                <div className="flex justify-content-between">
+                                                                    <p className="m-0">จัดส่งโดย DHL Eco</p>
+                                                                    <p className="m-0 font-semibold">รวม ฿66</p>
+                                                                </div>
+                                                            </div>
+                                                            <p className="text-right font-semibold">รวมค่าจัดส่งทั้งหมดของสินค้านี้ ฿567</p>                        {/* <p>ค่าส่งทั้งหมด: ฿{calculateTotalCost(product.product_qty, selectedPackageOptions[partner_id]?.[product?.product_id]?.product_package_options)}</p> */}
                                                         </div>
                                                     </>
                                                 )}
