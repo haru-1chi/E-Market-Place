@@ -11,6 +11,7 @@ import { Checkbox } from 'primereact/checkbox';
 import Footer from "../../component/Footer";
 import ProvinceSelection from "../../component/ProvinceSelection";
 import CalculatePackage from "../../component/CalculatePackage";
+import CalculatePackageCopy from "../../component/CalculatePackageCopy";
 import img_placeholder from '../../assets/img_placeholder.png';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -28,7 +29,7 @@ function CheckoutPage() {
     const [visible2, setVisible2] = useState(false);
     const { selectedItemsCart, placeCartDetail } = useCart();
     const [error, setError] = useState(false);
-
+    const [test, setTest] = useState([]);
     useEffect(() => {
         const fetchUserData = async () => {
             const token = localStorage.getItem("token");
@@ -47,10 +48,7 @@ function CheckoutPage() {
         fetchUserData();
     }, [apiUrl]);
 
-
-
     //vที่อยู่จัดส่ง
-
     const [addressFormData, setAddressFormData] = useState({
         label: '',
         customer_name: '',
@@ -260,6 +258,7 @@ function CheckoutPage() {
     };
 
     useEffect(() => {
+
         if (loading || !user || !address) return;
 
         let activeRequests = 0;
@@ -536,7 +535,12 @@ function CheckoutPage() {
                                 return acc + (deliveryDetail ? deliveryDetail.price : 0);
                             }, 0);
                             const netTotalPrice = totalPrice + totalDeliveryPrice;
+
+                            const CalculatePackageCopy = CalculatePackageCopy(productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id})
+                            
+                            console.log('test', test)
                             return (
+                                <p>{CalculatePackageCopy}</p>
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                     <div className='w-full'>
                                         <Link to={`/ShopPage/${selectedItemsCart.partner_id}`} className="no-underline text-900">
@@ -565,7 +569,8 @@ function CheckoutPage() {
                                                 </div>
 
                                                 {/* ตัวเลือกขนาดพัสดุ */}
-                                                {product.product_package_options.length > 0 && (
+                                                {
+                                                product.product_package_options.length > 0 && (
                                                     <>
                                                         <div className=" pt-3">
                                                             <p className="p-0 m-0">กรุณาเลือกขนาดกล่องพัสดุของทางร้าน</p>
@@ -635,30 +640,8 @@ function CheckoutPage() {
                                                                 )
                                                             )}
                                                         </div>
-                                                        <CalculatePackage productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id}/>
-                                                        {/* <div>
-                                                            <div className="mt-3">
-                                                                <div className="flex justify-content-between">
-                                                                    <p className="m-0">ใช้กล่องขนาดบรรจุ 5 ชิ้น</p>
-                                                                    <p className="m-0">x1</p>
-                                                                </div>
-                                                                <div className="flex justify-content-between">
-                                                                    <p className="m-0">จัดส่งโดย FlashExpress</p>
-                                                                    <p className="m-0 font-semibold">รวม ฿501</p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="mt-3">
-                                                                <div className="flex justify-content-between">
-                                                                    <p className="m-0">ใช้กล่องขนาดบรรจุ 1 ชิ้น</p>
-                                                                    <p className="m-0">x2</p>
-                                                                </div>
-                                                                <div className="flex justify-content-between">
-                                                                    <p className="m-0">จัดส่งโดย DHL Eco</p>
-                                                                    <p className="m-0 font-semibold">รวม ฿66</p>
-                                                                </div>
-                                                            </div>
-                                                            <p className="text-right font-semibold">รวมค่าจัดส่งทั้งหมดของสินค้านี้ ฿567</p>                
-                                                        </div> */}
+                                                        {/* <CalculatePackage productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id}/> */}
+                                                        <CalculatePackage productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id} test={test} setTest={setTest} />
                                                     </>
                                                 )}
                                             </div>

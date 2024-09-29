@@ -703,14 +703,14 @@ function Appbar() {
                           </div>
                           <div className="flex align-items-center justify-content-between py-2">
                             <p className="m-0">ยอดชำระ</p>
-                            <p className="m-0">฿{totalPayable.toFixed(2)}</p>
+                            <p className="m-0">฿{totalPayable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                           </div>
                         </div>
                       </div>
 
                       <div className="filter-card-group bg-white flex justify-content-end align-items-center border-top-1 surface-border z-1 sticky">
                         <p className="m-0 mr-2 text-900 font-semibold">
-                          รวม ฿{totalPayable.toFixed(2)}
+                          รวม ฿{totalPayable.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
                         {Object.keys(selectedItems).length === 0 ? (
                           <Button

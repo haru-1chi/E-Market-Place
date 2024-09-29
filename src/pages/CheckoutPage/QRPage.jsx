@@ -41,6 +41,7 @@ function QRPage() {
         setLoading(true);
         if (!productSubImage1) {
             console.error("Please upload an image before submitting.");
+            setError("กรุณาอัปโหลดสลิปก่อนยืนยันการชำระเงิน");
             return;
         }
         try {
@@ -201,7 +202,7 @@ function QRPage() {
             </div>
 
             <div className="flex flex-column justify-content-center mb-3 mt-5">
-
+                {error && <p className="text-red-500 font-semibold text-center text-xl">{error}</p>}
                 {productSubImage1Preview && (
 
                     <div className="text-center mb-2">
@@ -227,17 +228,46 @@ function QRPage() {
     const toast = useRef(null);
     const link = "1803182937";
 
-    const handleCopyLink = () => {
-        navigator.clipboard.writeText(link).then(() => {
-            toast.current.show({ severity: 'success', summary: 'คัดลอกเลขบัญชีไปยังคลิปบอร์ดแล้ว!', life: 3000 });
-        }).catch((err) => {
-            console.error('คัดลอกไม่สำเร็จ: ', err);
-        });
+    const fallbackCopyTextToClipboard = (text) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            document.execCommand('copy');
+            toast.current.show({ severity: 'success', summary: 'คัดลอกสำเร็จ!', life: 3000 });
+        } catch (err) {
+            console.error('Fallback: ไม่สามารถคัดลอกได้: ', err);
+            toast.current.show({ severity: 'error', summary: 'ไม่สามารถคัดลอกได้', life: 3000 });
+        }
+
+        document.body.removeChild(textArea);
     };
+
+    const handleCopyLink = () => {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(link)
+                .then(() => {
+                    toast.current.show({ severity: 'success', summary: 'คัดลอกเลขบัญชีไปยังคลิปบอร์ดแล้ว!', life: 3000 });
+                })
+                .catch((err) => {
+                    console.error('คัดลอกไม่สำเร็จ: ', err);
+                });
+        } else {
+            // Use the fallback if Clipboard API is unavailable
+            fallbackCopyTextToClipboard(link);
+        }
+    };
+
     return (
-        <>
+        <div className="flex justify-content-center">
             <Toast ref={toast} position="top-center" />
-            <div className='w-full lg:px-8 pt-5 flex justify-content-center'>
+            <div className='w-fit lg:px-8 pt-5 flex flex-column'>
+                <div className="w-fit mb-3">
+                    <Button icon="pi pi-angle-left" label="เปลี่ยนวิธีการชำระเงิน" size="small" rounded onClick={() => navigate("/PaymentPage")}/>
+                </div>
                 <div className='flex flex-column border-1 surface-border border-round py-5 px-3 bg-white border-round-mb '>
                     <div className="align-self-center">
                         <img src={Logo} alt="" className="w-16rem" />
@@ -256,12 +286,12 @@ function QRPage() {
 
                     )}
 
-                    <div className="flex align-items-center justify-content-center">
-                        <Button label="Return to Merchant" size="small" rounded onClick={handleCreateOrder} />
+                    <div className="flex flex-column align-items-center justify-content-center">
+                        <Button label="ยืนยันการชำระเงิน" size="small" rounded onClick={handleCreateOrder} />
                     </div>
                 </div>
             </div>
-        </>
+        </div>
 
     )
 }

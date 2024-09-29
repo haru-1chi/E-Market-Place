@@ -38,7 +38,7 @@ function App() {
     function getTokenFromURL() {
       // const urlParams = new URLSearchParams(window.location.search);
       // return urlParams.get('token');
-      return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjIwOGE4NTc0MzEzNjJkMmZlZDhmOWYiLCJyb3ciOiJtZW1iZXIiLCJ0ZWwiOiIwOTA5NTAwNzA5IiwiaWF0IjoxNzI3NTM3MDg0LCJleHAiOjE3Mjc1NTg2ODR9.eUiuczQaUCSO2jC3mFQZMAV6exbyjurPp81Fm2ibz4U'
+      return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjIwOGE4NTc0MzEzNjJkMmZlZDhmOWYiLCJyb3ciOiJtZW1iZXIiLCJ0ZWwiOiIwOTA5NTAwNzA5IiwiaWF0IjoxNzI3NTkzMTAxLCJleHAiOjE3Mjc2MTQ3MDF9.XqKYuXlPW4vvPWRdEvAHQpYXyO--2JNamI-f8b3yrK8'
     }
 
 

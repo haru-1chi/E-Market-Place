@@ -128,7 +128,7 @@ import React, { useEffect, useState } from 'react';
 import { useCart } from '../router/CartContext';
 import axios from "axios";
 
-function CalculatePackage({ productQty, selectedOption }) {
+function CalculatePackage({ productQty, selectedOption, test, setTest }) {
     const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
     const [user, setUser] = useState(null);
     const [address, setAddress] = useState(null);
@@ -286,8 +286,6 @@ function CalculatePackage({ productQty, selectedOption }) {
                     setError(response.data.message || "Order failed");
                 }
             }
-            // console.log('allPackageOptions', allPackageOptions)
-            // console.log('allPackageDeliveries', allPackageDeliveries)
         } catch (error) {
             console.log(error)
         }
@@ -356,31 +354,41 @@ function CalculatePackage({ productQty, selectedOption }) {
             totalCost += price * qty;
         });
 
+        //distribution map ตาม product_id
         return totalCost;
     };
 
     // This function generates a message breakdown of the package distribution and costs
     const getBreakdownMessage = () => {
         const distribution = calculatePackageDistribution();
-        if (distribution.length === 0) return 'No packages selected or quantity is zero.';
-
-        const breakdown = distribution
-            .map(({ package_qty, qty, courier_name, price }) => (
-                `ใช้กล่องขนาดบรรจุ ${package_qty} ชิ้น x${qty}\nจัดส่งโดย ${courier_name}\nรวม ฿${price * qty}`
-            ))
-            .join('\n\n');
-
-        return `${breakdown}\nรวมค่าจัดส่งทั้งหมดของสินค้านี้ ฿${calculateTotalCost()}`;
+        if (distribution.length === 0) return <p>ยังไม่ได้เลือกกล่องพัสดุของทางร้าน</p>;
+        console.log(distribution)
+        return (
+            <div className='flex justify-content-end'>
+                <div>
+                    {distribution.map(({ package_qty, qty, courier_name, price }, index) => (
+                        <div className="w-20rem mt-2" key={index}>
+                            <div className=" grid grid-nogutter justify-content-end align-items-center">
+                                <p className=" col m-0 text-right bg-primary-200 border-none border-round-lg border-noround-right border-noround-bottom">ใช้กล่องขนาดบรรจุ {package_qty} ชิ้น</p>
+                                <p className=" col-4 m-0 text-right bg-primary-100  border-none border-round-lg border-noround-left border-noround-bottom">x{qty}</p>
+                            </div>
+                            <div className="grid grid-nogutter justify-content-end align-items-center">
+                                <p className="col m-0 text-right bg-primary-100">จัดส่งโดย {courier_name}</p>
+                                <p className="col-4 m-0 font-semibold text-right bg-primary-100">รวม ฿{price * qty}</p>
+                            </div>
+                        </div>
+                    ))}
+                    <p className="m-0 mt-2 font-semibold text-right">รวมค่าจัดส่งทั้งหมดของสินค้านี้ ฿{calculateTotalCost()}</p>
+                </div>
+            </div>
+        );
     };
     return (
-        <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-            <h2>Packaging Cost Calculator</h2>
-            <p>{selectedOption}</p>
-            <div style={{ marginTop: '20px' }}>
+        <div>
+            <h3 className='m-0 mt-3 font-semibold text-right'>คำนวณกล่องที่ต้องใช้พร้อมราคา</h3>
+            <div className='text-lg'>
                 {productQty > 0 && (
-                    <div>
-                        <h3>{getBreakdownMessage()}</h3>
-                    </div>
+                    getBreakdownMessage()
                 )}
             </div>
         </div>
