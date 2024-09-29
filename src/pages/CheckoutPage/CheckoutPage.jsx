@@ -636,7 +636,7 @@ function CheckoutPage() {
                                                             )}
                                                         </div>
                                                         <CalculatePackage productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id}/>
-                                                        <div>
+                                                        {/* <div>
                                                             <div className="mt-3">
                                                                 <div className="flex justify-content-between">
                                                                     <p className="m-0">ใช้กล่องขนาดบรรจุ 5 ชิ้น</p>
@@ -657,8 +657,8 @@ function CheckoutPage() {
                                                                     <p className="m-0 font-semibold">รวม ฿66</p>
                                                                 </div>
                                                             </div>
-                                                            <p className="text-right font-semibold">รวมค่าจัดส่งทั้งหมดของสินค้านี้ ฿567</p>                        {/* <p>ค่าส่งทั้งหมด: ฿{calculateTotalCost(product.product_qty, selectedPackageOptions[partner_id]?.[product?.product_id]?.product_package_options)}</p> */}
-                                                        </div>
+                                                            <p className="text-right font-semibold">รวมค่าจัดส่งทั้งหมดของสินค้านี้ ฿567</p>                
+                                                        </div> */}
                                                     </>
                                                 )}
                                             </div>
