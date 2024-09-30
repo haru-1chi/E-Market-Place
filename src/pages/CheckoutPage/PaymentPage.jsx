@@ -35,7 +35,7 @@ function PaymentPage() {
                         </div>
                     </Link>
                     <Link to="/QRPage" className="no-underline text-900" >
-                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('บัญชีธนาคาร')}>
+                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('QRCode')}>
                             <div className="flex align-items-center">
                                 <i className="pi pi-mobile text-2xl mr-3"></i>
                                 <div>

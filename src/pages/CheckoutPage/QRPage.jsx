@@ -13,6 +13,7 @@ import KBANK from '../../assets/KPULS1_0_0.png';
 const EXPIRE_TIME = 60;
 
 function QRPage() {
+    const apiUrlPlatform = import.meta.env.VITE_REACT_APP_API_PLATFORM;
     const apiUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
     const { cart, cartDetails, selectedItemsCart, clearCart, clearCartDetails, clearSelectedItemsCart } = useCart();
     const navigate = useNavigate();
@@ -31,25 +32,57 @@ function QRPage() {
     const totalPayable = cartDetails.amountPayment;
     const paymentUUID = "BCELBANK";
 
+    const fileUploadRef = useRef(null);
+
     const handleFileUpload = ({ files }) => {
         const [file] = files;
         setProductSubImage1(file);
-        setProductSubImage1Preview(URL.createObjectURL(file));  // Set image preview
+        setProductSubImage1Preview(URL.createObjectURL(file));
+
+        if (fileUploadRef.current) {
+            fileUploadRef.current.clear();
+        }
     };
 
     const handleCreateOrder = async () => {
         setLoading(true);
+
         if (!productSubImage1) {
             console.error("Please upload an image before submitting.");
             setError("กรุณาอัปโหลดสลิปก่อนยืนยันการชำระเงิน");
+            setLoading(false);
             return;
         }
         try {
             const token = localStorage.getItem("token");
             if (!token) {
                 setError("User not authenticated. Please log in.");
+                setLoading(false);
                 return;
             }
+
+            let formData = new FormData();
+            formData.append('image', productSubImage1);
+
+            try {
+                const slipValidationResponse = await axios.post(`${apiUrlPlatform}/check-slip`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                if (slipValidationResponse.data.status === false) {
+                    setError(slipValidationResponse.data.message || "Invalid slip payment.");
+                    setLoading(false);
+                    return;
+                }
+                console.log("Slip validated successfully:", slipValidationResponse.data);
+            } catch (error) {
+                console.error('Error validating slip payment:', error);
+                setError("Slip validation failed. Please try again.");
+                setLoading(false);
+                return;
+            }
+
             for (let partner_id in selectedItemsCart) {
                 const partner = selectedItemsCart[partner_id];
 
@@ -112,9 +145,6 @@ function QRPage() {
                 if (orderResponse.data && orderResponse.data.status) {
                     console.log("Order successful for partner:", partner.partner_name, orderResponse.data);
 
-                    let formData = new FormData();
-                    formData.append('image', productSubImage1);
-
                     try {
                         setIsLoading(true);
                         const uploadResponse = await axios.put(`${apiUrl}/orderproduct/addslippayment/${orderResponse.data.data._id}`, formData, {
@@ -145,40 +175,75 @@ function QRPage() {
         }
     };
 
-    // const renderPaymentDetails = () => (
-    //     <>
-    //         <div className="flex justify-content-center">
-    //             {qrCodeUrl && (
-    //                 <div>
-    //                     <p className="m-0 p-0 text-center">Qr Code</p>
-    //                     <img
-    //                         src={qrCodeUrl}
-    //                         alt="QR Code for payment"
-    //                         width={150}
-    //                         height={150}
-    //                     />
-    //                 </div>
-    //             )}
-    //         </div>
-    //         <div className="flex">
-    //             <div className="flex-grow-1 flex flex-column text-center">
-    //                 <p className="m-0">Amount (LAK)</p>
-    //                 {totalPayable && (
-    //                     <p className="my-3 text-2xl font-bold">
-    //                         {Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
-    //                     </p>
-    //                 )}
-    //                 <p className="m-0">เลขที่รายการ {paymentCode}</p>
-    //                 {qrCodeUrl && (
-    //                     <div className="p-0 my-2 surface-200 border-round flex justify-content-center align-content-center">
-    //                         <p className="my-3">ชำระเงินภายใน {remainingTime} seconds</p>
-    //                     </div>
-    //                 )}
-    //             </div>
-    //         </div>
-    //         <p className="text-center">*กรุณาเปิดหน้านี้ไว้ จนกว่าชำระเงินนี้สำเร็จ</p>
-    //     </>
-    // )
+    const renderWalletDetails = () => (
+        <>
+            <div className="flex justify-content-center">
+                <p>E-wallet ล่ะ</p>
+                {/* {qrCodeUrl && (
+                    <div>
+                        <p className="m-0 p-0 text-center">Qr Code</p>
+                        <img
+                            src={qrCodeUrl}
+                            alt="QR Code for payment"
+                            width={150}
+                            height={150}
+                        />
+                    </div>
+                )} */}
+            </div>
+            <div className="flex">
+                <div className="flex-grow-1 flex flex-column text-center">
+                    <p className="m-0 mb-3 p-0 text-2xl font-bold">จำนวนเงิน(บาท)</p>
+                    {totalPayable && (
+                        <p className="m-0 text-2xl font-bold">
+                            ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
+                        </p>
+                    )}
+                    {/* {qrCodeUrl && (
+                        <div className="p-0 my-2 surface-200 border-round flex justify-content-center align-content-center">
+                            <p className="my-3">ชำระเงินภายใน {remainingTime} seconds</p>
+                        </div>
+                    )} */}
+                </div>
+            </div>
+            <p className="text-center">*กรุณาเปิดหน้านี้ไว้ จนกว่าชำระเงินนี้สำเร็จ</p>
+        </>
+    )
+
+    const renderPaymentDetails = () => (
+        <>
+            <div className="flex justify-content-center">
+                <p>ตัวอย่าง QRcode</p>
+                {/* {qrCodeUrl && (
+                    <div>
+                        <p className="m-0 p-0 text-center">Qr Code</p>
+                        <img
+                            src={qrCodeUrl}
+                            alt="QR Code for payment"
+                            width={150}
+                            height={150}
+                        />
+                    </div>
+                )} */}
+            </div>
+            <div className="flex">
+                <div className="flex-grow-1 flex flex-column text-center">
+                    <p className="m-0 mb-3 p-0 text-2xl font-bold">จำนวนเงิน(บาท)</p>
+                    {totalPayable && (
+                        <p className="m-0 text-2xl font-bold">
+                            ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
+                        </p>
+                    )}
+                    {/* {qrCodeUrl && (
+                        <div className="p-0 my-2 surface-200 border-round flex justify-content-center align-content-center">
+                            <p className="my-3">ชำระเงินภายใน {remainingTime} seconds</p>
+                        </div>
+                    )} */}
+                </div>
+            </div>
+            <p className="text-center">*กรุณาเปิดหน้านี้ไว้ จนกว่าชำระเงินนี้สำเร็จ</p>
+        </>
+    )
 
     const renderBankDetails = () => (
         <>
@@ -210,16 +275,17 @@ function QRPage() {
                     </div>
                 )}
                 <FileUpload
+                    ref={fileUploadRef}
                     mode="basic"
                     name="product_subimage1"
                     chooseLabel="กรุณาแนบสลิปที่นี่"
                     auto
                     customUpload
-                    accept="image/png, image/jpeg"
+                    accept="image/png, image/jpeg,image/jpg"
                     maxFileSize={2000000}  // 2MB
                     onSelect={handleFileUpload}
                     className="align-self-center"
-                    invalidFileSizeMessageDetail="The file is too large. Maximum size allowed is 2MB."
+                    invalidFileSizeMessageDetail="ขนาดรูปภาพจะต้องไม่เกิน 2 mb"
                 />
             </div>
         </>
@@ -266,25 +332,32 @@ function QRPage() {
             <Toast ref={toast} position="top-center" />
             <div className='w-fit lg:px-8 pt-5 flex flex-column'>
                 <div className="w-fit mb-3">
-                    <Button icon="pi pi-angle-left" label="เปลี่ยนวิธีการชำระเงิน" size="small" rounded onClick={() => navigate("/PaymentPage")}/>
+                    <Button icon="pi pi-angle-left" label="เปลี่ยนวิธีการชำระเงิน" size="small" rounded onClick={() => navigate("/PaymentPage")} />
                 </div>
                 <div className='flex flex-column border-1 surface-border border-round py-5 px-3 bg-white border-round-mb '>
                     <div className="align-self-center">
                         <img src={Logo} alt="" className="w-16rem" />
                     </div>
 
-                    {cartDetails.payment === 'QRCode' ? (
-                        loading ? (
-                            <ProgressSpinner />
-                        ) : error ? (
-                            <p className="text-red-500">{error}</p>
-                        ) : (
-                            renderPaymentDetails()
-                        )
+                    {/* {cartDetails.payment === 'QRCode' ? (
+                        // loading ? (
+                        //     <ProgressSpinner />
+                        // ) : error ? (
+                        //     <p className="text-red-500">{error}</p>
+                        // ) : (
+                        //     renderPaymentDetails()
+                        // )
+                        renderPaymentDetails()
                     ) : (
                         renderBankDetails()
+                    )} */}
 
-                    )}
+                    {cartDetails.payment === 'QRCode'
+                        ? renderPaymentDetails()
+                        : cartDetails.payment === 'E-wallet'
+                            ? renderWalletDetails()
+                            : renderBankDetails()
+                    }
 
                     <div className="flex flex-column align-items-center justify-content-center">
                         <Button label="ยืนยันการชำระเงิน" size="small" rounded onClick={handleCreateOrder} />

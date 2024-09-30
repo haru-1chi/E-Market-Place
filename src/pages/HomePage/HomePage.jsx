@@ -12,19 +12,21 @@ import axios from "axios";
 
 function HomePage() {
   const [categories, setCategories] = useState([]);
-
+  const apiCategory = import.meta.env.VITE_REACT_APP_API_CATEGORY;
   useEffect(() => {
-    const fetchCategories = () => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.post(`${apiCategory}/categories`);
+        const dataWithImages = response.data.map((category) => ({
+          ...category,
+          icon: CategoriesIcon[category.name] || "default-image-url.png",
+        }));
 
-      const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
-        key: index,
-        name: categoryName,
-        icon: CategoriesIcon[categoryName]
-      }));
-
-      setCategories(fetchedCategories);
+        setCategories(dataWithImages);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
     };
-
     fetchCategories();
   }, []);
 

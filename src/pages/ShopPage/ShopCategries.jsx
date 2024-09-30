@@ -18,7 +18,12 @@ function ShopCategries({partner_id}) {
         })
             .then((response) => {
                 const categoryData = generateFiltersFromData(response.data.data);
-                setCategories(categoryData);
+                const dataWithImages = categoryData.map((category) => ({
+                    ...category,
+                    icon: CategoriesIcon[category.name] || "default-image-url.png",
+                  }));
+                
+                setCategories(dataWithImages);
             })
             .catch((error) => {
                 console.log(error);
@@ -77,8 +82,8 @@ function ShopCategries({partner_id}) {
                     >
                         <div className="flex align-items-center">
                             <img
-                                src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
-                                alt="Item.name"
+                                src={Item.icon}
+                                alt={Item.name}
                                 width={30}
                                 height={30}
                             />

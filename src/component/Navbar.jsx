@@ -8,7 +8,7 @@ import CategoriesIcon from "./CategoriesIcon";
 import axios from "axios";
 
 function Navbar() {
-  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
+  const apiCategory = import.meta.env.VITE_REACT_APP_API_CATEGORY;
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
@@ -39,17 +39,19 @@ function Navbar() {
   );
 
   useEffect(() => {
-    const fetchCategories = () => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.post(`${apiCategory}/categories`);
+        const dataWithImages = response.data.map((category) => ({
+          ...category,
+          icon: CategoriesIcon[category.name] || "default-image-url.png",
+        }));
 
-      const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
-        key: index,
-        name: categoryName,
-        icon: CategoriesIcon[categoryName]
-      }));
-
-      setCategories(fetchedCategories);
+        setCategories(dataWithImages);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
     };
-
     fetchCategories();
   }, []);
 

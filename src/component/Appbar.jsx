@@ -146,7 +146,7 @@ function Appbar() {
     setSelectedItemsCart(selectedItems);
     navigate("/CheckoutPage");
   };
-
+  const apiCategory = import.meta.env.VITE_REACT_APP_API_CATEGORY;
   const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
   const [user, setUser] = useState(null);
@@ -192,18 +192,35 @@ function Appbar() {
     getUserProfile();
   }, [apiUrl]);
 
+  // useEffect(() => {
+  //   const fetchCategories = () => {
+
+  //     const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
+  //       key: index,
+  //       name: categoryName,
+  //       icon: CategoriesIcon[categoryName]
+  //     }));
+
+  //     setCategories(fetchedCategories);
+  //   };
+
+  //   fetchCategories();
+  // }, []);
+
   useEffect(() => {
-    const fetchCategories = () => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.post(`${apiCategory}/categories`);
+        const dataWithImages = response.data.map((category) => ({
+          ...category,
+          icon: CategoriesIcon[category.name] || "default-image-url.png",
+        }));
 
-      const fetchedCategories = Object.keys(CategoriesIcon).map((categoryName, index) => ({
-        key: index,
-        name: categoryName,
-        icon: CategoriesIcon[categoryName]
-      }));
-
-      setCategories(fetchedCategories);
+        setCategories(dataWithImages);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
     };
-
     fetchCategories();
   }, []);
 
