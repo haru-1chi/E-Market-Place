@@ -11,7 +11,7 @@ import { Checkbox } from 'primereact/checkbox';
 import Footer from "../../component/Footer";
 import ProvinceSelection from "../../component/ProvinceSelection";
 import CalculatePackage from "../../component/CalculatePackage";
-import CalculatePackageCopy from "../../component/CalculatePackageCopy";
+// import CalculatePackageCopy from "../../component/CalculatePackageCopy";
 import img_placeholder from '../../assets/img_placeholder.png';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -536,11 +536,11 @@ function CheckoutPage() {
                             }, 0);
                             const netTotalPrice = totalPrice + totalDeliveryPrice;
 
-                            const CalculatePackageCopy = CalculatePackageCopy(productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id})
+                            // const CalculatePackageCopy = CalculatePackageCopy(productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id})
                             
-                            console.log('test', test)
+                            // console.log('test', test)
                             return (
-                                <p>{CalculatePackageCopy}</p>
+                                // <p>{CalculatePackageCopy}</p>
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                     <div className='w-full'>
                                         <Link to={`/ShopPage/${selectedItemsCart.partner_id}`} className="no-underline text-900">
