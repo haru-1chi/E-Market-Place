@@ -8,9 +8,10 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
 
   const statusEvents = {
-    Packaged: { key: 1, value: 'กำลังเตรียมจัดส่ง', icon: 'pi pi-box', color: '#607D8B', tagCSS: 'text-blue-600' },
-    Delivering: { key: 2, value: 'จัดส่งแล้ว', icon: 'pi pi-truck', color: '#607D8B', tagCSS: 'text-blue-700' },
-    Received: { key: 3, value: 'รับสินค้าแล้ว', icon: 'pi pi-check', color: '#607D8B', tagCSS: 'text-green-700' },
+    Pending: { key: 1, value: 'รอชำระเงิน', icon: 'pi pi-wallet', color: '#607D8B', tagCSS: 'text-blue-600' },
+    Packaged: { key: 2, value: 'กำลังเตรียมจัดส่ง', icon: 'pi pi-box', color: '#607D8B', tagCSS: 'text-blue-600' },
+    Delivering: { key: 3, value: 'จัดส่งแล้ว', icon: 'pi pi-truck', color: '#607D8B', tagCSS: 'text-blue-700' },
+    Received: { key: 4, value: 'รับสินค้าแล้ว', icon: 'pi pi-check', color: '#607D8B', tagCSS: 'text-green-700' },
     Cancelled: { key: 0, value: 'ยกเลิกออเดอร์', icon: 'pi pi-times', color: '#FF5252', tagCSS: 'text-red-500' }
   };
 

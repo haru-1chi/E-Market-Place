@@ -75,6 +75,8 @@ function AccountPage() {
 
             const orderStatus = Object.values(statusEvents).find(status => status.value === latestStatusDetail.status);
             switch (activeOrderStatus) {
+                case 'รอชำระเงิน':
+                    return orderStatus?.key === statusEvents.Pending?.key;
                 case 'กำลังเตรียมจัดส่ง':
                     return orderStatus?.key === statusEvents.Packaged?.key;
                 case 'จัดส่งแล้ว':
@@ -105,6 +107,10 @@ function AccountPage() {
             <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'all' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
                 onClick={() => setActiveOrderStatus('all')}>
                 ทั้งหมด {userOrders?.length}
+            </li>
+            <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'รอชำระเงิน' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
+                onClick={() => setActiveOrderStatus('รอชำระเงิน')}>
+                รอชำระเงิน {statusCounts[statusEvents?.Pending.key] || ''}
             </li>
             <li className={`py-2 list-none cursor-pointer ${activeOrderStatus === 'กำลังเตรียมจัดส่ง' ? 'border-bottom-3  border-yellow-500 text-yellow-500' : ''}`}
                 onClick={() => setActiveOrderStatus('กำลังเตรียมจัดส่ง')}>

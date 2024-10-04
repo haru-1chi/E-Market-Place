@@ -181,6 +181,7 @@ function Appbar() {
         const res = await axios.post(`${apiUrl}/me`, null, {
           headers: { "auth-token": token }
         });
+        console.log(res)
         setUser(res.data.data);
       } catch (err) {
         console.error(
@@ -363,7 +364,7 @@ function Appbar() {
                         <div className="flex flex-wrap justify-content-center">
                           <div className="border-circle w-4rem h-4rem m-2 bg-primary font-bold flex align-items-center justify-content-center">
 
-                            {user.fristname.charAt(0).toUpperCase()}
+                            {/* {user?.fristname.charAt(0).toUpperCase()} */}
                           </div>
                         </div>
                         <h4 className="ml-3">
@@ -493,6 +494,14 @@ function Appbar() {
                             <li className="flex flex-column text-center cursor-pointer"
                               onClick={() => {
                                 setVisible1(false);
+                                navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "รอชำระเงิน" } });
+                              }}>
+                              <i className="pi pi-wallet" style={{ fontSize: '1.5rem' }}></i>
+                              <p className="m-0 p-0 mt-2 text-sm">รอชำระเงิน</p>
+                            </li>
+                            <li className="flex flex-column text-center cursor-pointer"
+                              onClick={() => {
+                                setVisible1(false);
                                 navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "กำลังเตรียมจัดส่ง" } });
                               }}>
                               <i className="pi pi-box" style={{ fontSize: '1.5rem' }}></i>
@@ -505,14 +514,6 @@ function Appbar() {
                               }}>
                               <i className="pi pi-truck" style={{ fontSize: '1.5rem' }}></i>
                               <p className="m-0 p-0 mt-2 text-sm">ที่ต้องได้รับ</p>
-                            </li>
-                            <li className="flex flex-column text-center cursor-pointer"
-                              onClick={() => {
-                                setVisible1(false);
-                                navigate("/AccountPage", { state: { activeTab: "orderHistory", activeOrderStatus: "รับสินค้าแล้ว" } });
-                              }}>
-                              <i className="pi pi-check" style={{ fontSize: '1.5rem' }}></i>
-                              <p className="m-0 p-0 mt-2 text-sm">รับสินค้าแล้ว</p>
                             </li>
                             <li className="flex flex-column text-center cursor-pointer"
                               onClick={() => {

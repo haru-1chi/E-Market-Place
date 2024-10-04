@@ -62,7 +62,7 @@ function QRPage() {
             }
 
             let formData = new FormData();
-            formData.append('image', productSubImage1);
+            formData.append('image_slip', productSubImage1);
 
             try {
                 const slipValidationResponse = await axios.post(`${apiUrlPlatform}/check-slip`, formData, {
@@ -77,8 +77,12 @@ function QRPage() {
                 }
                 console.log("Slip validated successfully:", slipValidationResponse.data);
             } catch (error) {
-                console.error('Error validating slip payment:', error);
-                setError("Slip validation failed. Please try again.");
+                if (error.response) {
+                    setError(error.response.data.message || "Slip has already been used.");
+                } else {
+                    console.error('Error validating slip payment:', error);
+                    setError("Slip validation failed. Please try again.");
+                }
                 setLoading(false);
                 return;
             }
@@ -331,9 +335,6 @@ function QRPage() {
         <div className="flex justify-content-center">
             <Toast ref={toast} position="top-center" />
             <div className='w-fit lg:px-8 pt-5 flex flex-column'>
-                <div className="w-fit mb-3">
-                    <Button icon="pi pi-angle-left" label="เปลี่ยนวิธีการชำระเงิน" size="small" rounded onClick={() => navigate("/PaymentPage")} />
-                </div>
                 <div className='flex flex-column border-1 surface-border border-round py-5 px-3 bg-white border-round-mb '>
                     <div className="align-self-center">
                         <img src={Logo} alt="" className="w-16rem" />
@@ -358,8 +359,8 @@ function QRPage() {
                             ? renderWalletDetails()
                             : renderBankDetails()
                     }
-
-                    <div className="flex flex-column align-items-center justify-content-center">
+                    <div className="flex align-items-center justify-content-center gap-3">
+                        <Button className="text-900 border-primary" icon="pi pi-angle-left" label="เปลี่ยนวิธีการชำระเงิน" size="small" outlined rounded onClick={() => navigate("/PaymentPage")} />
                         <Button label="ยืนยันการชำระเงิน" size="small" rounded onClick={handleCreateOrder} />
                     </div>
                 </div>
