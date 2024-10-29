@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from '../../router/CartContext';
@@ -99,16 +99,9 @@ function CheckoutPage() {
     //^ที่อยู่จัดส่ง
 
     //vตัวเลือกขนาดพัสดุ checkPoint1
-    const [selectedPackageOptions, setSelectedPackageOptions] = useState({});
-    const [selectedDeliveryCompany, setSelectedDeliveryCompany] = useState({});
-    const [deliverCompany, setDeliverCompany] = useState([]);
-    // localStorage.setItem('selectedDeliveryCompany', JSON.stringify(selectedDeliveryCompany)); ไว้เช็ต data structure
-    const columns = [
-        { field: 'courier_image', header: 'รูปขนส่ง' },
-        { field: 'courier_name', header: 'ชื่อขนส่ง' },
-        { field: 'estimate_time', header: 'รายละเอียด' },
-        { field: 'price', header: 'ราคา (บาท)' }
-    ];
+    const [allPackageOptions, setAllPackageOptions] = useState({});
+    const [allPackageDeliveries, setAllPackageDeliveries] = useState({});
+    const [sumTotalDeliveries, setSumTotalDeliveries] = useState({});
     //^ตัวเลือกขนาดพัสดุ checkPoint1
 
     //v map สินค้า และคำนวณสินค้า
@@ -140,10 +133,12 @@ function CheckoutPage() {
                 totalVat += partnerVat;
             });
 
-            if (selectedDeliveryCompany && Object.keys(selectedDeliveryCompany).length > 0) {
-                totalDeliveryPrice = Object.values(selectedDeliveryCompany).reduce((sum, partner) => {
+            if (sumTotalDeliveries && Object.keys(sumTotalDeliveries).length > 0) {
+                totalDeliveryPrice = Object.values(sumTotalDeliveries).reduce((sum, partner) => {
                     return sum + Object.values(partner).reduce((innerSum, product) => {
-                        return innerSum + (product.delivery_detail?.price || 0);
+                        return innerSum + Object.values(product).reduce((deliverySum, deliveryDetail) => {
+                            return deliverySum + (deliveryDetail.total_price || 0);
+                        }, 0);
                     }, 0);
                 }, 0);
             }
@@ -154,129 +149,89 @@ function CheckoutPage() {
             setTotalVat(totalVat);
             setTotalDeliveryPrice(totalDeliveryPrice);
         }
-    }, [selectedItemsCart, selectedDeliveryCompany]);
+    }, [selectedItemsCart, sumTotalDeliveries, address]);
 
-    const groupByPartner = Object.keys(selectedItemsCart).reduce((result, key) => {
-        const partner = selectedItemsCart[key];
-        const partner_id = partner.partner_id;
-        const partner_name = partner.partner_name;
+    const groupByPartner = useMemo(() => {
+        return Object.keys(selectedItemsCart).reduce((result, key) => {
+            const partner = selectedItemsCart[key];
+            const partner_id = partner.partner_id;
+            const partner_name = partner.partner_name;
 
-        if (!result[partner_id]) {
-            result[partner_id] = {
-                partner_name: partner_name,
-                products: []
-            };
-        }//เริ่มต้น สร้าง obj ก่อน push
+            if (!result[partner_id]) {
+                result[partner_id] = {
+                    partner_name: partner_name,
+                    products: []
+                };
+            }
 
-        partner.products.forEach(product => {
-            const product_id = product.product_id;
-            const packageOptions = selectedPackageOptions?.[partner_id]?.[product_id]?.product_package_options || [];
-            const deliveryCompanies = deliverCompany?.[partner_id]?.[product_id]?.options || [];
-            const selectedCompany = selectedDeliveryCompany?.[partner_id]?.[product_id]?.delivery_detail || {};
+            partner.products.forEach(product => {
+                const product_id = product.product_id;
+                const deliveryCompanies = allPackageDeliveries?.[partner_id]?.[product_id]?.options || [];
 
-            result[partner_id].products.push({
-                ...product,
-                packageOptions,
-                deliveryCompanies,
-                selectedCompany
+                result[partner_id].products.push({
+                    ...product,
+                    deliveryCompanies,
+                });
             });
-        });
-        localStorage.setItem('groupByPartner', JSON.stringify(result)); //ไว้เช็ต data structure
-        return result;
-    }, {});
+
+            return result;
+        }, {});
+    }, [selectedItemsCart, allPackageDeliveries]);
     //^ map สินค้า
 
     //vตัวเลือกขนาดพัสดุ checkPoint2
     useEffect(() => {
-        const allPartners = Object.keys(groupByPartner);
+        if (Object.keys(selectedItemsCart).length > 0) {
+            let allPackageOptions = {};
 
-        allPartners.forEach((partnerId) => {
-            const partner = groupByPartner[partnerId]; // Get the partner object
-            const products = partner.products; // Access the products array from the partner object
-
-            products.forEach((product) => { // Now products is an array
-                const productId = product.product_id;
-                const packageOptions = product.product_package_options || [];
-
-                const filteredOptions = packageOptions.filter((option) => {
-                    // If there's only one package option, show it
-                    if (packageOptions.length === 1) {
-                        return true;
-                    }
-                    // Otherwise, filter based on product_qty match
-                    return (
-                        product.product_qty === option.package_qty ||
-                        packageOptions.every((po) => product.product_qty !== po.package_qty)
-                    );
-                });
-
-                // If package options exist and none is selected yet for the product
-                if (packageOptions.length > 0 && !selectedPackageOptions?.[partnerId]?.[productId]) {
-                    setSelectedPackageOptions(prevState => ({
-                        ...prevState,
+            Object.values(selectedItemsCart).forEach(partner => {
+                const partnerId = partner.partner_id;
+                partner.products.forEach(product => {
+                    const productId = product.product_id;
+                    const packageOptions = product.product_package_options || [];
+                    allPackageOptions = {
+                        ...allPackageOptions,
                         [partnerId]: {
-                            ...prevState[partnerId],
+                            ...allPackageOptions[partnerId],
                             [productId]: {
-                                // Select the first filtered option, or fallback to the first overall option
-                                product_package_options: filteredOptions.length > 0 ? filteredOptions[0] : packageOptions[0]
+                                product_package_options: packageOptions
                             }
                         }
-                    }));
-                }
+                    };
+                });
             });
-        });
-    }, [groupByPartner]);//always set default value is first option
+
+            setAllPackageOptions(prevState => ({
+                ...prevState,
+                ...allPackageOptions
+            }));
+        }
+        localStorage.setItem('allPackageOptions', JSON.stringify(allPackageOptions));
+        localStorage.setItem('allPackageDeliveries', JSON.stringify(allPackageDeliveries));
+        localStorage.setItem('sumTotalDeliveries', JSON.stringify(sumTotalDeliveries));
+
+    }, [setAllPackageOptions]);
 
 
-    const handlePackageChange = (partnerId, productId, packageOption) => {
-        setDeliverCompany(prevState => ({
-            ...prevState,
-            [partnerId]: {
-                ...prevState[partnerId],
-                [productId]: {
-                    options: []
-                }
-            }
-        }));
-
-        setLoadingState(prevState => ({
-            ...prevState,
-            [partnerId]: {
-                ...prevState[partnerId],
-                [productId]: true
-            }
-        }));
-
-        setSelectedPackageOptions(prevState => ({
-            ...prevState,
-            [partnerId]: {
-                ...prevState[partnerId],
-                [productId]: {
-                    product_package_options: packageOption
-                }
-            }
-        }));
-
-    };
 
     useEffect(() => {
 
         if (loading || !user || !address) return;
 
         let activeRequests = 0;
-        const selectedPartners = Object.keys(selectedPackageOptions);
+        const selectedPartners = Object.keys(allPackageOptions);
 
         if (selectedPartners.length === 0) return;
 
         setLoading(true);
         selectedPartners.forEach(partnerId => {
-            const selectedProducts = Object.keys(selectedPackageOptions[partnerId]);
+            const selectedProducts = Object.keys(allPackageOptions[partnerId]);
             selectedProducts.forEach(async productId => {
-                const packageOption = selectedPackageOptions[partnerId][productId]?.product_package_options;
+                const packageOption = allPackageOptions[partnerId][productId]?.product_package_options;
                 if (packageOption) {
                     activeRequests++;
                     try {
-                        await handleCheckDeliveryCost(partnerId, productId);
+                        await handleCheckDeliveryCost(partnerId, productId, allPackageOptions[partnerId][productId]);
                     } finally {
                         activeRequests--;
                         if (activeRequests === 0) {
@@ -286,18 +241,10 @@ function CheckoutPage() {
                 }
             });
         });
-    }, [selectedPackageOptions, user, address]);
+    }, [allPackageOptions, user, address]);
 
-    const handleCheckDeliveryCost = async (partner_id, productId) => {
+    const handleCheckDeliveryCost = async (partner_id, productId, product) => {
         try {
-            setLoadingState(prevState => ({
-                ...prevState,
-                [partner_id]: {
-                    ...prevState[partner_id],
-                    [productId]: true
-                }
-            }));
-
             const res = await axios.get(`${apiProductUrl}/partner/byid/${partner_id}`);
             const partner = res.data.data;
 
@@ -310,147 +257,187 @@ function CheckoutPage() {
                 return;
             }
 
-            const packageDetails = {
-                from: {
-                    name: partner.partner_name,
-                    address: partner.partner_address,
-                    district: partner.partner_district,
-                    state: partner.partner_amphure,
-                    province: partner.partner_province,
-                    postcode: partner.partner_postcode,
-                    tel: partner.partner_phone,
-                },
-                to: {
-                    name: address?.customer_name || `${user?.fristname} ${user?.lastname}`,
-                    address: address?.customer_address || address?.address,
-                    district: address?.customer_tambon?.name_th || address?.subdistrict,
-                    state: address?.customer_amphure?.name_th || address?.district,
-                    province: address?.customer_province?.name_th || address?.province,
-                    postcode: address?.customer_zipcode || address?.postcode,
-                    tel: address?.customer_telephone || user?.tel
-                },
-                parcel: {
-                    name: `สินค้าชิ้นที่ ${productId}`,
-                    weight: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_weight,
-                    width: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_width,
-                    length: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_length,
-                    height: selectedPackageOptions[partner_id]?.[productId]?.product_package_options.package_height,
-                },
-            };
-            const token = localStorage.getItem("token");
-            const response = await axios.post(`${apiUrl}/e-market/express/price`, packageDetails, {
-                headers: { "auth-token": token }
-            });
+            // Iterate through package options
+            for (const packageId of Object.keys(product.product_package_options)) {
+                const packageOption = product.product_package_options[packageId];
 
-            if (response.data && response.data.status) {
-                const deliveryOptions = response.data.new;
-                setDeliverCompany(prevState => ({
-                    ...prevState,
-                    [partner_id]: {
-                        ...prevState[partner_id],
-                        [productId]: { options: deliveryOptions }
-                    }
-                }));
-
-                if (deliveryOptions.length > 0) {
-                    setSelectedDeliveryCompany(prevState => ({
+                const packageDetails = {
+                    from: {
+                        name: partner.partner_name,
+                        address: partner.partner_address,
+                        district: partner.partner_district,
+                        state: partner.partner_amphure,
+                        province: partner.partner_province,
+                        postcode: partner.partner_postcode,
+                        tel: partner.partner_phone,
+                    },
+                    to: {
+                        name: address?.customer_name || `${user?.fristname} ${user?.lastname}`,
+                        address: address?.customer_address || address?.address,
+                        district: address?.customer_tambon?.name_th || address?.subdistrict,
+                        state: address?.customer_amphure?.name_th || address?.district,
+                        province: address?.customer_province?.name_th || address?.province,
+                        postcode: address?.customer_zipcode || address?.postcode,
+                        tel: address?.customer_telephone || user?.tel
+                    },
+                    parcel: {
+                        name: `สินค้าชิ้นที่ ${productId}`,
+                        weight: packageOption.package_weight,
+                        width: packageOption.package_width,
+                        length: packageOption.package_length,
+                        height: packageOption.package_height,
+                    },
+                };
+                console.log(packageDetails)
+                const token = localStorage.getItem("token");
+                const response = await axios.post(`${apiUrl}/e-market/express/price`, packageDetails, {
+                    headers: { "auth-token": token }
+                });
+                console.log(response.data)
+                if (response.data && response.data.status) {
+                    const deliveryOptions = response.data.new;
+                    setAllPackageDeliveries(prevState => ({
                         ...prevState,
                         [partner_id]: {
                             ...prevState[partner_id],
                             [productId]: {
-                                delivery_detail: deliveryOptions[0]
+                                ...prevState[partner_id]?.[productId],
+                                [packageId]: {
+                                    ...packageOption,
+                                    courier_code: deliveryOptions[0].courier_code,
+                                    price: deliveryOptions[0].price
+                                }
                             }
                         }
                     }));
+                    setError(null);
+                } else {
+                    setError(response.data.message || "Order failed");
                 }
-                setError(null);
-            } else {
-                setError(response.data.message || "Order failed");
             }
         } catch (error) {
-            if (error.code === 'ECONNABORTED') {
-                console.error("Request timeout:", error.message);
-                setError("Request timeout. Please try again.");
-            } else if (error.response) {
-                console.error("Error checking delivery cost:", error.response.data.message || error.message);
-                setError(error.response.data.message || "An unexpected error occurred");
-            } else if (error.request) {
-                console.error("No response received from the server:", error.message);
-                setError("No response from server. Please check your connection.");
-            } else {
-                console.error("Error setting up the request:", error.message);
-                setError("An unexpected error occurred. Please try again.");
-            }
-        } finally {
-            setLoadingState(prevState => ({
-                ...prevState,
-                [partner_id]: {
-                    ...prevState[partner_id],
-                    [productId]: false
-                }
-            }));
+            console.log(error)
         }
     };
 
-    const radioButtonTemplate = (partnerId, productId, rowData) => {
-        return (
-            <RadioButton
-                value={rowData}
-                onChange={(e) => setSelectedDeliveryCompany(prevState => ({
+    useEffect(() => {
+        Object.keys(groupByPartner).forEach((partner_id) => {
+            const partner = groupByPartner[partner_id];
+            const { products } = partner;
+
+            products.forEach((product) => {
+                const distribution = calculatePackageDistribution(product.product_qty);
+
+                setSumTotalDeliveries(prevState => ({
                     ...prevState,
-                    [partnerId]: {
-                        ...prevState[partnerId],
-                        [productId]: {
-                            delivery_detail: e.value
+                    [partner_id]: {
+                        ...prevState[partner_id],
+                        [product.product_id]: {
+                            ...prevState[partner_id]?.[product.product_id],
+                            ...distribution
                         }
                     }
-                }))}
-                checked={selectedDeliveryCompany?.[partnerId]?.[productId]?.delivery_detail?.courier_name === rowData.courier_name}
-            />
+                }));
+            });
+        });
+        localStorage.setItem('sumTotalDeliveries', JSON.stringify(sumTotalDeliveries)); //ไว้เช็ต data structure
+    }, [groupByPartner, address, user]);
+
+    const calculatePackageDistribution = (product_qty) => {
+        let remainingQty = product_qty;
+        const distribution = [];
+
+        Object.keys(allPackageDeliveries).forEach(partnerId => {
+            Object.keys(allPackageDeliveries[partnerId]).forEach(productId => {
+                const packageOptions = allPackageDeliveries[partnerId][productId];
+                const sortedPackages = Object.values(packageOptions).sort((a, b) => b.package_qty - a.package_qty);
+
+                for (const pkg of sortedPackages) {
+                    if (remainingQty >= pkg.package_qty) {
+                        const count = Math.floor(remainingQty / pkg.package_qty);
+                        if (count > 0) {
+                            distribution.push({
+                                _id: pkg._id,
+                                amount: count,
+                                delivery_company: pkg.courier_code,
+                                package_qty: pkg.package_qty,
+                                package_weight: pkg.package_weight,
+                                package_width: pkg.package_width,
+                                package_length: pkg.package_length,
+                                package_height: pkg.package_height,
+                                delivery_price: pkg.price,
+                                total_price: pkg.price * count
+                            });
+                            remainingQty -= count * pkg.package_qty;
+                        }
+                    }
+                }
+            });
+        });
+        return distribution;
+    };
+
+    const calculateTotalCost = (partner_id, product_id, product_qty) => {
+        const distribution = calculatePackageDistribution(partner_id, product_id, product_qty);
+        let totalCost = 0;
+
+        distribution.forEach(({ delivery_price, amount }) => {
+            totalCost += delivery_price * amount;
+        });
+
+        return totalCost;
+    };
+
+    const getBreakdownMessage = (product_qty) => {
+        const distribution = calculatePackageDistribution(product_qty);
+        // calculateTotalCost(product_qty)
+        if (distribution.length === 0) return <p>ยังไม่ได้เลือกกล่องพัสดุของทางร้าน</p>;
+        console.log(distribution)
+        return (
+            <div className='flex justify-content-end'>
+                <div>
+                    {distribution.map(({ package_qty, amount, delivery_company, delivery_price }, index) => (
+                        <div className="w-20rem mt-2" key={index}>
+                            <div className=" grid grid-nogutter justify-content-end align-items-center">
+                                <p className=" col m-0 text-right bg-primary-200 border-none border-round-lg border-noround-right border-noround-bottom">ใช้กล่องขนาดบรรจุ {package_qty} ชิ้น</p>
+                                <p className=" col-4 m-0 text-right bg-primary-100  border-none border-round-lg border-noround-left border-noround-bottom">x{amount}</p>
+                            </div>
+                            <div className="grid grid-nogutter justify-content-end align-items-center">
+                                <p className="col m-0 text-right bg-primary-100">จัดส่งโดย {delivery_company}</p>
+                                <p className="col-4 m-0 font-semibold text-right bg-primary-100">รวม ฿{delivery_price * amount}</p>
+                            </div>
+                        </div>
+                    ))}
+                    <p className="m-0 mt-2 font-semibold text-right">รวมค่าจัดส่งทั้งหมดของสินค้านี้ ฿{calculateTotalCost(product_qty)}</p>
+                </div>
+            </div>
         );
     };
 
-    //^ตัวเลือกขนาดพัสดุ และการขนส่ง
-
     //ConfirmPayment
     const handleConfirmPayment = () => {
-        // Restructure delivery_detail from selectedItemsCart
-        const groupByPartner = Object.keys(selectedItemsCart).reduce((result, key) => {
-            const partner = selectedItemsCart[key];
-            const partner_id = partner.partner_id;
-            const partner_name = partner.partner_name;
+        const deliveryDetails = Object.entries(sumTotalDeliveries).map(([partnerId, products]) => {
+            return {
+                partner_id: partnerId,
+                byproducts_detail: Object.entries(products).map(([productId, deliveries]) => {
+                    return {
+                        product_id: productId,
+                        packages: Object.values(deliveries).map(delivery => ({
+                            package_qty: delivery.package_qty,
+                            package_weight: delivery.package_weight,
+                            package_width: delivery.package_width,
+                            package_length: delivery.package_length,
+                            package_height: delivery.package_height,
+                            delivery_company: delivery.delivery_company,
+                            delivery_price: delivery.delivery_price,
+                            delivery_totalprice: delivery.total_price,
+                            amount: delivery.amount,
+                        }))
+                    };
+                })
+            };
+        });
 
-            // Initialize if this partner doesn't exist in the result
-            if (!result[partner_id]) {
-                result[partner_id] = {
-                    partner_name: partner_name,
-                    products: []
-                };
-            }
-
-            // Iterate over each product for the current partner
-            partner.products.forEach(product => {
-                const product_id = product.product_id;
-                const packageOptions = selectedPackageOptions?.[partner_id]?.[product_id]?.product_package_options || [];
-                const selectedCompany = selectedDeliveryCompany?.[partner_id]?.[product_id]?.delivery_detail || "";
-
-                result[partner_id].products.push({
-                    product_id: product_id,
-                    product_name: product.product_name,
-                    package_qty: packageOptions.package_qty || product.product_qty,
-                    package_weight: packageOptions.package_weight || "",
-                    package_width: packageOptions.package_width || "",
-                    package_length: packageOptions.package_length || "",
-                    package_height: packageOptions.package_height || "",
-                    delivery_company: selectedCompany.courier_name || "",
-                    delivery_price: selectedCompany.price || ""
-                });
-            });
-
-            return result;
-        }, {});
-
-        // Now construct orderDetails using groupByPartner
         const orderDetails = {
             // partner_id: selectedItemsCart,
             amountPayment: totalPayable, // Total payable for all bills
@@ -462,28 +449,11 @@ function CheckoutPage() {
             customer_province: address?.customer_province?.name_th || address?.province,
             customer_zipcode: address?.customer_zipcode || address?.postcode,
             customer_telephone: address?.customer_telephone || user.tel,
-
-            // Add delivery_detail structured by partner and their respective products
-            delivery_detail: Object.entries(groupByPartner).map(([partnerId, partnerData]) => ({
-                partner_id: partnerId,
-                partner_name: partnerData.partner_name,
-                byproducts_detail: partnerData.products.map(product => ({
-                    product_id: product.product_id,
-                    delivery_company: product.delivery_company,
-                    package_qty: product.package_qty,
-                    package_weight: product.package_weight,
-                    package_width: product.package_width,
-                    package_length: product.package_length,
-                    package_height: product.package_height,
-                    delivery_price: product.delivery_price
-                }))
-            }))
+            delivery_detail: deliveryDetails
         };
 
-        // Log to check the structure of delivery_detail
         console.log(orderDetails);
 
-        // Place cart details and navigate
         placeCartDetail(orderDetails);
         navigate("/PaymentPage");
     };
@@ -532,20 +502,17 @@ function CheckoutPage() {
                             const vat = (totalPrice * 7) / 107;
                             const summaryPrice = totalPriceBeforeVat - discount + vat;
 
-                            const totalDeliveryPrice = products.reduce((acc, product) => {
-                                const deliveryDetail = selectedDeliveryCompany?.[partner_id]?.[product.product_id]?.delivery_detail;
-                                return acc + (deliveryDetail ? deliveryDetail.price : 0);
+                            const totalDeliveryPrice = Object.values(sumTotalDeliveries?.[partner_id] || {}).reduce((acc, product) => {
+                                return acc + Object.values(product).reduce((productAcc, deliveryDetail) => {
+                                    return productAcc + (deliveryDetail.total_price || 0); // Sum total_price
+                                }, 0);
                             }, 0);
                             const netTotalPrice = totalPrice + totalDeliveryPrice;
 
-                            // const CalculatePackageCopy = CalculatePackageCopy(productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id})
-
-                            // console.log('test', test)
                             return (
-                                // <p>{CalculatePackageCopy}</p>
                                 <div key={index} className='flex flex-column p-3 border-1 surface-border border-round bg-white border-round-mb justify-content-center'>
                                     <div className='w-full'>
-                                        <Link to={`/ShopPage/${selectedItemsCart.partner_id}`} className="no-underline text-900">
+                                        <Link to={`/ShopPage/${partner_id}`} className="no-underline text-900">
                                             <div className='flex align-items-center mb-2'>
                                                 <i className="pi pi-shop mr-1"></i>
                                                 <h4 className='m-0 font-semibold'>ผู้ขาย {partner_name}</h4>
@@ -560,6 +527,7 @@ function CheckoutPage() {
                                                         width={50}
                                                         height={50}
                                                         className="border-1 border-round-lg surface-border"
+                                                        onError={(e) => { e.target.src = img_placeholder; }}
                                                     />
                                                     <div className="w-full flex flex-column ml-3">
                                                         <span className="mb-1 font-normal">{product.product_name}</span>
@@ -595,13 +563,6 @@ function CheckoutPage() {
                                                                     })
                                                                     .map((option) => (
                                                                         <div key={option._id} className="flex align-items-center p-2 border-1 surface-border border-round mb-2">
-                                                                            <RadioButton
-                                                                                inputId={option._id}
-                                                                                name={`package_options_${product.product_id}`}
-                                                                                value={option}
-                                                                                onChange={() => handlePackageChange(partner_id, product.product_id, option)}
-                                                                                checked={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id === option._id}
-                                                                            />
                                                                             <div htmlFor={option._id} className="w-full grid grid-nogutter gap-2">
                                                                                 <label className="col text-md font-medium text-gray-700 text-center">{option.package_qty}</label>
                                                                                 <label className="col text-md font-medium text-gray-700 text-center">{option.package_weight}</label>
@@ -611,39 +572,10 @@ function CheckoutPage() {
                                                                             </div>
                                                                         </div>
                                                                     ))}
-                                                                {/* {
-                                                                selectedPackageOptions && (<div className="flex justify-content-end">
-                                                                    <Button label="คำนวณค่าส่ง" className="py-2" onClick={() => handleCheckDeliveryCost(partner_id, product.product_id)} />
-                                                                </div>
-                                                                )
-                                                            } */}
                                                             </div>
 
-                                                            <div>
-                                                                <p className="p-0 m-0">กรุณาเลือกขนส่ง</p>
-                                                                {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-                                                                {loadingState?.[partner_id]?.[product.product_id] ? (
-                                                                    <div className="flex justify-content-center ">
-                                                                        <ProgressSpinner />
-                                                                    </div>
-                                                                ) : (
-                                                                    deliverCompany?.[partner_id]?.[product.product_id]?.options?.length > 0 ? (
-                                                                        <>
-                                                                            <DataTable value={deliverCompany?.[partner_id]?.[product.product_id]?.options} tableStyle={{ minWidth: '50rem' }}>
-                                                                                <Column body={(rowData) => radioButtonTemplate(partner_id, product.product_id, rowData)} header="ตัวเลือก" style={{ width: '3rem' }} />
-                                                                                {columns.map((col, i) => (
-                                                                                    <Column key={col.field} field={col.field} header={col.header} />
-                                                                                ))}
-                                                                            </DataTable>
-                                                                            {/* <p>ค่าส่งทั้งหมด {selectedDeliveryCompany?.[partner_id]?.[product.product_id]?.delivery_detail.price}</p> */}
-                                                                        </>
-                                                                    ) : (
-                                                                        <div>ไม่พบขนส่ง กรุณาเลือกขนาดกล่องใหม่อีกครั้ง</div>
-                                                                    )
-                                                                )}
-                                                            </div>
-                                                            {/* <CalculatePackage productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id}/> */}
-                                                            {/* <CalculatePackage productQty={product.product_qty} selectedOption={selectedPackageOptions[partner_id]?.[product.product_id]?.product_package_options._id} test={test} setTest={setTest} /> */}
+                                                            {getBreakdownMessage(product.product_qty)}
+
                                                         </>
                                                     )}
                                             </div>
@@ -758,6 +690,7 @@ function CheckoutPage() {
                         setAddressFormData={setAddressFormData}
                         validationErrors={validationErrors}
                     />
+
                     <div className="hidden">
                         <Checkbox
                             id="isDefault"

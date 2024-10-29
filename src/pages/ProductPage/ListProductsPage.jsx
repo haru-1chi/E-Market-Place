@@ -200,7 +200,7 @@ function ListProductsPage() {
     const token = localStorage.getItem("token");
     if (!token) {
       showWarningToast();
-      window.location.href = 'https://service.tossaguns.com/'
+      window.location.href = import.meta.env.VITE_APP_API_URL;
     } else {
       addToCart(product)
       showSuccessToast();
@@ -280,7 +280,7 @@ function ListProductsPage() {
               className="py-1 px-2"
               onClick={() => setVisible(true)}
               label="กรอง" icon="pi pi-sliders-h"
-         
+
             />
           </div>
 
@@ -319,6 +319,7 @@ function ListProductsPage() {
                                 src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                 alt={product.product_name}
                                 className="w-12 border-1 surface-border"
+                                onError={(e) => { e.target.src = img_placeholder; }}
                               />
                               <p className={`w-fit border-noround-top border-noround-right mt-2 px-2 border-round-md font-normal ${product.product_provider === 'coop' ? 'bg-green-600 text-white' : 'bg-primary-400 text-900'}`} style={{
                                 position: "absolute",

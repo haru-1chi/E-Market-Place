@@ -10,11 +10,12 @@ export default function ProvinceSelection({ addressFormData, setAddressFormData,
     const [tambons, setTambons] = useState([]);
 
     useEffect(() => {
+        console.log(addressFormData)
         axios.get('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province.json')
             .then(response => {
                 setProvinces(response.data);
                 if (addressFormData.customer_province) {
-                    const selectedProvince = response.data.find(province => province.name_th === addressFormData.customer_province);
+                    const selectedProvince = response.data.find(province => province.name_th === addressFormData.customer_province.name_th);
                     setAddressFormData(prevData => ({ ...prevData, customer_province: selectedProvince }));
                 }
             });

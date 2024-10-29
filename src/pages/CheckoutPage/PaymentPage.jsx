@@ -37,7 +37,7 @@ function PaymentPage() {
                     <Link to="/QRPage" className="no-underline text-900" >
                         <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('QRCode')}>
                             <div className="flex align-items-center">
-                                <i className="pi pi-mobile text-2xl mr-3"></i>
+                                <i className="pi pi-qrcode text-2xl mr-3"></i>
                                 <div>
                                     <p className='m-0 font-bold'>ชำระผ่าน QR พร้อมเพย์</p>
                                     <p className='m-0 text-sm'>บันทึกรูปภาพและนำไปสแกนจ่ายในแอปพลิเคชันธนาคารที่ต้องการ</p>
@@ -58,6 +58,30 @@ function PaymentPage() {
                             <i className="pi pi-angle-right text-2xl text-right"></i>
                         </div>
                     </Link>
+                    {/* <Link to="/QRPage" className="no-underline text-900" >
+                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('บัญชีธนาคาร')}>
+                            <div className="flex align-items-center">
+                                <i className="pi pi-objects-column text-2xl mr-3"></i>
+                                <div>
+                                    <p className='m-0 font-bold'>ชำระหลากหลายช่องทาง</p>
+                                    <p className='m-0 text-sm'>รองรับการชำระเงินหลายช่องทาง</p>
+                                </div>
+                            </div>
+                            <i className="pi pi-angle-right text-2xl text-right"></i>
+                        </div>
+                    </Link>
+                    <Link to="/QRPage" className="no-underline text-900" >
+                        <div className="border-1 surface-border border-round p-2 flex align-items-center justify-content-between" onClick={() => handleConfirmPayment('บัญชีธนาคาร')}>
+                            <div className="flex align-items-center">
+                                <i className="pi pi-history text-2xl mr-3"></i>
+                                <div>
+                                    <p className='m-0 font-bold'>ชำระเงินภายหลัง</p>
+                                    <p className='m-0 text-sm'>ชำระเงินภายในเวลา 3 วัน ก่อนออเดอร์จะถูกยกเลิก</p>
+                                </div>
+                            </div>
+                            <i className="pi pi-angle-right text-2xl text-right"></i>
+                        </div>
+                    </Link> */}
                     <div className="mt-3 flex flex-column">
                         <p className='m-0'>ยอด</p>
                         {totalPayable ? (<p className='m-0 font-bold text-xl'>฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}</p>) : ("")}

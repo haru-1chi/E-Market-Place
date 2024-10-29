@@ -8,7 +8,7 @@ import CategoriesIcon from "./CategoriesIcon";
 import axios from "axios";
 
 function Navbar() {
-  const apiCategory = import.meta.env.VITE_REACT_APP_API_CATEGORY;
+  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
@@ -41,8 +41,8 @@ function Navbar() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.post(`${apiCategory}/categories`);
-        const dataWithImages = response.data.map((category) => ({
+        const response = await axios.get(`${apiUrl}/product/tossagun/category/all`);
+        const dataWithImages = response.data.data.map((category) => ({
           ...category,
           icon: CategoriesIcon[category.name] || "default-image-url.png",
         }));
@@ -136,8 +136,8 @@ function Navbar() {
         >
           <div className="px-3">
             <div className="flex justify-content-between pt-2 pb-4">
-              <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
-              <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
+              <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = import.meta.env.VITE_APP_API_URL} />
+              <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = import.meta.env.VITE_APP_API_URL} />
             </div>
             <div>
               <Button

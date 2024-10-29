@@ -108,7 +108,7 @@ function Appbar() {
       return updatedItems;
     });
   }, [cart]);
-
+//comment
   const handleSelectItem = (partner_id, product, partner_name) => {
     setSelectedItems(prevSelectedItems => {
       const selectedPartner = prevSelectedItems[partner_id] || { partner_id, partner_name, products: [] };
@@ -146,7 +146,6 @@ function Appbar() {
     setSelectedItemsCart(selectedItems);
     navigate("/CheckoutPage");
   };
-  const apiCategory = import.meta.env.VITE_REACT_APP_API_CATEGORY;
   const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
   const [user, setUser] = useState(null);
@@ -191,7 +190,7 @@ function Appbar() {
       }
     };
     getUserProfile();
-  }, [apiUrl]);
+  }, [apiUrl, localStorage.getItem("token")]);
 
   // useEffect(() => {
   //   const fetchCategories = () => {
@@ -211,8 +210,8 @@ function Appbar() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.post(`${apiCategory}/categories`);
-        const dataWithImages = response.data.map((category) => ({
+        const response = await axios.get(`${apiUrl}/product/tossagun/category/all`);
+        const dataWithImages = response.data.data.map((category) => ({
           ...category,
           icon: CategoriesIcon[category.name] || "default-image-url.png",
         }));
@@ -270,7 +269,7 @@ function Appbar() {
     localStorage.removeItem("user_id");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    window.location.href = 'https://service.tossaguns.com/';
+    window.location.href = 'https://service.tossaguns.online/';
   };
 
   return (
@@ -279,7 +278,12 @@ function Appbar() {
       <div className="hidden lg:block section-appbar">
         <div className="pt-3 pr-3 pl-3">
           <div className="flex justify-content-end mb-2">
+            {/* ----- [ Production ] ----- */}
             <a className="px-2 border-right-1 cursor-pointer" onClick={() => window.open('https://partner.ddscservices.com/', '_blank')}>Seller Center</a>
+
+            {/* ----- [ Develop ] ----- */}
+            <a className="px-2 border-right-1 cursor-pointer" onClick={() => window.open('http://partner.nbadigitalsuccessmore.com/', '_blank')}>Seller Center</a>
+
             <a className="px-2 border-right-1 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactChannel" } })}>ช่องทางการติดต่อ</a>
             <a className="px-2 cursor-pointer" onClick={() => navigate("/HelpCenterPage", { state: { activeTab: "contactUs" } })}>ติดตามเรา</a>
             {/* <LanguageSelector /> */}
@@ -386,7 +390,7 @@ function Appbar() {
                   icon="pi pi-user"
                   rounded
                   text
-                  onClick={() => window.location.href = 'https://service.tossaguns.com/'}
+                  onClick={() => window.location.href = import.meta.env.VITE_APP_API_URL}
                 />
               )}
             </div>
@@ -563,8 +567,8 @@ function Appbar() {
                     ) : (
                       <div className="px-3">
                         <div className="flex justify-content-between pt-2 pb-4">
-                          <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
-                          <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = 'https://service.tossaguns.com/'} />
+                          <Button label="เข้าสู่ระบบ" outlined rounded onClick={() => window.location.href = import.meta.env.VITE_APP_API_URL} />
+                          <Button label="ลงทะเบียน" rounded onClick={() => window.location.href = import.meta.env.VITE_APP_API_URL} />
                         </div>
                         <div>
                           <Button
@@ -676,6 +680,7 @@ function Appbar() {
                                         width={100}
                                         height={100}
                                         className="border-1 border-round-lg surface-border"
+                                        onError={(e) => { e.target.src = img_placeholder; }}
                                       />
                                     </div>
                                     <div className="w-full h-full ml-3 flex flex-column justify-content-between white-space-nowrap overflow-hidden text-overflow-ellipsis">

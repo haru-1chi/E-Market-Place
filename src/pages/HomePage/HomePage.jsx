@@ -12,12 +12,12 @@ import axios from "axios";
 
 function HomePage() {
   const [categories, setCategories] = useState([]);
-  const apiCategory = import.meta.env.VITE_REACT_APP_API_CATEGORY;
+  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.post(`${apiCategory}/categories`);
-        const dataWithImages = response.data.map((category) => ({
+        const response = await axios.get(`${apiUrl}/product/tossagun/category/all`);
+        const dataWithImages = response.data.data.map((category) => ({
           ...category,
           icon: CategoriesIcon[category.name] || "default-image-url.png",
         }));
@@ -76,7 +76,7 @@ function HomePage() {
   ];
 
 
-  const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
+
   const apiProductUrl = import.meta.env.VITE_REACT_APP_API_PARTNER;
 
   const [data, setData] = useState([]);

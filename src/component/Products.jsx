@@ -15,21 +15,21 @@ function Products({ data, startIndex }) {
 
     useEffect(() => {
         const updateFlex = () => {
-          const width = window.innerWidth;
-          if (width <= 1199) {
-            setItemFlex('0 0 25%');
-          } else if (width <= 1400) {
-            setItemFlex('0 0 25%');
-          } else {
-            setItemFlex('0 0 20%');
-          }
+            const width = window.innerWidth;
+            if (width <= 1199) {
+                setItemFlex('0 0 25%');
+            } else if (width <= 1400) {
+                setItemFlex('0 0 25%');
+            } else {
+                setItemFlex('0 0 20%');
+            }
         };
-    
+
         window.addEventListener('resize', updateFlex);
         updateFlex();
-    
+
         return () => window.removeEventListener('resize', updateFlex);
-      }, []);
+    }, []);
 
     const showSuccessToast = () => {
         toast.current.show({
@@ -47,7 +47,7 @@ function Products({ data, startIndex }) {
         const token = localStorage.getItem("token");
         if (!token) {
             showWarningToast();
-            window.location.href = 'https://service.tossaguns.com/'
+            window.location.href = import.meta.env.VITE_APP_API_URL;
         } else {
             addToCart(product)
             showSuccessToast();
@@ -84,7 +84,8 @@ function Products({ data, startIndex }) {
                                                 : img_placeholder}`}
                                 alt={product.product_name}
                                 className="w-12 border-1 surface-border"
-                            />
+                                onError={(e) => { e.target.src = img_placeholder; }}
+                           />
                         </div>
                     </Link>
                 </div>
@@ -150,7 +151,7 @@ function Products({ data, startIndex }) {
                     itemTemplate={productTemplate}
                     pt={{
                         item: { style: { flex: itemFlex } },
-                      }}
+                    }}
                 />
 
             </div>

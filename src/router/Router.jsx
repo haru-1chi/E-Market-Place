@@ -18,6 +18,7 @@ import StatusShippingPage from "../pages/AccountPage/StatusShippingPage";
 import QRPage from "../pages/CheckoutPage/QRPage";
 import NoPage from "../pages/ErrorPage/NoPage";
 import Footer from "../component/Footer";
+import CookieConsentModal from '../component/CookieConsentModal';
 import LoginPage from "../pages/LoginPage/LoginPage";
 import RegisterPage from "../pages/RegisterPage/RegisterPage";
 import Navbar from "../component/Navbar";
@@ -25,7 +26,7 @@ import OrderSummaryPage from "./OrderSummaryPage";
 function Router() {
   return (
     <BrowserRouter>
-
+     
       <Routes>
         if (path != "LoginPage" && path != "LoginPage" )
         {
@@ -56,6 +57,7 @@ function Router() {
           </Route>
         }
       </Routes>
+      <CookieConsentModal />
     </BrowserRouter>
   );
 }

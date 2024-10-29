@@ -80,13 +80,13 @@ function ShopListProduct({ partner_id }) {
         const token = localStorage.getItem("token");
         if (!token) {
             showWarningToast();
-            window.location.href = 'https://service.tossaguns.com/'
+            window.location.href = import.meta.env.VITE_APP_API_URL;
         } else {
             addToCart(product)
             showSuccessToast();
         }
     };
-    
+
     return (
         <div>
             <Toast ref={toast} position="top-center" />
@@ -166,6 +166,7 @@ function ShopListProduct({ partner_id }) {
                                                             src={`${product.product_image ? apiProductUrl + product.product_image : product.product_subimage1 ? apiProductUrl + product.product_subimage1 : product.product_subimage2 ? apiProductUrl + product.product_subimage2 : product.product_subimage3 ? apiProductUrl + product.product_subimage3 : img_placeholder}`}
                                                             alt={product.product_name}
                                                             className="w-12 border-1 surface-border"
+                                                            onError={(e) => { e.target.src = img_placeholder; }}
                                                         />
                                                     </div>
                                                 </Link>

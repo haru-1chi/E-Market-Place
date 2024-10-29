@@ -31,6 +31,25 @@ function QRPage() {
     const [paymentStatus, setPaymentStatus] = useState(null);
     const totalPayable = cartDetails.amountPayment;
     const paymentUUID = "BCELBANK";
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const getUserProfile = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await axios.post(`${apiUrlPlatform}/me`, null, {
+                    headers: { "auth-token": token }
+                });
+                setUser(res.data.data);
+            } catch (err) {
+                console.error(
+                    "Error fetching user data",
+                    err.response?.data || err.message
+                );
+            }
+        };
+        getUserProfile();
+    }, [apiUrlPlatform, localStorage.getItem("token")]);
 
     const fileUploadRef = useRef(null);
 
@@ -47,8 +66,14 @@ function QRPage() {
     const handleCreateOrder = async () => {
         setLoading(true);
 
-        if (!productSubImage1) {
-            console.error("Please upload an image before submitting.");
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setError("User not authenticated. Please log in.");
+            setLoading(false);
+            return;
+        }
+
+        if (!productSubImage1 && cartDetails.payment === 'บัญชีธนาคาร') {
             setError("กรุณาอัปโหลดสลิปก่อนยืนยันการชำระเงิน");
             setLoading(false);
             return;
@@ -61,32 +86,51 @@ function QRPage() {
                 return;
             }
 
-            let formData = new FormData();
-            formData.append('image_slip', productSubImage1);
+            if (cartDetails.payment === 'บัญชีธนาคาร') {
+                let formData = new FormData();
+                formData.append('image_slip', productSubImage1);
 
-            try {
-                const slipValidationResponse = await axios.post(`${apiUrlPlatform}/check-slip`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                if (slipValidationResponse.data.status === false) {
-                    setError(slipValidationResponse.data.message || "Invalid slip payment.");
+                try {
+                    const slipValidationResponse = await axios.post(`${apiUrlPlatform}/check-slip`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+
+                    if (slipValidationResponse.status !== 200) {
+                        setError(slipValidationResponse.data.message || "Slip validation failed.");
+                        setLoading(false);
+                        return;
+                    }
+
+                    const slipData = slipValidationResponse.data.data;
+                    const paymentAmount = slipData.จำนวนเงิน;
+
+                    if (slipValidationResponse.data.status === false) {
+                        setError(slipValidationResponse.data.message || "Invalid slip payment.");
+                        setLoading(false);
+                        return;
+                    }
+
+                    if (paymentAmount < totalPayable) {
+                        const remainingAmount = totalPayable - paymentAmount;
+                        setError(`โอนเงินไม่ครบ กรุณาอัพโหลดสลิปชำระเงินที่เหลืออีกครั้งเป็นจำนวน ${remainingAmount} บาท หรือติดต่อแอดมิน`);
+                        setLoading(false);
+                        return;
+                    }
+
+                    console.log("Slip validated successfully:", slipValidationResponse.data);
+                } catch (error) {
+                    if (error.response) {
+                        setError(error.response.data.message || "Slip has already been used.");
+                    } else {
+                        console.error('Error validating slip payment:', error);
+                        setError("Slip validation failed. Please try again.");
+                    }
                     setLoading(false);
                     return;
                 }
-                console.log("Slip validated successfully:", slipValidationResponse.data);
-            } catch (error) {
-                if (error.response) {
-                    setError(error.response.data.message || "Slip has already been used.");
-                } else {
-                    console.error('Error validating slip payment:', error);
-                    setError("Slip validation failed. Please try again.");
-                }
-                setLoading(false);
-                return;
             }
-
             for (let partner_id in selectedItemsCart) {
                 const partner = selectedItemsCart[partner_id];
 
@@ -103,23 +147,59 @@ function QRPage() {
 
                 const deliveryToPurchase = cartDetails.delivery_detail
                     .filter(delivery => delivery.partner_id === partner.partner_id)
-                    .flatMap(delivery => delivery.byproducts_detail.map(byproduct => ({
-                        product_id: byproduct.product_id,
-                        delivery_company: byproduct.delivery_company,
-                        package_qty: byproduct.package_qty,
-                        package_weight: byproduct.package_weight,
-                        package_width: byproduct.package_width,
-                        package_length: byproduct.package_length,
-                        package_height: byproduct.package_height,
-                        delivery_price: byproduct.delivery_price,
-                    })));
+                    .flatMap(delivery =>
+                        delivery.byproducts_detail.flatMap(byproduct =>
+                            byproduct.packages.map(packageDetail => ({
+                                product_id: byproduct.product_id,
+                                delivery_company: packageDetail.delivery_company,
+                                package_qty: packageDetail.package_qty,
+                                package_weight: packageDetail.package_weight,
+                                package_width: packageDetail.package_width,
+                                package_length: packageDetail.package_length,
+                                package_height: packageDetail.package_height,
+                                delivery_price: packageDetail.delivery_price,
+                                delivery_totalprice: packageDetail.delivery_totalprice,
+                                amount: packageDetail.amount
+                            }))
+                        )
+                    );
 
-                const totaldeliveryPrice = deliveryToPurchase.reduce((total, delivery) => total + delivery.delivery_price, 0);
+                    const groupedDeliveries = deliveryToPurchase.reduce((acc, delivery) => {
+                        const existingProduct = acc.find(item => item.product_id === delivery.product_id);
+                    
+                        const duplicatedPackages = Array.from({ length: delivery.amount }, () => ({
+                            package_qty: delivery.package_qty,
+                            package_weight: delivery.package_weight,
+                            package_width: delivery.package_width,
+                            package_length: delivery.package_length,
+                            package_height: delivery.package_height,
+                            delivery_company: delivery.delivery_company,
+                            delivery_price: delivery.delivery_price,
+                            delivery_totalprice: delivery.delivery_totalprice,
+                            amount: 1,
+                        }));
+                    
+                        if (existingProduct) {
+                            existingProduct.packages.push(...duplicatedPackages);
+                        } else {
+                            acc.push({
+                                product_id: delivery.product_id,
+                                packages: duplicatedPackages
+                            });
+                        }
+                    
+                        return acc;
+                    }, []);
+
+                const totaldeliveryPrice = deliveryToPurchase.reduce((total, delivery) => total + delivery.delivery_totalprice, 0);
 
                 const newOrder = {
                     partner_id: partner.partner_id,
                     product: productsToPurchase,
-                    delivery_detail: deliveryToPurchase,
+                    delivery_detail: groupedDeliveries.map(delivery => ({
+                        product_id: delivery.product_id,
+                        packages: delivery.packages
+                    })),
                     customer_id: cartDetails.customer_id,
                     customer_name: cartDetails.customer_name,
                     customer_telephone: cartDetails.customer_telephone,
@@ -143,24 +223,49 @@ function QRPage() {
                     payment: cartDetails.payment,
                 };
                 console.log(newOrder)
-
+                localStorage.setItem('newOrder', JSON.stringify(newOrder)); //ไว้เช็ค data structure
+                // if (totalPayable > user.wallet) {
+                //     setError(`จำนวนเงินไม่เพียงพอ กรุณาเติมเงินให้เพียงพอแล้วทำรายการอีกครั้ง`);
+                //     return;
+                // }
                 const orderResponse = await axios.post(`${apiUrl}/orderproduct`, newOrder);
 
                 if (orderResponse.data && orderResponse.data.status) {
                     console.log("Order successful for partner:", partner.partner_name, orderResponse.data);
 
-                    try {
-                        setIsLoading(true);
-                        const uploadResponse = await axios.put(`${apiUrl}/orderproduct/addslippayment/${orderResponse.data.data._id}`, formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data',
-                            },
-                        });
-                        console.log('Upload successful:', uploadResponse.data);
-                    } catch (error) {
-                        console.error('Error uploading file:', error);
-                    } finally {
-                        setIsLoading(false);
+                    // if (cartDetails.payment === 'E-wallet') { รอ api และ body จริง
+                    //     const useCoupon = {
+                    //         ref_code: orderResponse.data.data.orderref,
+                    //         ref_type: "e-market",
+                    //         amount: totalPayable,
+                    //         user_id: cartDetails.customer_id,
+                    //     };
+
+                    //     console.log(useCoupon)
+                    //     try {
+                    //         const useCouponResponse = await axios.post(`${apiCoopUrl}/coupons/use`, useCoupon, {
+                    //             headers: { "auth-token": `bearer ${token}` },
+                    //         });
+                    //         console.log(useCouponResponse.data);
+                    //     } catch (error) {
+                    //         throw new Error("Coupon use failed.");
+                    //     }
+                    // }
+
+                    if (cartDetails.payment === 'บัญชีธนาคาร') {
+                        try {
+                            setIsLoading(true);
+                            const uploadResponse = await axios.put(`${apiUrl}/orderproduct/addslippayment/${orderResponse.data.data._id}`, formData, {
+                                headers: {
+                                    'Content-Type': 'multipart/form-data',
+                                },
+                            });
+                            console.log('Upload successful:', uploadResponse.data);
+                        } catch (error) {
+                            console.error('Error uploading file:', error);
+                        } finally {
+                            setIsLoading(false);
+                        }
                     }
                 } else {
                     setError(orderResponse.data.message || "Order failed");
@@ -170,7 +275,7 @@ function QRPage() {
             clearCart(cart, selectedItemsCart);
             clearCartDetails();
             clearSelectedItemsCart();
-            navigate("/PaymentSuccessfully");
+            window.location.href = '/PaymentSuccessfully';
         } catch (error) {
             console.error("Order error:", error.response?.data || error.message);
             setError(error.response?.data?.message || "An error occurred. Please try again.");
@@ -182,7 +287,6 @@ function QRPage() {
     const renderWalletDetails = () => (
         <>
             <div className="flex justify-content-center">
-                <p>E-wallet ล่ะ</p>
                 {/* {qrCodeUrl && (
                     <div>
                         <p className="m-0 p-0 text-center">Qr Code</p>
@@ -196,13 +300,28 @@ function QRPage() {
                 )} */}
             </div>
             <div className="flex">
-                <div className="flex-grow-1 flex flex-column text-center">
-                    <p className="m-0 mb-3 p-0 text-2xl font-bold">จำนวนเงิน(บาท)</p>
+                <div className="flex-grow-1 flex flex-column">
+                    <p className="m-0 mb-3 p-0 text-2xl font-bold text-center">รวมยอดชำระ(บาท)</p>
                     {totalPayable && (
-                        <p className="m-0 text-2xl font-bold">
+                        <p className="m-0 text-2xl font-bold text-center">
                             ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
                         </p>
                     )}
+                    <div className="pt-3 my-3 border-top-1 surface-border">
+                        <div className="flex align-items-start justify-content-between">
+                            <p className="m-0 p-0 text-xl font-semibold">ช่องทางชำระเงิน</p>
+                            <p className="m-0 text-lg">E-wallet</p>
+                        </div>
+                        {totalPayable && (
+                            <div className="flex align-items-center justify-content-between">
+                                <p className="m-0 text-lg font-normal">ยอดเงินปัจจุบัน</p>
+                                <p className="m-0 text-lg font-normal">
+                                    ฿{Number(user?.wallet.toFixed(2)).toLocaleString('en-US')}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                    {error && <p className="text-red-500 font-semibold text-center text-xl">{error}</p>}
                     {/* {qrCodeUrl && (
                         <div className="p-0 my-2 surface-200 border-round flex justify-content-center align-content-center">
                             <p className="my-3">ชำระเงินภายใน {remainingTime} seconds</p>
@@ -210,7 +329,6 @@ function QRPage() {
                     )} */}
                 </div>
             </div>
-            <p className="text-center">*กรุณาเปิดหน้านี้ไว้ จนกว่าชำระเงินนี้สำเร็จ</p>
         </>
     )
 
@@ -218,17 +336,6 @@ function QRPage() {
         <>
             <div className="flex justify-content-center">
                 <p>ตัวอย่าง QRcode</p>
-                {/* {qrCodeUrl && (
-                    <div>
-                        <p className="m-0 p-0 text-center">Qr Code</p>
-                        <img
-                            src={qrCodeUrl}
-                            alt="QR Code for payment"
-                            width={150}
-                            height={150}
-                        />
-                    </div>
-                )} */}
             </div>
             <div className="flex">
                 <div className="flex-grow-1 flex flex-column text-center">
@@ -238,14 +345,30 @@ function QRPage() {
                             ฿{Number(totalPayable.toFixed(2)).toLocaleString('en-US')}
                         </p>
                     )}
-                    {/* {qrCodeUrl && (
-                        <div className="p-0 my-2 surface-200 border-round flex justify-content-center align-content-center">
-                            <p className="my-3">ชำระเงินภายใน {remainingTime} seconds</p>
-                        </div>
-                    )} */}
+                    <div className="flex flex-column justify-content-center mb-3 mt-5">
+                        {error && <p className="text-red-500 font-semibold text-center text-xl">{error}</p>}
+                        {productSubImage1Preview && (
+
+                            <div className="text-center mb-2">
+                                <Image src={productSubImage1Preview} alt="Product Sub Image 1 Preview" width="350" preview />
+                            </div>
+                        )}
+                        <FileUpload
+                            ref={fileUploadRef}
+                            mode="basic"
+                            name="product_subimage1"
+                            chooseLabel="กรุณาแนบสลิปที่นี่"
+                            auto
+                            customUpload
+                            accept="image/png, image/jpeg,image/jpg"
+                            maxFileSize={2000000}  // 2MB
+                            onSelect={handleFileUpload}
+                            className="align-self-center"
+                            invalidFileSizeMessageDetail="ขนาดรูปภาพจะต้องไม่เกิน 2 mb"
+                        />
+                    </div>
                 </div>
             </div>
-            <p className="text-center">*กรุณาเปิดหน้านี้ไว้ จนกว่าชำระเงินนี้สำเร็จ</p>
         </>
     )
 

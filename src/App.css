@@ -53,6 +53,20 @@ body {
   font-variation-settings: "wdth" 100;
 }
 
+.cookie-modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
 .products-carousel-wrapper {
   position: relative;
   overflow-x: auto;

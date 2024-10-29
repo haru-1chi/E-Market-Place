@@ -184,7 +184,7 @@ function ProductPage() {
             <div className="md:w-full lg:w-30rem shadow-2 border-round-lg bg-white p-4 mb-3 lg:mb-0 flex justify-content-center">
               <div className="galleria-container">
                 <div className="galleria-main">
-                  <img src={currentImageURL} alt="Main" className="main-image" />
+                <img src={currentImageURL} alt="Main" className="main-image" onError={(e) => { e.target.src = img_placeholder; }}/>
                 </div>
                 <div className="galleria-thumbnails">
                   {data.map((item, index) => (
@@ -194,6 +194,7 @@ function ProductPage() {
                       alt={`Thumbnail ${index + 1}`}
                       className={`thumbnail ${currentImageURL === item.imgURL ? 'active' : ''}`}
                       onClick={() => handleThumbnailClick(item.imgURL)}
+                      onError={(e) => { e.target.src = img_placeholder; }}
                     />
                   ))}
                 </div>
