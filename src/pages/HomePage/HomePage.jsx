@@ -11,6 +11,7 @@ import CategoriesIcon from "../../component/CategoriesIcon";
 import axios from "axios";
 
 function HomePage() {
+  //im here at seconde jobber
   const [categories, setCategories] = useState([]);
   const apiUrl = import.meta.env.VITE_REACT_APP_API_PLATFORM;
   useEffect(() => {
@@ -126,7 +127,7 @@ function HomePage() {
       <div>
         <BannerSlider />
         <div className="block lg:hidden">
-          <div className="section-all-brand px-2 py-3 text-center gap-2 bg-yellow-100">
+          <div className="gap-2 px-2 py-3 text-center bg-yellow-100 section-all-brand">
             <Link
               to="List-Product"
               className="no-underline text-900"
@@ -135,7 +136,7 @@ function HomePage() {
                 <img
                   src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FL1_Makro_House_Brand_4a70c6e25a.png&w=32&q=75"
                   alt="สินค้าทุกหมวดหมู่"
-                  className="border-round-xl bg-white p-1 border-1 surface-border"
+                  className="p-1 bg-white border-round-xl border-1 surface-border"
                   width={40}
                   height={40}
                 />
@@ -151,16 +152,16 @@ function HomePage() {
 
         </div>
         <div className="mx-0 lg:mx-2">
-          <div className="bg-section-product lg:border-round-2xl flex justify-content-center">
+          <div className="flex bg-section-product lg:border-round-2xl justify-content-center">
             <img
               className="w-full lg:w-8"
               src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FFlash_Sale_Middle_Banner_TH_Electro_0e168c_d08d74be82.png&w=1200&q=90"
               alt=""
             />
           </div>
-          <div className="my-2 mx-3 md:mx-6 flex justify-content-between">
+          <div className="flex mx-3 my-2 md:mx-6 justify-content-between">
             <h2 className="m-0">สินค้าทั่วไป</h2>
-            <div className="flex align-items-center cursor-pointer" onClick={() => navigate("/List-Product", { state: { providerName: 'normal' } })}>
+            <div className="flex cursor-pointer align-items-center" onClick={() => navigate("/List-Product", { state: { providerName: 'normal' } })}>
               <p className="m-0">ดูเพิ่มเติม</p><i className="pi pi-chevron-right"></i>
             </div>
           </div>
@@ -169,7 +170,7 @@ function HomePage() {
         </div>
 
         <div className="hidden mt-5">
-          <div className="flex align-items-center justify-content-between pl-3 pr-3">
+          <div className="flex pl-3 pr-3 align-items-center justify-content-between">
             <span>
               <>ไอเท็มฮิต</>
             </span>
@@ -179,28 +180,28 @@ function HomePage() {
         </div>
 
         <div className="m-0 lg:m-2">
-          <div className="bg-section-new-product lg:border-round-2xl flex justify-content-center">
+          <div className="flex bg-section-new-product lg:border-round-2xl justify-content-center">
             <img
               className="w-full lg:w-8"
               src="https://www.makro.pro/_next/image?url=https%3A%2F%2Fstrapi-cdn.mango-prod.siammakro.cloud%2Fuploads%2FFlash_Sale_Fresh_Middle_TH_016100_8a83bd308a.png&w=1200&q=90"
               alt=""
             />
           </div>
-          <div className="my-2 mx-3 md:mx-6 flex justify-content-between">
+          <div className="flex mx-3 my-2 md:mx-6 justify-content-between">
             <h2 className="m-0">สินค้าสหกรณ์</h2>
-            <div className="flex align-items-center cursor-pointer" onClick={() => navigate("/List-Product", { state: { providerName: 'coop' } })}>
+            <div className="flex cursor-pointer align-items-center" onClick={() => navigate("/List-Product", { state: { providerName: 'coop' } })}>
               <p className="m-0">ดูเพิ่มเติม</p><i className="pi pi-chevron-right"></i>
             </div>
           </div>
 
           <Products data={coopData} startIndex={5} />
         </div>
-        <div className="hidden mt-4 pl-3 pr-3">
+        <div className="hidden pl-3 pr-3 mt-4">
           <span>
             <b>เปิดตัวแบรนด์ใหม่</b>
           </span>
-          <div className="flex category-scrllo w-full mt-4 justify-items-center">
-            <div className="flex justify-content-between sm:col-12 gap-3 section-all-brand">
+          <div className="flex w-full mt-4 category-scrllo justify-items-center">
+            <div className="flex gap-3 justify-content-between sm:col-12 section-all-brand">
               {newBrabd.map((item) => (
                 <Brand data={item} key={item.id} />
               ))}
@@ -208,7 +209,7 @@ function HomePage() {
           </div>
         </div>
         <div className="hidden">
-          <div className="flex align-items-center justify-content-between pl-3 pr-3">
+          <div className="flex pl-3 pr-3 align-items-center justify-content-between">
             <span>
               <b>ไอเท็มฮิต</b>
             </span>
@@ -225,7 +226,7 @@ function HomePage() {
           </div>
         </div>
         <div className="hidden">
-          <div className="flex align-items-center justify-content-between pl-3 pr-3">
+          <div className="flex pl-3 pr-3 align-items-center justify-content-between">
             <span>
               <b>ไอเท็มฮิต</b>
             </span>
